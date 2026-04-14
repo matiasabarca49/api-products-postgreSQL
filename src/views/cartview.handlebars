@@ -1,0 +1,50 @@
+<link rel="stylesheet" href="../../css/style.css">
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+          <a class="brand-link" href="http://localhost:8080/admin">Panel</a>
+        </div>
+        <div class="nav-actions">
+            <div class="user-name">{{userLoged.user}}</div>
+            {{#if userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/perfil">Ver Perfil</a>
+                </div>
+                <div>
+                        <a class="btn btn-light" href="/">Tienda</a>
+                </div>
+                <div>
+                    <a class="btn btn-danger" href="/api/sessions/logout">salir</a> 
+                </div>
+            {{/if}}
+            {{#unless userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/login">Login</a>
+                </div>
+            {{/unless}}
+        </div>
+    </nav>
+</header>
+<section class="container">
+    <div class="mt-5">
+        <a class="back-button" href="/admin"> Regresar </a>
+    </div>
+    <div class="m-5">
+        <h1 class="text-center">Vista Carrito</h1>
+        <form action="" class="d-flex justify-content-center align-items-center gap-2">
+            <div>
+                <label for="idCart">ID Carrito:</label>
+                <input class="rounded" type="text" id="IDCartToSearch">
+            </div>
+            <button class="principal-button" id="buttonCartID">Buscar</button>
+        </form>
+        <div class="m-5" id="infoID">
+
+        </div>
+        <div class="row gap-4 p-4 ms-4" id="contCart">
+
+        </div>
+        <div class="mx-5 fs-1" id="total"></div>
+    </div>
+</section>
+<script src="../js/cartview.js"></script>

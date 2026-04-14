@@ -1,0 +1,88 @@
+<link rel="stylesheet" href="../../css/style.css">
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+          <a class="brand-link" href="http://localhost:8080/admin">Panel</a>
+        </div>
+        <div class="nav-actions">
+            <div class="user-name">{{userLoged.user}}</div>
+            {{#if userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/perfil">Ver Perfil</a>
+                </div>
+                <div>
+                        <a class="btn btn-light" href="/">Tienda</a>
+                </div>
+                <div>
+                    <a class="btn btn-danger" href="/api/sessions/logout">salir</a> 
+                </div>
+            {{/if}}
+            {{#unless userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/login">Iniciar Sesión</a>
+                </div>
+            {{/unless}}
+        </div>
+    </nav>
+</header>
+<main>
+    <h1 class="first-text">Administración de la API</h1>
+    <div class="container-fluid">
+        <h2>Accesos:</h2>
+        <div class="mb-3 mt-3 ms-3">
+            <a class="principal-button" href="/admin/products"> Administración de Productos </a>
+            <a class="principal-button" href="/admin/users"> Administración de Usuarios </a>
+            <a class="principal-button" href="/admin/carts"> Ver Carritos </a>
+            <a class="principal-button" href="http://localhost:8080/apidocs"> Ver Documentación </a>
+        </div>
+    </div>
+    <div class="container-fluid mt-2">
+        <h2>Productos en la base de datos:</h2>
+        <div class="row gap-4 p-4 ms-4">
+            {{#each products }}
+                <div class=" col-2 col-6 col-sm-4 card  mb-3 flex-grow-1 shadow" style="max-width: 18rem;">
+                    <div class="card-header bg-transparent ">
+                        <p class="card-text"><small class="text-body-secondary">{{this.category}}</small>
+                        <p class="fw-light opacity-75" style="font-size: 14px;">ID: {{this.id}}</p>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fs-4 text-black fw-bold">{{this.title}}</h5>
+                        <p class="fs-6 fw-light opacity-75 mt-2">Propietario: {{this.owner}}</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center bg-transparent fs-4 text ">
+                        <div>
+                            ${{this.price}}
+                        </div>
+                        <div class="fs-6 fw-light opacity-75">Stock: {{this.stock}}</div>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+        </div>
+    </div>
+    <div class="container-fluid mt-2">
+        <h2>Usuarios en la base de datos:</h2>
+        <div class="row gap-4 p-4 ms-4">
+            {{#each users }}
+                <div class=" col-2 col-6 col-sm-4 card  mb-3 flex-grow-1 shadow" style="max-width: 18rem;">
+                    <div class="card-header bg-transparent ">
+                        <p class="fw-light opacity-75" style="font-size: 14px;">{{this.id}}</p>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title fs-4 text-black fw-bold">{{this.name}}</h5>
+                        <h5 class="card-title fs-4 text-black fw-bold">{{this.lastName}}</h5>
+                        <p class="card-text">{{this.email}}</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center bg-transparent fs-4 text ">
+                        <div>
+                            Rol: {{this.rol}}
+                        </div>
+                        <div class="fs-6 fw-light opacity-75">Age: {{this.age}}</div>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+        </div>
+    </div>
+</main>
+<script src="./js/home.js"></script>

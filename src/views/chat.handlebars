@@ -1,0 +1,24 @@
+<link rel="stylesheet" href="../css/style.css">
+<div>
+    <a class="btn" href="/"><img style="width: 30px; filter: invert(100%)" src="./img/home.png" alt="home"></a>
+</div>
+<div class="containerPageChat">
+        <div class="welcome">
+            <h1>Bienvenido al chat</h1>
+        </div>
+        <div id="contChats" class="contChatsStyle">
+            {{!-- Acá van los mensajes --}}
+            <span id="viewLastMsg"></span>
+        </div>
+        <form  id="form" >
+            <div class="sendMessage">
+                <input type="text" name="" id="text" placeholder="Escribe un mensaje" required>
+                <button><img src="./img/send.png" alt=""></button>  
+            </div>
+        </form>
+</div>
+<!--Script de socket.io para que nuestro index pueda utilizar los metodos del propio socket.io -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="sweetalert2.all.min.js"></script>
+<script src="../socket.io/socket.io.js"></script>
+<script src="../js/chat.js"></script>

@@ -1,0 +1,70 @@
+<link rel="stylesheet" href="../css/style.css">
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+          <a class="brand-link" href="http://localhost:8080/">Tienda</a>
+        </div>
+        <div class="nav-actions">
+            <div class="user-name">{{userLoged.user}}</div>
+            {{#if userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/perfil">Ver Perfil</a>
+                </div>
+                <div>
+                    <a class="btn btn-danger" href="/api/sessions/logout">salir</a> 
+                </div>
+            {{/if}}
+            {{#unless userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/login">Iniciar Sesión</a>
+                </div>
+            {{/unless}}
+            {{#if userLoged.user}}
+                {{#ifCond userLoged.rol "Admin"}}
+                    <div>
+                        <a class="btn icon-btn" href="/admin"><img class="nav-icon" src="../../img/configurar.png" alt="home"></a>
+                    </div>
+                {{else}}
+                    <div>
+                        <a class="btn icon-btn" href="../chat"><img class="nav-icon" src="../../img/chat.png" alt="home"></a>
+                    </div>
+                {{/ifCond}}
+            {{/if}}
+            {{#ifCond userLoged.rol "Premium"}}
+                <div>
+                    <a class="btn icon-btn" href="/admin/products"><img class="nav-icon" src="../../img/upload.png" alt="home"></a>
+                </div>
+            {{/ifCond}}
+        </div>
+        <div class="cart-container">
+            <a href="http://localhost:8080/pay" class="cart-btn">
+                <img class="cart-icon" src="../img/cart.png" />
+                <span class="cart-badge" id="totalCountNav">
+                    
+                </span>
+            </a>
+        </div>
+    </nav>
+</header>
+<div></div>
+<main class="container-fluid mt-5 position-relative">
+    <div class="p-4 bg-danger w-50 position-absolute top-0 start-50 translate-middle rounded shadow" style="display: none; z-index: 999;"id="modalWarningRolUser">  </div>
+    <a class="back-button" href="http://localhost:8080/"> Regresar </a>
+    <div class="row px-5">
+        <div  class="col-6 position-relative" id="thumbnail">
+            <h4 class="position-absolute text-body-tertiary mt-3 ms-3 p-2 bg-opacity-25 bg-body-tertiary rounded-5 shadow-lg" id="category"></h4>
+            <img src="../img/image.jpg" class="img-thumbnail" alt="...">
+        </div>
+        <div class="col-6 product-card">
+            <div class="card-body">
+                <h1 id="title" class="card-title my-3 fs-3"></h1>
+                <h2 id="price"class="card-price"></h2>
+                <p id="description" class="card_description"></p>
+                <h5 class="card_stock my-4" id="stock"></h5>
+                <button class="btn btn-success" id="addCart">Agregar al carrito</button>
+            </div>
+        </div>
+    </div>
+</main>
+<script src="../js/cart.js"></script>
+<script src="../js/productview.js"></script>

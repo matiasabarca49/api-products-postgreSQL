@@ -1,0 +1,64 @@
+<link rel="stylesheet" href="../../css/style.css">
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a class="brand-link" href="http://localhost:8080/">Tienda</a>
+        </div>
+        <div class="nav-actions">
+            <div class="user-name">{{userLoged.user}}</div>
+            {{#if userLoged.user}}
+                
+            {{/if}}
+            {{#unless userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/login">Login</a>
+                </div>
+            {{/unless}}
+        </div>
+    </nav>
+</header>
+
+<main class="main-container">
+    <!-- Modal de procesamiento de compra -->
+    <div id="processPurchase" class="purchase-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <h3 class="modal-title">Procesando Compra...</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón de regreso -->
+    <div class="back-button-container">
+        <a href="http://localhost:8080/" class="back-button">
+            <svg class="home-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.42-1.41L7.83 13H20v-2z"/>
+            </svg>
+            Regresar
+        </a>
+    </div>
+
+    <!-- Título principal -->
+    <h1 class="cart-title">Finalizar Compra</h1>
+
+    <!-- Contenedor de productos del carrito -->
+    <section class="cart-items-section" id="cartCont">
+        {{!-- Aquí se renderizan los productos --}}
+    </section>
+
+    <!-- Línea divisoria -->
+    <div class="divider"></div>
+
+    <!-- Sección de total -->
+    <section class="total-section">
+        <div class="total-label">Total:</div>
+        <div class="total-amount" id="totalShopping">$0.00</div>
+    </section>
+
+    <!-- Contenedor para métodos de pago -->
+    <div class="payment-container" id="contToPay">
+        <!-- Aquí irán los métodos de pago -->
+    </div>
+</main>
+<script src="../js/pay.js"></script>

@@ -1,0 +1,201 @@
+paths:
+  /api/carts/:
+    post:
+      summary: "Agregar un carrito a la Base de Datos"
+      tags:
+        - Carts
+      responses:
+        "201":
+          description: "El carrito fue agregado existosamente."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Cart"
+
+        "400":
+          description: "Error en la obtencion de los productos."
+  /api/carts/{cid}:
+    get:
+      summary: "Obtener carrito por ID"
+      tags:
+        - Carts
+      parameters:
+      - name: cid
+        in: path
+        required: true
+        description: "ID del carrito"
+        schema: 
+          $type: String
+      responses:
+        "200":
+          description: "El carrito fue obtenido existosamente."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Cart"
+
+        "404":
+          description: "Carrito no encontrado"
+    put:
+      summary: "Actualizar un carrito completo en la Base de Datos"
+      tags:
+        - Carts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "ID del carrito"
+        schema: 
+          $type: String
+      responses:
+        "200":
+          description: "Carrito actualizado exitosamente"
+        "400":
+          description: 'El carrito no existe'
+    delete:
+      summary: "Borrar un carrito completo de la Base de Datos"
+      tags:
+        - Carts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "ID del carrito"
+        schema: 
+          $type: String
+      responses:
+        "200":
+          description: "carrito borrado exitosamente"
+        "404":
+          description: 'El carrito no existe o no tienes permiso'
+  /api/carts/{cid}/purchase:
+    get:
+      summary: "Generar la compra del usuario y almacenarla en la Base de datos"
+      tags:
+        - Carts
+      parameters:
+      - name: cid
+        in: path
+        required: true
+        description: "ID del carrito"
+        schema: 
+          $type: String
+      responses:
+        "201":
+          description: "El carrito fue obtenido existosamente."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Cart"
+
+        "500":
+          description: "Error en el proceso de generar la compra"
+  /api/carts/{cid}/product/{pid}:
+    post:
+      summary: "Agregar un producto a un carrito de la Base de Datos"
+      tags:
+        - Carts
+      parameters:
+      - name: cid
+        in: path
+        required: true
+        description: "ID del carrito"
+        schema: 
+          $type: String
+      - name: pid
+        in: path
+        required: true
+        description: "ID del producto"
+        schema: 
+          $type: String
+      responses:
+        "201":
+          description: "El producto fue agregado existosamente."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Cart"
+
+        "404":
+          description: "Carrito no encontrado o el id del producto no existe"
+    put:
+      summary: "Actualizar la cantidad de un producto de un carrito en la Base de Datos"
+      tags:
+        - Carts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "ID del carrito"
+        schema: 
+          $type: String
+      - name: pid
+        in: path
+        required: true
+        description: "ID del producto"
+        schema: 
+          $type: String
+      responses:
+        "200":
+          description: "Producto en carrito actualizado exitosamente"
+        "400":
+          description: 'El carrito no existe o el producto no existe'
+    delete:
+      summary: "Borrar un producto de un carrito en la Base de Datos"
+      tags:
+        - Carts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "ID del carrito"
+        schema: 
+          $type: String
+      - name: pid
+        in: path
+        required: true
+        description: "ID del producto"
+        schema: 
+          $type: String
+      responses:
+        "200":
+          description: "carrito borrado exitosamente"
+        "404":
+          description: 'El carrito no existe o no tienes permiso'
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        _id: 
+          type: objectId
+          description: "ID MongoDB"
+        dateCart: 
+          type: String
+          description: "Fecha en la que se créo el carrito"
+        products: 
+          type: Array
+          description: "Array que contiene los productos"
+      example:
+        dateCart: "25/07/2022"
+        products:
+          product: 
+            title: Guante Rojo
+            description: Este es un producto prueba
+            price: 7000
+            thumbnail: https://ruta_imagen/producto
+            code: l24fdw
+            stock: 100
+            status: true
+            category: Ropa
+            owner: Admin
+          quantity: 2
+          

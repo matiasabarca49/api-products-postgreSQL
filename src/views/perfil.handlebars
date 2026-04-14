@@ -1,0 +1,90 @@
+<link rel="stylesheet" href="../../css/style.css">
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+          <a class="brand-link" href="http://localhost:8080/">Tienda</a>
+        </div>
+        <div class="nav-actions">
+            <div class="user-name">{{userLoged.user}}</div>
+            {{#if userLoged.user}}
+                <div>
+                    <a class="btn btn-danger" href="/api/sessions/logout">salir</a> 
+                </div>
+            {{/if}}
+            {{#unless userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/login">Iniciar Sesión</a>
+                </div>
+            {{/unless}}
+            {{#ifCond userLoged.rol "Admin"}}
+                <div>
+                    <a class="btn icon-btn" href="/admin"><img class="nav-icon" src="../../img/configurar.png" alt="home"></a>
+                </div>
+            {{else}}
+                <div>
+                    <a class="btn icon-btn" href="../chat"><img class="nav-icon" src="../../img/chat.png" alt="home"></a>
+                </div>
+            {{/ifCond}}
+            {{#ifCond userLoged.rol "Premium"}}
+                <div>
+                    <a class="btn icon-btn" href="/realtimeproducts"><img class="nav-icon" src="../../img/upload.png" alt="home"></a>
+                </div>
+            {{/ifCond}}
+        </div>
+    </nav>
+</header>
+<div class="mx-5 mt-5">
+    <a class="back-button" href="/"> Regresar </a>
+    <div class="profile-container">
+        <h1 class="profile-main-title">Datos del Perfil:</h1>
+        <div class="profile-card">
+            <div class="profile-field">
+                <span class="profile-label">Nombre:</span>
+                <span class="profile-value">{{userLoged.user}}</span>
+            </div>
+            <div class="profile-field">
+                <span class="profile-label">Apellido:</span>
+                <span class="profile-value">{{userLoged.lastName}}</span>
+            </div>
+            <div class="profile-field">
+                <span class="profile-label">Edad:</span>
+                <span class="profile-value">{{userLoged.age}}</span>
+            </div>
+            <div class="profile-field">
+                <span class="profile-label">Email:</span>
+                <span class="profile-value">{{userLoged.email}}</span>
+            </div>
+            <div class="profile-field">
+                <span class="profile-label">Permisos a nivel de:</span>
+                <span class="profile-value profile-role">{{userLoged.rol}}</span>
+            </div>
+        </div>
+    </div>
+<div class="purchase-history-container">
+    <h3 class="purchase-history-title">Historial de compras:</h3>
+    <div id="compras">
+        {{#each userLoged.purchases }}
+            <div class="purchase-item">
+                <div class="purchase-header">
+                    <div class="purchase-date">{{this.dateCart}}</div>
+                </div>
+                <div class="purchase-products">
+                    {{#each this.cart}}
+                        <div class="purchase-product-card">
+                            <div class="purchase-card-header">
+                                <p class="purchase-card-category">{{this.product.category}}</p>
+                            </div>
+                            <div class="purchase-card-body">
+                                <h5 class="purchase-card-title">{{this.product.title}} x {{this.quantity}}</h5>
+                            </div>
+                            <div class="purchase-card-footer">
+                                <div class="purchase-card-price">${{this.product.price}}</div>
+                            </div>
+                        </div>
+                    {{/each}}
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>
+</div>

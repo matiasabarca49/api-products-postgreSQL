@@ -1,0 +1,155 @@
+paths:
+  /mockingproducts:
+    get:
+      summary: "Obtener mocks de productos"
+      tags:
+        - Products
+      responses:
+        "200":
+          description: "Los productos fueron obtenido existosamente."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Product"
+
+        "500":
+          description: "Falló el servidor"
+  /api/products/:
+    get:
+      summary: "Obtener todos los productos. Los mismos son obtenidos por páginas con un máximo de 10 productos por página"
+      tags:
+        - Products
+      responses:
+        "200":
+          description: "Los productos fueron obtenido existosamente."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Product"
+
+        "400":
+          description: "Error en la obtencion de los productos."
+    post:
+      summary: "Agregar un producto nuevo a la Base de Datos"
+      tags:
+        - Products
+      responses:
+        "201":
+          description: "El producto se creo y se almacenó en la base de datos exitosamente"
+        "400":
+          description: 'Campos faltantes, campo "CODE" repetido, campos mal escritos o el stock es inválido'
+  /api/products/manyproducts: 
+    post:
+      summary: "Agregar varios productos a la Base de Datos"
+      tags:
+        - Products
+      responses:
+        "201":
+          description: "Productos agregados exitosamente"
+        "400":
+          description: 'Campos faltantes o mal escritos'
+  /api/products/{id}:
+    get:
+      summary: "Obtener producto por ID"
+      tags:
+        - Products
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "ID del producto"
+        schema: 
+          $type: String
+      responses:
+        "200":
+          description: "El producto fue obtenido existosamente."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Product"
+
+        "404":
+          description: "Producto no encontrado"
+    put:
+      summary: "Actualizar un producto de la Base de Datos"
+      tags:
+        - Products
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "ID del producto"
+        schema: 
+          $type: String
+      responses:
+        "200":
+          description: "Producto actualizado exitosamente"
+        "400":
+          description: 'Al producto le faltan campos o no existe'
+    delete:
+      summary: "Borrar un producto de la Base de Datos"
+      tags:
+        - Products
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "ID del producto"
+        schema: 
+          $type: String
+      responses:
+        "200":
+          description: "Producto borrado exitosamente"
+        "404":
+          description: 'El producto no existe o no tienes permiso'
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id: 
+          type: objectId
+          description: "ID MongoDB"
+        title: 
+          type: String
+          description: "Nombre del Producto"
+        description: 
+          type: String
+          description: "Descripcion del Producto"
+        price: 
+          type: Number
+          description: "Precio del Producto"
+        thumbnail: 
+          type: String
+          description: "Ruta de imagen del Producto"
+        code: 
+          type: String
+          description: "Identificador del propio Producto"
+        stock: 
+          type: Number
+          description: "Stock del Producto"
+        status: 
+          type: Boolean
+          description: "Uso Interno de la API"
+        category: 
+          type: String
+          description: "Las categorias son: Tecnología, Ropa, Bazar,Accesorios,Calzado"
+        owner: 
+          type: String
+          description: "Usuario que creó el producto"
+      example:
+        title: Guante Rojo
+        description: Este es un producto prueba
+        price: 7000
+        thumbnail: https://ruta_imagen/producto
+        code: l24fdw
+        stock: 100
+        status: true
+        category: Ropa
+        owner: Admin

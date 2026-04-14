@@ -1,0 +1,30 @@
+<link rel="stylesheet" href="../../css/style.css">
+<div>
+    <a class="btn filter-icon" href="/"><img style="width: 30px;" src="../../img/home.png" alt="home"></a>
+</div>
+<div class='container block-component'>
+    <h1 class='first-text'>Iniciar Sesión</h1>
+    <a class='btn btn-light m-auto' href="http://localhost:8080/auth/github">Ingresar con Github</a>
+    {{#if githubError}}
+            <div class="text-danger">No se pudo ingresar con Github</div>
+        {{/if}}
+    <form  class="container pt-4" action="/api/sessions/login" method="post" >
+        <div class="my-2">
+            <label htmlFor="">Email:</label>
+            <input class='w-100 ' type="text" name="email" required/>
+        </div>
+        <div class="my-2">
+            <label htmlFor="">Contraseña:</label>
+            <input class="w-100" type="password" name="password" required/>
+        </div>
+        {{#if error}}
+            <div class="text-danger">Contraseña o email erróneos</div>
+        {{/if}}
+        <button class='btn-success my-2'>Ingresar</button>
+    </form>
+    <a class="text-decoration-none text-white m-2 " href="/users/forgetpassword">¿Olvidaste la constraseña?</a>
+</div>
+<div class="container mt-3">
+    <a class="btn btn-danger" href="/users/register"> Registrarse</a>
+    <a class="btn btn-danger" href="/"> Ir a la tienda</a>
+</div>

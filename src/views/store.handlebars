@@ -1,0 +1,84 @@
+<link rel="stylesheet" href="../css/style.css">
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+          <a class="brand-link" href="http://localhost:8080/">Tienda</a>
+        </div>
+        <div class="nav-actions">
+            <div class="user-name">{{userLoged.user}}</div>
+            {{#if userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/perfil">Ver Perfil</a>
+                </div>
+                <div>
+                    <a class="btn btn-danger" href="/api/sessions/logout">salir</a> 
+                </div>
+            {{/if}}
+            {{#unless userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/login">Iniciar Sesión</a>
+                </div>
+            {{/unless}}
+            {{#if userLoged.user}}
+                {{#ifCond userLoged.rol "Admin"}}
+                    <div>
+                        <a class="btn icon-btn" href="/admin"><img class="nav-icon" src="./img/configurar.png" alt="home"></a>
+                    </div>
+                {{else}}
+                    <div>
+                        <a class="btn icon-btn" href="chat"><img class="nav-icon" src="./img/chat.png" alt="home"></a>
+                    </div>
+                {{/ifCond}}
+            {{/if}}
+            {{#ifCond userLoged.rol "Premium"}}
+                <div>
+                    <a class="btn icon-btn" href="/admin/products"><img class="nav-icon" src="../../img/upload.png" alt="home"></a>
+                </div>
+            {{/ifCond}}
+        </div>
+        <div class="cart-container">
+            <a href="http://localhost:8080/pay" class="cart-btn">
+                <img class="cart-icon" src="../img/cart.png" />
+                <span class="cart-badge" id="totalCountNav">
+                    
+                </span>
+            </a>
+        </div>
+    </nav>
+</header>
+<main class="main-container">
+    <div id="modalAfterPurchase" class="purchase-modal-store">
+        <h3 class="modal-title">Gracias por comprar en la Tienda</h3>
+        <p class="modal-text">Podrá ver la compra en su perfil junto a su historial completo de compras</p>
+    </div>
+    <div class="welcome-text">
+        Bienvenido al Market {{userLoged.user}}
+    </div>
+    <div class="products-header">
+        <h2 class="products-title">Productos:</h2>
+        <div class="filter-buttons">
+            <button class="filter-btn" id="productAll">Todos</button>
+            <button class="filter-btn" id="productRopa">Ropa</button>
+            <button class="filter-btn" id="productTecno">Tecnología</button>
+            <button class="filter-btn" id="productAsc">Ascendente</button>
+            <button class="filter-btn" id="productDesc">Descendente</button>
+        </div>
+    </div>
+    <div class="products-grid" id="products">
+
+    </div>
+    <div class="pagination-container">
+        <ul class="pagination">
+            <li class="page-item">
+                <div class="page-btn" id="prevPag">prev</div>
+            </li>
+            
+            <li class="page-item"><a class="page-link" id="currtPag"></a></li>
+            <li class="page-item">
+            <div class="page-btn" id="nextPag">next</div>
+            </li>
+        </ul>
+    </div>
+</main>
+<script src="./js/cart.js"></script>
+<script src="./js/store.js"></script>

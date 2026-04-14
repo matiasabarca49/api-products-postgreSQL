@@ -1,0 +1,39 @@
+<link rel="stylesheet" href="../../css/style.css">
+<div>
+    <a class="btn filter-icon" href="/"><img style="width: 30px;" src="../../img/home.png" alt="home"></a>
+</div>
+<div class='container mt-5 block-component'>
+    <h1 class='first-text'>Registrarse en la tienda</h1>
+    <form  class="container" action="/api/sessions/register" method="post" >
+        <div class="d-flex gap-2">
+            <div class="flex-grow-1">
+                <label htmlFor="">Nombre:</label>
+                <input class='w-100' type="text" name="name" required/>
+            </div>
+            <div class="flex-grow-1">
+                <label htmlFor="">Apellido:</label>
+                <input class='w-100' type="text" name="lastName" required/>
+             </div>
+        </div>
+        <div>
+            <label htmlFor="">Edad:</label>
+            <input class='w-100' type="text" name="age" required/>
+        </div>
+        <div>
+            <label htmlFor="">Email:</label>
+            <input class='w-100' type="text" name="email" required/>
+        </div>
+        <div>
+            <label htmlFor="">Contraseña:</label>
+            <input class="w-100" type="password" name="password" required/>
+        </div>
+        {{#if error}}
+            <div class="m-2 text-danger">El usuario ya está registrado o campos incompletos</div>
+        {{/if}}
+        <button class='btn-success my-2'>Registrarse</button>
+    </form>
+</div>
+<div class="container mt-3">
+    <a class="btn btn-danger" href="/users/login"> Ya estoy registrado</a>
+    <a class="btn btn-danger" href="/"> Ir a la tienda</a>
+</div>

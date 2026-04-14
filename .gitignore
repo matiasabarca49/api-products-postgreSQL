@@ -1,0 +1,17 @@
+#Archivos o carpetas ignorados
+
+#Datos
+/data
+/data/*.json
+
+#Modulos
+/node_modules
+
+#dotenv
+.env
+
+#errores
+errors.log
+
+# Ignorar configuraciones locales de VS Code
+.vscode/

@@ -1,0 +1,41 @@
+<link rel="stylesheet" href="../../css/style.css">
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+          <a class="brand-link" href="http://localhost:8080/">Tienda</a>
+        </div>
+        <div class="nav-actions">
+            <div class="user-name">{{userLoged.user}}</div>
+            {{#if userLoged.user}}
+                <div>
+                    <a class="btn btn-danger" href="/api/sessions/logout">salir</a> 
+                </div>
+            {{/if}}
+            {{#unless userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/login">Login</a>
+                </div>
+            {{/unless}}
+        </div>
+    </nav>
+</header>
+<section class="container">
+    <div class="m-5">
+        <h1 class="text-center">Gracias por la compra</h1>
+        <div class="m-5" id="infoID">
+
+        </div>
+        <h4 class="text-center">Productos Comprados</h4>
+        <div class="row gap-4 p-4 ms-4 purchase-item" >
+            <div class="purchase-products" id="contCart">
+
+            </div>
+        </div>
+        <div class="mx-5 fs-1" id="total"></div>
+        <div class="m-5 text-center fs-4">
+            <div id="mailID"></div>
+            <a  class="btn btn-success" href="http://localhost:8080/">Seguir Comprando</a>
+        </div>
+    </div>
+</section>
+<script src="../js/ticket.js"></script>

@@ -1,0 +1,142 @@
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../css/users-admin.css">
+
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a class="brand-link" href="http://localhost:8080/admin">Panel</a>
+        </div>
+        <div class="nav-actions">
+            <div class="user-name">{{userLoged.user}}</div>
+            {{#if userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/perfil">Ver Perfil</a>
+                </div>
+                <div>
+                    <a class="btn btn-light" href="/">Tienda</a>
+                </div>
+                <div>
+                    <a class="btn btn-danger" href="/api/sessions/logout">salir</a> 
+                </div>
+            {{/if}}
+            {{#unless userLoged.user}}
+                <div>
+                    <a class="btn btn-light" href="/users/login">Iniciar Sesión</a>
+                </div>
+            {{/unless}}
+        </div>
+    </nav>
+</header>
+
+<!-- Error/Success Message -->
+<div id="errorMessage" class="error-message">
+    <h3 style="margin: 0; font-weight: bold;">Error</h3>
+    <p id="errorText" style="margin: 0.5rem 0 0 0;"></p>
+</div>
+
+<!-- Main Container -->
+<div class="main-container">
+    <div class="back-button-container">
+        <a class="back-button" href="/admin">← Regresar</a>
+    </div>
+
+    <!-- Users Header -->
+    <div class="users-header">
+        <h2 class="users-title">Usuarios en la base de datos</h2>
+        <div class="filter-controls">
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Buscar por nombre, email o ID..."
+                >
+            </div>
+            
+            <div class="filter-group">
+                <label>Filtrar por Rol</label>
+                <select id="roleFilter" class="filter-select">
+                    <option value="">Todos</option>
+                    <option value="User">User</option>
+                    <option value="Premium">Premium</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Ordenar por</label>
+                <select id="sortBy" class="filter-select">
+                    <option value="name">Nombre</option>
+                    <option value="email">Email</option>
+                    <option value="age">Edad</option>
+                    <option value="rol">Rol</option>
+                </select>
+            </div>
+
+            <button class="add-user-btn" id="addUserBtn">
+                <span>+</span> Agregar Usuario
+            </button>
+        </div>
+    </div>
+
+    <!-- Users Grid -->
+    <div id="usersGrid" class="users-grid">
+        <!-- Users will be rendered here -->
+    </div>
+</div>
+
+<!-- Modal for Add/Edit User -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Agregar Usuario</h2>
+            <button class="close-modal" id="closeModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                
+                <div class="form-group">
+                    <label for="userName">Nombre</label>
+                    <input type="text" id="userName" required placeholder="Ingrese el nombre">
+                </div>
+
+                <div class="form-group">
+                    <label for="userLastName">Apellido</label>
+                    <input type="text" id="userLastName" required placeholder="Ingrese el apellido">
+                </div>
+
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" required placeholder="usuario@ejemplo.com">
+                </div>
+
+                <div class="form-group" id="passwordGroup">
+                    <label for="userPassword">Contraseña</label>
+                    <input type="password" id="userPassword" placeholder="Ingrese la contraseña">
+                </div>
+
+                <div class="form-group">
+                    <label for="userAge">Edad</label>
+                    <input type="number" id="userAge" placeholder="Ingrese la edad">
+                </div>
+
+                <div class="form-group">
+                    <label for="userRole">Rol</label>
+                    <select id="userRole" required>
+                        <option value="User">User</option>
+                        <option value="Premium">Premium</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancelBtn">Cancelar</button>
+                    <button type="submit" class="save-btn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="../js/users.js"></script>
