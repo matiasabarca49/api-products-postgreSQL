@@ -82,7 +82,7 @@
                 <option value="48">48</option>
             </select>
         </div>
-        <a class="btn btn-success add-product-btn" href="/admin/products/add">
+        <a class="btn btn-success add-product-btn" id="addProduct">
             <span>+</span> Agregar producto
         </a>
     </div>
@@ -102,37 +102,64 @@
             </li>
         </ul>
     </div>
-    <div id="editProductModal" class="modal">
+    <div id="ProductModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Editar Producto</h2>
+                <h2 id="modalTitle">Editar Producto</h2>
                 <span class="close-modal">&times;</span>
             </div>
             <div class="modal-body">
-                <form id="editProductForm">
+                <form id="ProductForm">
                     <div class="form-group">
-                        <label for="editTitle">Título</label>
-                        <input type="text" id="editTitle" name="title" required>
+                        <label for="Title">Título</label>
+                        <input type="text" id="titleId" name="title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="categoryId" required>Categoría</label>
+                        <select id="categoryId" name="category">
+                            <option value="Bazar">Bazar</option>
+                            <option value="Ropa">Ropa</option>
+                            <option value="Tecnología">Tecnología</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="code">Code</label>
+                        <input type="text" id="codeId" name="code" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="editCategory">Categoría</label>
-                        <input type="text" id="editCategory" name="category" required>
+                        <label for="Price">Precio</label>
+                        <input type="number" id="priceId" name="price" step="0.01" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="editPrice">Precio</label>
-                        <input type="number" id="editPrice" name="price" step="0.01" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="editDescription">Descripción</label>
-                        <textarea id="editDescription" name="description" rows="4"></textarea>
+                        <label for="Description">Descripción</label>
+                        <textarea id="descriptionId" name="description" rows="4"></textarea>
                     </div>
                     
                     <div class="form-group">
                         <label for="editStock">Stock</label>
-                        <input type="number" id="editStock" name="stock" min="0" required>
+                        <input type="number" id="stockId" name="stock" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="thumbnailId">Thumbnail</label>
+                        <input type="text" id="thumbnailId" name="thumbnail" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="statusId">Status</label>
+                        <select id="statusId" name="status">
+                            <option value="false">false</option>
+                            <option value="true">true</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editStock">Owner</label>
+                        <input type="text" id="ownerId" name="owner" min="0" required>
                     </div>
                     
                     <div class="modal-actions">

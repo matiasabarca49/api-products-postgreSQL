@@ -13,6 +13,25 @@ class PurchaseService {
         this.ticketService = new TicketService()
     }
 
+    async checkout(idUser){
+        //1 Obtener productos agregados al carrito
+        const cartItems = await this.cartItemService.getCartItemsByUser(idUser);
+        //2 - Verificar Stock
+        const results = await Promise.all(
+            cartItems.map(async item => ({
+                ...item,
+                hasStock: await this.productService.verifyStock(item.id, item.quantity)
+            }))
+        );
+
+        const withStock = results.filter(item => item.hasStock);
+        const withoutStock = results.filter(item => !item.hasStock);
+
+        console.log(withoutStock)
+
+        return await this.repository.checkout(idUser, withStock);
+    }
+
     async purchase(idUser){
         /* 
         1-Obtener cart_items del usuario
@@ -29,9 +48,12 @@ class PurchaseService {
         const cartItems = await this.cartItemService.getCartItemsByUser(idUser);
         console.log("CartItems:", cartItems);
         //2-Verificar stock por cada producto — los que no tienen stock se separan
+
         //3-Crear registro en carts y 4-Insertar en cart_products los productos que sí tienen stock
         const newCart = await this.cartService.create(cartItems);
         console.log("Carrito creado: ", newCart);
+        //5- Descontar Stock
+
         //6-Crear registro en purchases vinculando user + cart
         const purchase = await this.repository.create(idUser, newCart);
         console.log("Purchase: ", purchase)

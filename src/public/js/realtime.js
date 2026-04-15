@@ -33,15 +33,13 @@ const addProduct = (  )=>{
         category: document.getElementById('category').value,
         owner: document.getElementById('owner').value
     }
-    socket.emit('newProductToBase', newProduct )
+
     return false
 }
 
-const socket = io()
 
-socket.on('sendProducts', (data)=>{
-    render(data)
-})
+
+
 
 
 

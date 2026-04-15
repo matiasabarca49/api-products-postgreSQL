@@ -196,6 +196,26 @@ class ProductsRepository{
         return result.rows[0] ?? null
     }
 
+    async updateStock(cartItems){
+        try{
+
+            const promises = [];
+
+            cartItems.forEach( item =>{
+               promises.push(
+                    this.pool.query(
+                        `UPDATE products SET stock= stock - 1$ WHERE id=$2`,
+                    [item.quantity, item.id]) 
+                )
+            })
+
+            await Promise.all(promises);
+
+        }catch(error){
+            throw error
+        }
+    }
+
     async delete(id) {
         const result = await this.pool.query(
             `DELETE FROM products
@@ -204,6 +224,25 @@ class ProductsRepository{
             [id]
         )
         return result.rows[0] ?? null
+    }
+
+    async verifyStock(product_id, quantity){
+        try{
+            const {rows} = await this.pool.query(
+                `SELECT stock FROM products WHERE id=$1`,
+                [product_id]
+            )
+
+            console.log("rows[0]: ", rows[0])
+
+            if (!rows[0]) throw new Error('Producto no encontrado');
+            return rows[0].stock >= quantity;
+
+        }catch(error){
+            console.log(error)
+            throw(error);
+        }
+
     }
 
 }

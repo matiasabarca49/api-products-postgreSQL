@@ -63,28 +63,8 @@
 <div class="purchase-history-container">
     <h3 class="purchase-history-title">Historial de compras:</h3>
     <div id="compras">
-        {{#each userLoged.purchases }}
-            <div class="purchase-item">
-                <div class="purchase-header">
-                    <div class="purchase-date">{{this.dateCart}}</div>
-                </div>
-                <div class="purchase-products">
-                    {{#each this.cart}}
-                        <div class="purchase-product-card">
-                            <div class="purchase-card-header">
-                                <p class="purchase-card-category">{{this.product.category}}</p>
-                            </div>
-                            <div class="purchase-card-body">
-                                <h5 class="purchase-card-title">{{this.product.title}} x {{this.quantity}}</h5>
-                            </div>
-                            <div class="purchase-card-footer">
-                                <div class="purchase-card-price">${{this.product.price}}</div>
-                            </div>
-                        </div>
-                    {{/each}}
-                </div>
-            </div>
-        {{/each}}
+        {{!-- Aca van las compras --}}
     </div>
 </div>
 </div>
+<script src="../js/profile.js" ></script>

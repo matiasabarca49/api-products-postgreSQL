@@ -57,6 +57,11 @@ class ProductsService{
   }
 
   async create(document){
+
+        if(document.category){
+          document.category_id = await this.repository.findCategoryByName(document.category);
+          delete document.category;
+        }
         //Formateamos el documento y lo creamos en la base de datos
         const documentCreated = await this.repository.create(this.toFormatDTO(document))
 
@@ -127,6 +132,12 @@ class ProductsService{
     } else {
         throw new Error("No tienes permisos para eliminar este producto");
     }
+  }
+
+  async verifyStock(product_id, quantity){
+      console.log("product_id: ", product_id)
+      console.log("quantity: ", quantity)
+      return await this.repository.verifyStock(product_id, quantity);
   }
 
   /**

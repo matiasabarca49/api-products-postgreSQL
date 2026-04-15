@@ -18,8 +18,6 @@ class CartItemRepository{
                 `
                 , [idUser]);
     
-            console.log("Cart items obtenidos para el usuario ", idUser, ": ", resutl.rows);
-    
             return resutl.rows ?? [];
         }
         catch(error){

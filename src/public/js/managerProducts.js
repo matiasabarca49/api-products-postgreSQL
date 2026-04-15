@@ -79,52 +79,98 @@ const fetchProductsSearch = (search)=>{
     })
 }
 
-function deleteProduct(productId) {
-    if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-        console.log('Eliminando producto:', productId);
-        fetch(`http://localhost:8080/api/products/${productId}`,{  
-                method : "DELETE",
-                credentials : "include", // to send HTTP only cookies
-                headers: {
-                 "Content-Type" : "application/json",
-                 'Accept': 'application/json'
-                }
-        })
-        .then( res => res.json())
-        .then( data => {
-            fetchProducts(1)
-        })
+// Función para agregar un nuevo producto
+async function addProduct() {
+    
+    document.getElementById('modalTitle').innerText = 'Agregar Producto';
+
+    document.getElementById('titleId').value = '';
+    document.getElementById('categoryId').value =  '';
+    document.getElementById('priceId').value =  '';
+    document.getElementById('descriptionId').value =  '';
+    document.getElementById('stockId').value =  '';
+    document.getElementById('statusId').value = 'false';
+    document.getElementById('ownerId').value = '';
+
+    const code = document.getElementById('codeId')
+    code.value = '';
+    code.disabled = false;
+    const owner = document.getElementById('ownerId')
+    owner.value = '';
+    owner.disabled = false;
+        
+    
+    // Mostrar el modal
+    document.getElementById('ProductModal').style.display = 'block';
+
+    //Envío del formulario
+    const modal = document.getElementById('ProductModal');
+    document.getElementById('ProductForm').onsubmit = function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        const product = {
+            title: document.getElementById('titleId').value,
+            category: formData.get('category'),
+            code: formData.get('code'),
+            price: parseFloat(formData.get('price')),
+            description: formData.get('description'),
+            stock: parseInt(formData.get('stock')),
+            status: formData.get('status'),
+            owner: formData.get('owner'),
+            thumbnail: formData.get('thumbnail')
+        };
+        
+        //Actualizar el producto
+        addProductFetch(product);
+        
+        // Cerrar el modal
+        modal.style.display = 'none';
     }
+    
 }
 
 // Función para abrir el modal y cargar los datos del producto
 async function editProduct(productId) {
+    document.getElementById('modalTitle').innerText = 'Editar Producto';
     // obtener los datos del producto por ID
-    const product = await getProductById(productId); // Implementa esta función según tu lógica
+    const product = await getProductById(productId);
     
     if (product) {
         // Llenar el formulario con los datos del producto
-        document.getElementById('editTitle').value = product.title || '';
-        document.getElementById('editCategory').value = product.category || '';
-        document.getElementById('editPrice').value = product.price || '';
-        document.getElementById('editDescription').value = product.description || '';
-        document.getElementById('editStock').value = product.stock || '';
-        
+        document.getElementById('titleId').value = product.title || '';
+        document.getElementById('categoryId').value = product.category || '';
+        document.getElementById('priceId').value = product.price || '';
+        document.getElementById('stockId').value = product.stock || '';
+        document.getElementById('descriptionId').value = product.description || '';
+        document.getElementById('statusId').value = product.status || '';
+        document.getElementById('thumbnailId').value = product.thumbnail || '';
+
+        //Campos que no pueden editarse
+        const code = document.getElementById('codeId')
+        code.value = product.code || '';
+        code.disabled = true;
+        const owner = document.getElementById('ownerId')
+        owner.value = product.owner || '';
+        owner.disabled = true;
+
         // Mostrar el modal
-        document.getElementById('editProductModal').style.display = 'block';
+        document.getElementById('ProductModal').style.display = 'block';
 
         //Envío del formulario
-        const modal = document.getElementById('editProductModal');
-        document.getElementById('editProductForm').onsubmit = function(e) {
+        const modal = document.getElementById('ProductModal');
+        document.getElementById('ProductForm').onsubmit = function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             
             const updatedProduct = {
-                title: document.getElementById('editTitle').value,
+                title: document.getElementById('titleId').value,
                 category: formData.get('category'),
                 price: parseFloat(formData.get('price')),
                 description: formData.get('description'),
-                stock: parseInt(formData.get('stock'))
+                stock: parseInt(formData.get('stock')),
+                status: formData.get('status'),
+                thumbnail: formData.get('thumbnail')
             };
             
             //Actualizar el producto
@@ -132,13 +178,15 @@ async function editProduct(productId) {
             
             // Cerrar el modal
             modal.style.display = 'none';
+             document.getElementById('titleId').value = '';
+        
         }
     }
 }
 
 // Cerrar modal
 document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('editProductModal');
+    const modal = document.getElementById('ProductModal');
     const closeBtn = document.querySelector('.close-modal');
     const cancelBtn = document.querySelector('.cancel-btn');
     
@@ -184,6 +232,44 @@ async function updateProduct(productId, updatedProduct) {
 
 }
 
+// Función para actualizar el producto)
+async function addProductFetch(product) {
+
+    console.log("Producto a agregar: ", product)
+    
+    const res =  await  fetch(`http://localhost:8080/api/products/`,{
+        method: "POST",
+        credentials : "include", // to send HTTP only cookies
+        headers: {
+            "Content-Type" : "application/json",
+            'Accept': 'application/json'
+        }, 
+        body: JSON.stringify(product)
+        }
+    )
+
+    fetchProducts(1)
+
+}
+
+function deleteProduct(productId) {
+    if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+        console.log('Eliminando producto:', productId);
+        fetch(`http://localhost:8080/api/products/${productId}`,{  
+                method : "DELETE",
+                credentials : "include", // to send HTTP only cookies
+                headers: {
+                 "Content-Type" : "application/json",
+                 'Accept': 'application/json'
+                }
+        })
+        .then( res => res.json())
+        .then( data => {
+            fetchProducts(1)
+        })
+    }
+}
+
 
 //Algoritmo Principal
 
@@ -191,6 +277,12 @@ let page = 1, limit = 10, sort = 1, query=""
 let products = []
 
 fetchProducts(page)
+
+//Evento para abrir modal para agregar producto
+const btnAddProduct = document.getElementById("addProduct");
+btnAddProduct.addEventListener('click', () =>{
+    addProduct();
+})
 
 //Evento que permite renderizar los elementos de la pagina siguiente
 const nextPag = document.getElementById("nextPag")

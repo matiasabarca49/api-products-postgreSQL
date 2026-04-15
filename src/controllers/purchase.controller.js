@@ -15,9 +15,9 @@ const getPurchasesFromUser = async (req,res)=>{
     }
 }
 
-const purchase = async (req, res) =>{
+const checkout = async (req, res) =>{
     try{
-        const purchase = await purchaseService.purchase(req.session.idUser);
+        const purchase = await purchaseService.checkout(req.session.idUser);
         return res.json({success: true, data: purchase})
     }catch(error){
         console.error(error);
@@ -27,6 +27,6 @@ const purchase = async (req, res) =>{
 }
 
 module.exports = {
-    purchase,
+    checkout,
     getPurchasesFromUser
 }
