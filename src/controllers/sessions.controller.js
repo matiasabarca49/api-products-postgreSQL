@@ -19,12 +19,24 @@ const getLogout = async (req, res) =>{
 
 const getUserCurrent = (req, res) =>{
     try{
-        res.status(200).send({status:"Success", currentUser: req.session})
+
+        const user = {
+            id: req.session.idUser,
+            name: req.session.user,
+            last_name: req.session.last_name,
+            email: req.session.email,
+            rol: req.session.rol,
+            age: req.session.age,
+            last_connection: req.session.last_connection
+        }
+
+        return res.status(200).send({success: true, data: user})
+
     }catch(error){
         req.logger.error(`Peticion ${req.method} en "${"http://"+req.headers.host + "/api/sessions/current" +req.url}" a las ${new Date().toLocaleTimeString()} el ${new Date().toLocaleDateString()}\n
         ERROR: Fallo al obtener el usuario actual. EL error es:\n
         ${error}`)
-        res.status(500).send({status: "ERROR", reason: error})
+        return res.status(500).send({success: false , error: "Error al obtener el usuario"})
     }
 }
 
@@ -46,13 +58,11 @@ const loginUser = async (req, res)=>{
         const userFound = req.user
         req.session.idUser = userFound.id
         req.session.user = userFound.name
-        req.session.lastName = userFound.last_name
+        req.session.last_name = userFound.last_name
         req.session.email = userFound.email
         req.session.age = userFound.age
         req.session.rol = userFound.rol
-        req.session.lastConnection = userFound.last_connection
-        req.session.cart = userFound.cart
-        req.session.purchases = userFound.purchases
+        req.session.last_connection = userFound.last_connection
         console.log("Session: ", req.session);
         
         if(req.session.rol === "Admin"){

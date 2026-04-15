@@ -116,23 +116,26 @@ const reWritedForDB = (cart) =>{
 } */
 
 const finishPurchase = async ()=>{
+    //Corroborramos la sesion
+    let req = await fetch(`http://localhost:8080/api/sessions/current`);
+    const user = await req.json();
+
     //Generamos la Compra
-    const res = await fetch(`http://localhost:8080/api/purchase`)
-    
-    //Obtenemos el Ticket
-    
+    req = await fetch(`http://localhost:8080/api/purchases/checkout`);
+    const ticket = await req.json();
+        
     //Enviamos el Ticket al mail del usuario
-    purchase.ticket.email = user.currentUser.email
+   /*  purchase.ticket.email = user.currentUser.email
     const resTicket = await fetch('http://localhost:8080/api/mail/send/mail',{
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify(purchase.ticket)
-    })
+    }) */
     localStorage.setItem("purchased", true)
     setTimeout(()=>{
-        window.location.href= `http://localhost:8080/ticket?code=${purchase.ticket.code}&&cart=${newCartAdded.cart.id}`
+        window.location.href= `http://localhost:8080/ticket?code=${ticket.data.code}`
     },5000)
 }
 

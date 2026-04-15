@@ -53,6 +53,11 @@ class PurchaseService {
         return ticket;
     }
 
+
+    async getPurchasesByUser(idUser, limit = 10, page = 1){
+        return this.repository.findAll(idUser, limit, page);
+    }
+
 }
 
 module.exports = PurchaseService

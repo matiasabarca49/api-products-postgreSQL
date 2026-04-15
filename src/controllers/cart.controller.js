@@ -1,6 +1,21 @@
 const CartService = require('../service/cart.service')
 const cartService = new CartService()
 
+const findAll = async (req,res) =>{
+    try{
+
+        const { limit, page } = req.query
+
+        const carts = await cartService.findAll(limit, page);
+        
+        return res.status(200).json({success: true , data: carts})
+        
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({success:false, reason: "Error del servidor, intente mas tarde"})
+    }
+}
+
 const getCartByID = async (req,res)=>{
     try{
         const cart = await cartService.findById(req.params.cid)
@@ -110,6 +125,7 @@ const deleteFullCart = async (req, res) =>{
 }
 
 module.exports = {
+    findAll,
     getCartByID,
     addCart,
     addProductInCart,

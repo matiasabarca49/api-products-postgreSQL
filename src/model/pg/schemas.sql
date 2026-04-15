@@ -84,3 +84,12 @@ CREATE TABLE IF NOT EXISTS tickets (
     user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     cart_id           INTEGER NOT NULL REFERENCES carts(id) ON DELETE RESTRICT
 );
+
+-- ALMACENAR SESSIONES
+CREATE TABLE IF NOT EXISTS session (
+    sid    VARCHAR NOT NULL PRIMARY KEY,
+    sess   JSON NOT NULL,
+    expire TIMESTAMP(6) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS IDX_session_expire ON session (expire);

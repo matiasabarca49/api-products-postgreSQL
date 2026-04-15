@@ -1,7 +1,7 @@
 const express = require('express')
 const { Router } = express
 //controllers
-const { getChatPage } = require('../controllers/chat.controller')
+/* const { getChatPage } = require('../controllers/chat.controller') */
 
 const router = new Router()
 
@@ -12,6 +12,6 @@ const { checkPerChat } = require('../middlewares/permissions.middleware.js')
 /**
 * GET
 */
-router.get("/", checkPerChat,getChatPage)
+/* router.get("/", checkPerChat,getChatPage) */
 
 module.exports = router

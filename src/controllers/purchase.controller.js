@@ -1,6 +1,20 @@
 const PurchaseService = require("../service/purchase.service.js");
 const purchaseService = new PurchaseService()
 
+const getPurchasesFromUser = async (req,res)=>{
+    try{
+        const { limit , page} = req.query;
+
+        const purchases = await purchaseService.getPurchasesByUser(req.session.idUser, limit, page)
+        
+        return res.status(200).send({success: true, data: purchases})
+        
+    }catch(err){
+        console.log(err)
+        return res.status(500).send({ success:false, error: "Error del servidor, intente mas tarde"})
+    }
+}
+
 const purchase = async (req, res) =>{
     try{
         const purchase = await purchaseService.purchase(req.session.idUser);
@@ -13,5 +27,6 @@ const purchase = async (req, res) =>{
 }
 
 module.exports = {
-    purchase
+    purchase,
+    getPurchasesFromUser
 }

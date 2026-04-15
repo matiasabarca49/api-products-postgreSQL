@@ -7,82 +7,54 @@ class CartRepository{
     }
 
     //Para tienda: JOIN con categorías, filtros dinámicos, paginación y conteo total
-    async findAll(filters = {}, limit = 10, page = 1, sort = 1) {
+    async findAll(limit = 10, page = 1, sort = 1) {
         const offset = (page - 1) * limit
-
-        let name;
-        let last_name;
-        let email;
-
-        if(filters.name){
-            name = filters.name;
-            delete filters.name;
-        }
-
-        if(filters.last_name){
-            last_name = filters.last_name;
-            delete filters.last_name;
-        }
-
-        if(filters.email){
-            email = filters.email;
-            delete filters.email;
-        }
-        
-        const filterKeys   = Object.keys(filters)
-        const filterValues = Object.values(filters)
-
-        // WHERE para la query de datos: los filtros arrancan en $3 (después de limit y offset)
-        let dataWhere = filterKeys.length > 0
-            ? 'WHERE ' + filterKeys.map((key, i) => `${key} = $${i + 3}`).join(' AND ')
-            : ''
-
-        // WHERE para el COUNT: los filtros arrancan en $1 (no hay limit ni offset antes)
-        let countWhere = filterKeys.length > 0
-            ? 'WHERE ' + filterKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')
-            : ''
-
-        if(name){
-            dataWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}name ILIKE $${filterKeys.length + 3}`; 
-            countWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}name ILIKE $${filterKeys.length + 1}`
-            filterKeys.push("name");
-            filterValues.push(`%${name}%`);
-        }
-
-        if(last_name){
-            dataWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}last_name ILIKE $${filterKeys.length + 3}`; 
-            countWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}last_name ILIKE $${filterKeys.length + 1}`
-            filterKeys.push("last_name");
-            filterValues.push(`%${last_name}%`);
-        }
-
-        if(email){
-            dataWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}email ILIKE $${filterKeys.length + 3}`; 
-            countWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}email ILIKE $${filterKeys.length + 1}`
-            filterKeys.push("email");
-            filterValues.push(`%${email}%`);
-        }
 
         const [dataResult, countResult] = await Promise.all([
             this.pool.query(
-                `SELECT * 
-                FROM carts
-                ${dataWhere}
-                ORDER BY ${sort && sort? `last_name ${sort > 0 ? 'ASC' : 'DESC'}` : 'id ASC'}
+                `SELECT p.*, c.id AS cart_id, c.date_cart AS date_cart, cp.quantity AS quantity
+                FROM carts c
+                JOIN cart_products cp ON cp.cart_id = c.id
+                JOIN products p ON p.id = cp.product_id
+                ORDER BY ${sort && sort? `c.id ${sort > 0 ? 'ASC' : 'DESC'}` : 'c.id ASC'}
                 LIMIT $1 OFFSET $2
                 `,
-                [limit, offset, ...filterValues]
+                [limit, offset]
             ),
             this.pool.query(
-                `SELECT COUNT(*) FROM users ${countWhere}`,
-                filterValues
+                `SELECT COUNT(*) FROM carts`
             )
         ])
         const totalDocs  = parseInt(countResult.rows[0].count)
         const totalPages = Math.ceil(totalDocs / limit)
 
+        const { rows } = dataResult;
+
+        console.log(rows);
+        
+        const carts = rows.reduce((acc, row) => {
+            let cart = acc.find(c => c.cart_id === row.cart_id);
+            
+            if (!cart) {
+                const { cart_id, date_cart } = row;
+                cart = { cart_id, date_cart, products: [] };
+                acc.push(cart);
+            }
+
+            cart.products.push({
+                id: row.product_id,
+                title: row.title,
+                price: row.price,
+                quantity: row.quantity,
+                thumbnail: row.thumbnail
+            });
+
+            return acc;
+        }, []);
+        
+
         return {
-            docs: dataResult.rows,
+            docs: carts,
             totalDocs,
             totalPages,
             page,

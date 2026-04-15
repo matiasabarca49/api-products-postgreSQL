@@ -6,12 +6,14 @@ const { Router } = express
 const router = new Router()
 
 //middleware
-const { checkPerCart,checkPerAdmCart } = require('../middlewares/permissions.middleware.js')
+const { checkPerCart,checkPerAdmCart, checkPermAdmin } = require('../middlewares/permissions.middleware.js')
 const { validateId } = require('../middlewares/validations.middleware.js')
 
 /** 
  *  GET
  **/
+//Obtener el carritos por ID
+router.get("/", checkPermAdmin, controller.findAll);
 //Obtener el carritos por ID
 router.get("/:cid", checkPerCart, validateId('cid'), controller.getCartByID )
 //Realiza la compra de los productos almacenados en el carrito del usuario

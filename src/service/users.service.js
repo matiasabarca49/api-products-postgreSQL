@@ -1,11 +1,7 @@
 const { createHash, isValidPassword } = require('../utils/utils.js') 
-const User = require('../model/users.model.js')
 const { UserDTO } = require('../dto/user.dto.js')
 const { transporter } = require('../config/config.js')
 const { generateFormatEmail } = require('../utils/utils.js')
-const BaseService = require('./base.service.js')
-const MongoRepository = require('../repositories/implementations/mongoRepository.js')
-const PostgresRepository = require('../repositories/implementations/postgresRepository.js')
 const UsersRepository = require('../repositories/implementations/user.repository.js')
 
 

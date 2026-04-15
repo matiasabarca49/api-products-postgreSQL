@@ -1,16 +1,18 @@
-const Cart = require('../model/carts.model.js')
-const BaseService = require('./base.service.js')
 const CartDTO = require('../dto/cart.dto.js')
-const MongoRepository = require('../repositories/implementations/mongoRepository.js');
-const PostgresRepository = require('../repositories/implementations/postgresRepository.js');
 const CartRepository = require('../repositories/implementations/cart.repository.js');
 
 class CartService{
     constructor(){
-        //mongo
-        /* const mongoRepository = new MongoRepository(Cart) */
-        //postgres        const PostgresRepository = require('../repositories/implementations/postgresRepository.js')
         this.repository = new CartRepository();        
+    }
+    
+
+    async findAll(limit = 10, page = 1){
+        return await this.repository.findAll(limit, page);
+    }
+
+    async findById(cart_id){
+        return await this.repository.findById(cart_id);
     }
 
     async create(cartItems){

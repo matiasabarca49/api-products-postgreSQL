@@ -1,5 +1,5 @@
 const MessageDTO = require('../dto/message.dto.js')
-const Message = require('../model/messages.model.js') 
+/* const Message = require('../model/messages.model.js')  */
 const BaseService = require('./base.service.js')
 const MongoRepository = require('../repositories/implementations/mongoRepository.js');
 const PostgresRepository = require('../repositories/implementations/postgresRepository.js');

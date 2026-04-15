@@ -5,11 +5,11 @@ const { generateProductErrorInfo } = require('../utils/errors/messageCreater.js'
 const EErrors = require('../utils/errors/ErrorEnums.js')
 //Services
 const ProductsService = require('../service/products.service.js')
-const MessageService = require('../service/message.service.js')
+/* const MessageService = require('../service/message.service.js') */
 const UsersService = require('../service/users.service.js')
 
 const productsService = new ProductsService()
-const messageService = new MessageService()
+/* const messageService = new MessageService() */
 const usersService = new UsersService()
 
 const webSocket = (server) => {

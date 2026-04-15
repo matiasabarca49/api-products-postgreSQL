@@ -1,4 +1,3 @@
-/* require('dotenv').config() */
 const config = require('./config/config.js')
 const express = require("express")
 const handlebars = require("express-handlebars")
@@ -7,28 +6,23 @@ const app = express()
 const server = http.createServer(app)
 const cors = require('cors')
 
-//Inicio y conexion a DB
-const MongoManager = require('./config/mongoDB.config.js')
-const mongoManager = new MongoManager(process.env.MONGO_URL) 
+//Pool de conexiones
+const pool = require('./config/pg.config.js')
 
 //Sessions
 const session = require('express-session')
-const mongoSession = require('connect-mongo')
-
-/* app.use(session({
-    store: mongoSession.create({
-        mongoUrl: process.env.MONGO_URL
-    }),
-    secret: process.env.SECRET_SESSIONS ,
-    resave: true,
-    saveUninitialized: false
-})) */
+const pgSession = require('connect-pg-simple')(session);
 
 app.use(session({
-    secret: process.env.SECRET_SESSIONS ,
-    resave: true,
-    saveUninitialized: false
-}))
+    store: new pgSession({
+        pool: pool,
+        tableName: 'session'
+    }),
+    secret: process.env.SECRET_SESSIONS,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
+}));
 
 //Passport
 const passport = require('passport')
@@ -97,7 +91,7 @@ const routeProducts = require('./routes/products.router.js')
 const routeCarts = require('./routes/cart.router.js')
 const routeCartItems = require('./routes/cartItem.router.js')
 const routePurchase = require('./routes/purchase.router.js')
-const routeChat = require('./routes/chat.router.js')
+/* const routeChat = require('./routes/chat.router.js') */
 const routeLoggerTest = require('./routes/logger.router.js')
 const routeMailAPI = require('./routes/mail.router.js')
 const routeTicket = require('./routes/ticket.router.js')
@@ -114,7 +108,7 @@ const routeError = require('./routes/pages/404.router.js')
 app.use("/api/products", routeProducts)
 app.use("/api/carts", routeCarts)
 app.use("/api/cartItems", routeCartItems)
-app.use("/api/purchase", routePurchase)
+app.use("/api/purchases", routePurchase)
 app.use("/api/sessions", routeSessions)
 app.use("/api/users", routeUsers)
 app.use("/api/mail", routeMailAPI)
@@ -125,7 +119,7 @@ app.use("/auth", routeGithubAuth)
 app.use("/", routeViewStore)
 app.use("/admin", routeViewAdm)
 app.use("/mockingproducts", routeMocks)
-app.use("/chat", routeChat)
+/* app.use("/chat", routeChat) */
 app.use("/loggerTest", routeLoggerTest)
 app.use("/users", routeViewUsers)
 app.use('*', routeError)
@@ -143,6 +137,5 @@ const port = process.env.PORT || config.port
 server.listen(`${port}`, ()=>{ 
     //Conectar base de datos
     console.log("[INFO] Environment Mode Option: ", config.environment);
-    /* mongoManager.connect() */
     
 })
