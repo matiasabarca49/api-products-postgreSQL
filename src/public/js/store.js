@@ -35,10 +35,10 @@ const fetchProducts = (page)=>{
     fetch(`http://localhost:8080/api/products?page=${page}`)
     .then( response => response.json())
     .then( data => {
-        products = data
+        products = data.data
         //Una vez obtenido los productos se llama la funcion que los renderiza en el DOM
-        renderProducts(data.payload)
-        renderBotonPage(data)
+        renderProducts(data.data.payload)
+        renderBotonPage(data.data)
     })
 }
 const fetchProductsOpts = (opt, value)=>{
@@ -46,10 +46,10 @@ const fetchProductsOpts = (opt, value)=>{
     fetch(`http://localhost:8080/api/products?${opt}=${value}`)
     .then( response => response.json())
     .then( data => {
-        products = data
+        products = data.data
         //Una vez obtenido los productos se llama la funcion que los renderiza en el DOM
-        renderProducts(data.payload)
-        renderBotonPage(data)
+        renderProducts(data.data.payload)
+        renderBotonPage(data.data)
     })
 }
 
@@ -76,14 +76,14 @@ fetchProducts(page)
 //Evento que permite renderizar los elementos de la pagina siguiente
 const nextPag = document.getElementById("nextPag")
 nextPag.addEventListener("click", ()=>{
-    page = products.nextPage
+    page = products.hasPrevPage? page + 1 : page
     //Evita que se llame la funcion si la proxima pagina es "null"
     page && fetchProducts(page)
 })
 //Evento que permite renderizar los elementos de la pagina anterior
 const prevPag = document.getElementById("prevPag")
 prevPag.addEventListener("click", ()=>{
-    page = products.prevPage
+    page = products.hasPrevPage? page - 1 : page
     page && fetchProducts(page)
 })
 

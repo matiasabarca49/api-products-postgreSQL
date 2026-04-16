@@ -1,4 +1,3 @@
-//const UsersService = require('../service/mongo/users.service.js')
 const UsersService = require('../service/users.service.js')
 const usersService = new UsersService()
 
@@ -6,7 +5,7 @@ const usersService = new UsersService()
 * GET
 */
 
-const getAll = async (req, res) =>{
+const getAll = async (req, res, next) =>{
     try{
 
         const { limit , page, sort } = req.query;
@@ -18,12 +17,12 @@ const getAll = async (req, res) =>{
         if (email) filters.email = email;
         if(rol) filters.rol = rol;
 
-        const usersGetted = await usersService.findAll(filters, limit, page, sort)
-        return res.status(200).send({status: "Succesfull", data: usersGetted})
+        const usersGetted = await usersService.findAll(filters, limit, page, sort);
+
+        return res.status(200).json({status: "Succesfull", data: usersGetted})
 
     }catch(error){
-        console.log(error)
-        return res.status(500).send({status: "Error", reason: error.message || "Error al obtener los usuarios"})
+       next(error)
     }
 }
 
@@ -35,54 +34,34 @@ const updateRol = async (req, res) =>{
             : res.status(500).send({status: "ERROR", reason: userUpdated.reason ||"Los Administradores no pueden cambiar de rol"})
     }catch(error){
         console.log(error)
-        res.status(500).send({status: "Error", reason: error.message || "Error al cambiar el rol del usuario"})
+        res.status(500).json({status: "Error", reason: error.message || "Error al cambiar el rol del usuario"})
     }
 }
 /**
 * POST
 */
 
-const create = async (req, res) =>{
+const create = async (req, res, next) =>{
     try{
         const userCreated = await usersService.create(req.body)
-        res.status(201).send({status: "Succesfull", user: userCreated})
+
+        return res.status(201).send({status: "Succesfull", user: userCreated});
     }catch(error){
-        console.log(error)
-        res.status(error.statusCode || 500).send({status: "Error", reason: error.message || "Error al crear el usuario"})
+        next(error);
     }
 }
-
-
 
 /**
 * PUT
 */
 
-const update = async (req, res) =>{
+const update = async (req, res, next) =>{
     try{
         const { uid } = req.params
         const userUpdated = await usersService.update(uid, req.body)
-        res.status(200).json({status: "Succesfull", userUpdated})
+        return res.status(200).json({status: "Succesfull", userUpdated})
     }catch(error){
-        console.log(error)
-        res.status(500).json({status: "Error", reason: error.message || "Error al agregar el producto al carrito"})
-    }
-}
-
-const addProductToCart = async (req,res) =>{
-    try{
-        const datedUser = await usersService.addProductToCart(req.session.passport.user, req.body)
-        if (datedUser){
-            //Para que se actualice el usuario sin tener que salir y volver entrar a la cuenta
-            req.session.cart = datedUser.cart
-            res.status(201).send({status:" Succesfull ",userUpdated: datedUser.cart})
-
-        }else{
-            res.status(500).send({status: "ERROR" , reason: "No puede agregar un producto propio"})
-        }
-    }catch(error){
-        console.log(error)
-        res.status(500).send({status: "Error", reason: error.message || "Error al agregar el producto al carrito"})
+        next(error)
     }
 }
 
@@ -109,15 +88,14 @@ const addDocument = async (req, res) => {
 /**
 * DELETE
 */
-const deleteUser = async (req, res) =>{
+const deleteUser = async (req, res, next) =>{
     try{
         const userDeleted = await usersService.delete(req.params.id)
-        userDeleted 
-            ? res.status(200).send({status: "Successful", user: userDeleted})
-            : res.status(500).send({status: "Error", reason: "El usuario no existe o error en el servidor"})
+        
+        return res.status(200).send({success: true, data: userDeleted})
+            
     }catch(error){
-        console.log(error)
-        res.status(500).send({status: "Error", reason: error.message || "Error al eliminar el usuario"})
+        next(error);
     }
 }
 
@@ -131,28 +109,12 @@ const deleteInactiveUser = async (req, res) =>{
     }
 }
 
-const removeProductFromCart = async(req, res)=>{
-    try{
-        const cartUpdated = await usersService.removeProductFromCart(req.session.passport.user, req.params.id)
-        //Actualiza el cart del usuario
-        req.session.cart = cartUpdated
-        cartUpdated
-            ? res.send({status: "Successful", cart: cartUpdated})
-            : res.status(500).send({status: "Error"})
-    }catch(error){
-        console.log(error)
-        res.status(500).send({status: "Error", reason: error.message || "Error al eliminar el producto del carrito"})
-    }
-}
-
 module.exports = {
     getAll,
     updateRol,
     create,
-    addProductToCart,
     addDocument,
     update,
     deleteUser,
-    deleteInactiveUser,
-    removeProductFromCart
+    deleteInactiveUser
 }

@@ -7,7 +7,7 @@ const router = new Router()
 
 //middleware
 const { checkPerCart,checkPerAdmCart, checkPermAdmin } = require('../middlewares/permissions.middleware.js')
-const { validateId } = require('../middlewares/validations.middleware.js')
+
 
 /** 
  *  GET
@@ -15,9 +15,9 @@ const { validateId } = require('../middlewares/validations.middleware.js')
 //Obtener el carritos por ID
 router.get("/", checkPermAdmin, controller.findAll);
 //Obtener el carritos por ID
-router.get("/:cid", checkPerCart, validateId('cid'), controller.getCartByID )
+router.get("/:cid", checkPerCart, controller.getCartByID )
 //Realiza la compra de los productos almacenados en el carrito del usuario
-router.get("/:cid/purchase", checkPerAdmCart, validateId('cid'), controller.completeCartPurchase)
+router.get("/:cid/purchase", checkPerAdmCart, controller.completeCartPurchase)
 
 /** 
  *  POST
@@ -36,7 +36,7 @@ router.put("/:cid/product/:pid", checkPerAdmCart,controller.updateProductCartInD
  *  DELETE
  **/
 router.delete("/:cid/product/:pid", checkPerAdmCart,controller.deleteProductInCart )
-router.delete("/:cid", checkPerCart, validateId('cid'), controller.deleteFullCart)
+router.delete("/:cid", checkPerCart, controller.deleteFullCart)
 
 
 module.exports = router

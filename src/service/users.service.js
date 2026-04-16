@@ -3,6 +3,7 @@ const { UserDTO } = require('../dto/user.dto.js')
 const { transporter } = require('../config/config.js')
 const { generateFormatEmail } = require('../utils/utils.js')
 const UsersRepository = require('../repositories/implementations/user.repository.js')
+const { NotFoundException, ForbiddenException } = require('../exceptions/validation.exception.js')
 
 
 class UsersService{
@@ -18,7 +19,7 @@ class UsersService{
 
         if(!users || users.length === 0) return users;
      
-        users.docs = this.toManyDTO(users.docs);
+        users.payload = this.toManyDTO(users.payload);
 
         //Wrapper Pattern
         return  users
@@ -27,7 +28,7 @@ class UsersService{
     async findById(id){
         const userFound = await this.repository.findById(id);
         if(!userFound){
-            throw new Error('Usuario no encontrado');
+            throw new NotFoundException("Usuario no encontrado");
         }
         return this.toDTO(userFound)
     }
@@ -46,33 +47,12 @@ class UsersService{
     }
 
     async create(document){
-        //Formateamos el documento si la clase hija definió toFormatDTO
+        //Formateamos el documento
         const userCreated = await this.repository.create(this.toFormatDTO(document));
 
-        //Si se produjo un error al crear el documento, lanzamos una excepción
-        if (!userCreated){ 
-            throw new Error('Error al crear el usuario')
-        }
         // Buscar si la clase hija definió toDTO
         return this.toDTO(userCreated);
     }
-
-   async addProductToCart(idUser, productToAdded){
-        const userFound = await this.findById(idUser)
-        if(!userFound){
-            throw new Error('Usuario no encontrado')
-        }
-        if(userFound.email === productToAdded.owner){
-            throw new Error('No se puede agregar un producto al carrito si el usuario es el dueño del producto')
-        }
-        const productFound = userFound.cart.find( product => product.product._id.toString() === productToAdded.id)
-        productFound 
-            ? productFound.quantity++
-            : userFound.cart = [...userFound.cart, {product: productToAdded.id, quantity: 1 }]
-        await this.update(idUser, {cart: userFound.cart})
-
-        return await this.findById(idUser)
-   }
 
    async addDocument(idUser,document){
     let documentsUpdated
@@ -98,7 +78,7 @@ class UsersService{
    async update(id, data){
         const userFound = await this.repository.existByID(id);
         if(!userFound){
-            throw new Error('Usuario no encontrado');
+            throw new NotFoundException("Usuario no encontrado");
         }
         const userUpdated = await this.repository.update(id, data)
         return this.toDTO(userUpdated)
@@ -150,16 +130,23 @@ class UsersService{
 
     async updateLastConnection(idUser){
         const date = new Date()
+        
         const userFound = await this.repository.existByID(idUser);
+
         if(!userFound){
-            throw new Error('Usuario no encontrado');
+            throw new NotFoundException("Usuario no encontrado");
         }
         
         const userUpdated = await this.repository.update(idUser,{ last_connection: date});
 
-        console.log("Usuario actualizado: ", userUpdated);
-
         return this.toDTO(userUpdated);
+    }
+
+    async delete(idUSer){
+
+        if(!await this.repository.existByID(idUSer)) throw new NotFoundException("El usuario no existe");
+
+        return this.toDTO(await this.repository.delete(idUSer))
     }
 
     async deleteInactiveUser(){
@@ -173,16 +160,6 @@ class UsersService{
         return usersDeleted
     }
 
-    async removeProductFromCart(userID, productID){
-        const userFound = await this.findById(userID)
-        if(userFound){
-            const cartFiltered = userFound.cart.filter( product => product.product._id.toString() !== productID )
-            await this.update(userID, {cart: cartFiltered})
-            return cartFiltered
-        }else{
-            return false
-        }
-    } 
 
     /**
      * 

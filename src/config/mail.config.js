@@ -1,7 +1,8 @@
 const nodemailer = require('nodemailer')
 
 //Importar verificacion de variables de entorno
-const reqVars = require("../utils/dotenv.helper.js")
+const reqVars = require("../utils/dotenv.helper.js");
+const logger = require('../utils/logger/loggers.js');
 
 //Crear transporter para enviar mails
 let transporter = {};
@@ -20,9 +21,9 @@ if(reqVars.validateEnvVars('gmail')){
     //Verificar conexion
     transporter.verify(function (error, success) {
         if (error) {
-            console.log(error);
+            logger.error(error);
         } else {
-            console.log('Server está listo para enviar mails');
+            logger.info('✅ Server está listo para enviar mails');
         }
     });
 }

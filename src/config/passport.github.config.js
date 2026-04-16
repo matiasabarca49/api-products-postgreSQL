@@ -40,7 +40,7 @@ if(validateEnvVars('github')){
             if (!emailUser){
               done("No se pudo validar el usuario")
             }
-            const userFound = await usersService.findByFilter({email: emailUser.email})
+            const userFound = await usersService.findByEmailRAW(emailUser.email)
             //Si el usuario no se encontro en la DB, creamos uno nuevo
             if (!userFound){
                 //Creamos el usuario formateado con DTO

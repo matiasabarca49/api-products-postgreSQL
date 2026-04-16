@@ -1,54 +1,72 @@
-const winston = require('winston')
-const config = require('../../config/config.js')
+const winston = require('winston');
+const config = require('../../config/config.js');
 
 const customLevels = {
-    levels:{
-        fatal: 0,
-        error: 1, 
-        warning: 2, 
-        info: 3, 
-        http: 4, 
-        debug: 5, 
-    },
-    colors: {
-        fatal: 'red',
-        error: 'magenta',
-        warning: 'yellow',
-        info: 'blue',
-        http: "green",
-        debug: 'white'
-    }
-}
+  levels: {
+    fatal: 0,
+    error: 1,
+    warning: 2,
+    info: 3,
+    http: 4,
+    debug: 5,
+  },
+  colors: {
+    fatal: 'red',
+    error: 'magenta',
+    warning: 'yellow',
+    info: 'blue',
+    http: 'green',
+    debug: 'white',
+  }
+};
 
-const devLogger = winston.createLogger({
-    levels: customLevels.levels,
-    transports:[
-        //Errores en consola
-        new winston.transports.Console({
-            level: "debug",
-            format: winston.format.combine(winston.format.colorize({ colors: customLevels.colors }),
-            winston.format.simple())
-        })
-    ]
-})
+winston.addColors(customLevels.colors);
 
-const proLogger = winston.createLogger({
-    levels: customLevels.levels,
-    transports:[
-        new winston.transports.Console({level: "info"}),
-        new winston.transports.File({ filename: './errors.log', level: 'error' })
+const transports = [
+  new winston.transports.Console({
+    level: config.environment === 'production' ? 'info' : 'debug',
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.timestamp(),
+      winston.format.printf(({ level, message, timestamp, ...meta }) => {
+        return `${timestamp} [${level}] ${message} ${
+          Object.keys(meta).length ? JSON.stringify(meta) : ''
+        }`;
+      })
+    )
+  }),
 
-    ]
-})
+  new winston.transports.File({
+    filename: './logs/error.log',
+    level: 'error',
+    format: winston.format.json()
+  }),
 
-const addLogger = (req, res, next)=>{
-    if (config.environment === "production"){
-        req.logger = proLogger
-    }
-    else{
-        req.logger = devLogger
-    }
-    next() 
-}
+  new winston.transports.File({
+    filename: './logs/combined.log',
+    level: 'info',
+    format: winston.format.json()
+  })
+];
 
-module.exports = addLogger
+const logger = winston.createLogger({
+  levels: customLevels.levels,
+  level: config.environment === 'production' ? 'info' : 'debug',
+  transports
+});
+
+module.exports = logger;
+
+
+/* COMO USAR 
+
+SERVICIOS
+
+logger.info('Servicio ejecutándose');
+
+
+CONTROLADORES
+
+req.logger.info('Request entrante');
+
+*/

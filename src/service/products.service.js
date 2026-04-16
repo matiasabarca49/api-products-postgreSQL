@@ -2,6 +2,7 @@ const { transporter } = require("../config/config.js");
 const { generateFormatEmail } = require("../utils/utils.js");
 const ProductDTO = require("../dto/product.dto.js");
 const ProductsRepository = require("../repositories/implementations/productsRepository.js");
+const { NotFoundException, ForbiddenException } = require("../exceptions/validation.exception.js");
 
 class ProductsService{
   constructor(){
@@ -12,7 +13,12 @@ class ProductsService{
   async findAll(filters = {}, limit, page, sort) {
     // Si se recibe un filtro de categoría, convertirlo a category_id para la consulta
     if(filters.category){
-      filters.category_id = await this.repository.findCategoryByName(filters.category);
+      const category = await this.repository.findCategoryByName(filters.category);
+
+      if(category){
+        filters.category_id = category;
+      }
+
       delete filters.category;
     }
 
@@ -20,8 +26,8 @@ class ProductsService{
 
     const products = await this.repository.findAll(filters, limit, page, sort)
 
-    if(products & products.docs.length > 0) {
-      products.docs = this.toManyDTO(products.docs);
+    if(products & products.payload.length > 0) {
+      products.payload = this.toManyDTO(products.payload);
     }
 
     return products
@@ -29,7 +35,7 @@ class ProductsService{
 
   async findById(id) {
     const product = await this.repository.findByID(id)
-    if(!product) return null
+    if(!product) throw new NotFoundException("Producto no encontrado");
     return this.toDTO(product)
   }
 
@@ -43,56 +49,60 @@ class ProductsService{
 
     // Si se recibe un filtro de categoría, convertirlo a category_id para la consulta
     if(filters.category){
-      filters.category_id = await this.repository.findCategoryByName(filters.category);
+      const category = await this.repository.findCategoryByName(filters.category);
+
+      if(category){
+        filters.category_id = category;
+      }
+
       delete filters.category;
     }
 
     const documents = await this.repository.findAllAdmin(
       filters,
       limit,
-      page
+      page,
+      sort
     );
 
     return documents;
   }
 
-  async create(document){
+  async create(product){
 
-        if(document.category){
-          document.category_id = await this.repository.findCategoryByName(document.category);
-          delete document.category;
+        if(product.category){
+
+          product = await this.#returnCategory(product);
+          
+          if(!product) throw new NotFoundException("Categoria no encontrada")
         }
         //Formateamos el documento y lo creamos en la base de datos
-        const documentCreated = await this.repository.create(this.toFormatDTO(document))
+        const productCreated = await this.repository.create(this.toFormatDTO(product))
 
-        //Si se produjo un error al crear el documento, lanzamos una excepción
-        if (!documentCreated){ 
-            throw new Error('Error al crear el documento')
-        }
         //Retornamos el documento creado formateado a DTO
-        return this.toDTO(documentCreated) 
+        return this.toDTO(productCreated) 
   }
 
-  async update(id, updatedDocument){
+  async update(id, updatedProduct){
 
     if(!this.repository.existByID(id)){
-      throw new Error("Producto no encontrado")
+      throw new NotFoundException("Producto no encontrado")
     }
 
-    if(updatedDocument.category){
-      updatedDocument.category_id = await this.repository.findCategoryByName(updatedDocument.category);
-      delete updatedDocument.category;
+    if(updatedProduct.category){
+      updatedProduct = await this.#returnCategory(updatedProduct);
+          
+      if(!updatedProduct) throw new NotFoundException("Categoria no encontrada")
     }
     
-    return await this.repository.update(id, updatedDocument)
+    return await this.repository.update(id, updatedProduct)
   }
 
   async delProduct(ID, user) {
     const productFound = await this.repository.findByID(ID);
-    console.log("Producto encontrado: ", productFound);
 
     if (!productFound) {
-      throw new Error("Producto no encontrado");
+      throw new NotFoundException("Producto no encontrado");
     }
     /* //Enviar mail al propietario del producto
     if (productFound.owner !== "Admin") {
@@ -123,21 +133,32 @@ class ProductsService{
     //Eliminar el producto. "Admin" puede eliminar todos los productos, "El propietario solo puede eliminar sus productos"
     if (user.rol === "Premium") {
       if (user.email !== productFound.owner) {
-        throw new Error("No tienes permisos para eliminar este producto");
+        throw new ForbiddenException("No tienes permisos para eliminar este producto");
       } else {
         return this.repository.delete(ID);
       }
     } else if (user.rol === "Admin") {
         return this.repository.delete(ID);
     } else {
-        throw new Error("No tienes permisos para eliminar este producto");
+        throw new ForbiddenException("No tienes permisos para eliminar este producto");
     }
   }
 
   async verifyStock(product_id, quantity){
-      console.log("product_id: ", product_id)
-      console.log("quantity: ", quantity)
       return await this.repository.verifyStock(product_id, quantity);
+  }
+
+  async #returnCategory(product){
+
+    const category = await this.repository.findCategoryByName(product.category);
+
+    if(!category) return null;
+
+    product.category_id = category;
+
+    delete product.category;
+    
+    return product
   }
 
   /**

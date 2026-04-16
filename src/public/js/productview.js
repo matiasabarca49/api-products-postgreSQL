@@ -31,5 +31,5 @@ fetch(`http://localhost:8080/api/products/${id}`)
     .then( response => response.json())
     .then( data =>{
         //Una vez obtenido el producto, renderizamos
-        render(data.producto)
+        render(data.data)
     } )

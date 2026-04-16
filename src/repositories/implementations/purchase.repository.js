@@ -1,4 +1,3 @@
-const { Client } = require('pg');
 const pool = require('../../config/pg.config.js');
 const CartRepository = require('./cart.repository.js');
 const CartItemRepository = require('./cartItem.repository.js');

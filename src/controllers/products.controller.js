@@ -7,7 +7,7 @@ const ProductsService = require('../service/products.service.js')
 const productsService = new ProductsService()
 
 //Obtener todos los productos con paginación, filtro y ordenamiento para la store
-const getProducts = async (req,res) =>{
+const getProducts = async (req,res, next) =>{
     try{
         const { limit = 10, page = 1, sort = 1 } = req.query;
 
@@ -21,40 +21,39 @@ const getProducts = async (req,res) =>{
 
         const products = await productsService.findAll(filters, parseInt(limit), parseInt(page) , parseInt(sort));
 
-        return res.status(200).send({
-                status: "success",
-                payload: products.docs,
-                totalPages: products.totalPages,
-                prevPage: products.prevPage,
-                page: products.page,
-                nextPage: products.nextPage,
-                hasPrevPage: products.hasPrevPage,
-                hasNextPage: products.hasNextPage,
-                prevLink:products.hasPrevPage?`http://localhost:8080/api/products?page=${products.prevPage} ` : null,
-                nextLink:products.hasNextPage?`http://localhost:8080/api/products?page=${products.nextPage} `: null,
+        return res.status(200).json({
+                success: true,
+                data: {
+                    payload: products.payload,
+                    totalPages: products.totalPages,
+                    prevPage: products.prevPage,
+                    page: products.page,
+                    nextPage: products.nextPage,
+                    hasPrevPage: products.hasPrevPage,
+                    hasNextPage: products.hasNextPage,
+                    prevLink:products.hasPrevPage?`http://localhost:8080/api/products?page=${products.prevPage} ` : null,
+                    nextLink:products.hasNextPage?`http://localhost:8080/api/products?page=${products.nextPage} `: null
+                }
                 })
     }
     catch(error){
-        console.log(error)
-        res.status(500).json({success: false, status: "Error",error: "Error interno del servidor"});
+        next(error);
     }
 }
 
-const getById = async (req,res) =>{
+const getById = async (req,res, next) =>{
     try{
         const {id} = req.params
         const productFound = await productsService.findById(id)
-        productFound
-         ? res.status(200).send({status: "Success", producto: productFound})
-         : res.status(404).send({status: "Error", reason: "El producto no encotrado"})
+        return res.status(200).json({success: true, data: productFound})
+         
     }catch(error){
-        console.log(error)
-        res.status(500).json({success: false, status: "Error",error: "Error interno del servidor"});
+        next(error);
     }
 }
 
 //Obtener productos para el panel de administración (Solo Admin y Premium)
-const getManageableProducts = async(req, res) => {
+const getManageableProducts = async(req, res, next) => {
     try{
         const { limit = 10, page = 1, sort = 1} = req.query;
 
@@ -67,25 +66,27 @@ const getManageableProducts = async(req, res) => {
         if (priceMax) filters.priceMax = parseInt(priceMax);
 
         const productsFound = await productsService.findManageableProducts(req.session, filters, limit, page,sort);
-        res.status(200).send({
-                status: "success",
-                payload: productsFound.docs,
-                totalPages: productsFound.totalPages,
-                prevPage: productsFound.prevPage,
-                page: productsFound.page,
-                nextPage: productsFound.nextPage,
-                hasPrevPage: productsFound.hasPrevPage,
-                hasNextPage: productsFound.hasNextPage,
-                prevLink:productsFound.hasPrevPage?`http://localhost:8080/api/products/admin?page=${productsFound.prevPage} ` : null,
-                nextLink:productsFound.hasNextPage?`http://localhost:8080/api/products/admin?page=${productsFound.nextPage} `: null,
+
+        return res.status(200).json({
+                success: true,
+                data: {
+                    payload: productsFound.payload,
+                    totalPages: productsFound.totalPages,
+                    prevPage: productsFound.prevPage,
+                    page: productsFound.page,
+                    nextPage: productsFound.nextPage,
+                    hasPrevPage: productsFound.hasPrevPage,
+                    hasNextPage: productsFound.hasNextPage,
+                    prevLink:productsFound.hasPrevPage?`http://localhost:8080/api/products/admin?page=${productsFound.prevPage} ` : null,
+                    nextLink:productsFound.hasNextPage?`http://localhost:8080/api/products/admin?page=${productsFound.nextPage} `: null
+                }
                 })
     }catch(error){
-        console.log(error)
-        res.status(500).json({success: false, status: "Error",error: "Error interno del servidor"});
+        next(error);
     }
 }
 
-const create = async (req, res) =>{
+const create = async (req, res, next) =>{
     const {title, code, stock} = req.body
     try {
         if(!title || !code || !stock || stock < 1){
@@ -107,55 +108,37 @@ const create = async (req, res) =>{
             req.body.owner = "Admin"
         }
 
-        console.log(req.body);
-
         const productAdded = await productsService.create(req.body)
-        productAdded
-            ?res.status(201).send({status: "Success", action: "Producto agregado a DB correctamente", producto: productAdded})
-            :res.status(400).send({status: "Error", action: 'Campos Faltantes, mal escritos o  campo code repetido'})
+        
+        return res.status(201).json({success: true, message: "Producto agregado a DB correctamente", data: productAdded})
+            
     } catch (error) {
-        console.log(error)
-        res.status(400).send({status: "Error", action: 'Campos Faltantes o inválidos'})
+        next(error);
     }
     
 }
 
-const addManyProducts = async (req, res) =>{
-    try{
-        const prs = await productsService.createMany(req.body)
-        productAdded
-            ?res.status(201).send({status: "Success", action: "Producto agregado a DB correctamente", productos: prs})
-            :res.status(400).send({status: "Error", action: 'Campos Faltantes, mal escritos o  campo code repetido'})
-    }catch(error){
-        console.log(error)
-        res.status(400).send({status: "Error", action: 'Campos Faltantes o inválidos'})
-    }
-}
-
-const update = async (req,res)=>{
+const update = async (req,res, next)=>{
     try{
         const productUpdated = await productsService.update(req.params.id, req.body)
-        productUpdated
-         ? res.status(200).send({status: "Success", action: "Producto actualizado correctamente", product: productUpdated})
-         : res.status(400).send({status: "Error", reason: "Al producto le faltan campos o no existe "})   
+        
+        return res.status(200).json({success: true, message: "Producto actualizado correctamente", data: productUpdated})
+           
     }
     catch(error){
-        console.log(error)
-        res.status(500).json({success: false, status: "Error",error: "Error interno del servidor"});
+       next(error);
     }
  }
 
-const deleteProduct = async (req,res) => {
+const deleteProduct = async (req,res, next) => {
     try{
         const user = req.session
         const productDelete = await productsService.delProduct(req.params.id, user)
-        productDelete
-         ?res.status(200).send({status: "Success", action: "Producto borrado correctamente", product: productDelete})
-         :res.status(404).send({status: "Error", reason: "El producto no existe o no tienes permiso para borrarlo"})
+        return res.status(200).json({success: true, message: "Producto borrado correctamente", data: productDelete});
+        
     }
     catch(error){
-        console.log(error)
-        res.status(500).json({success: false, status: "Error",error: "Error interno del servidor"});
+        next(error);
     }
 }
 
@@ -165,7 +148,6 @@ module.exports = {
     getById,
     getManageableProducts,
     create,
-    addManyProducts,
     update,
     deleteProduct
 }

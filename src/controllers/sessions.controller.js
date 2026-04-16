@@ -63,7 +63,6 @@ const loginUser = async (req, res)=>{
         req.session.age = userFound.age
         req.session.rol = userFound.rol
         req.session.last_connection = userFound.last_connection
-        console.log("Session: ", req.session);
         
         if(req.session.rol === "Admin"){
             res.redirect("/admin")

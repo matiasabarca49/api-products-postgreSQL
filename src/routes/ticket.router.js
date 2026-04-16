@@ -7,7 +7,7 @@ const { getTicket, getTicketByIDCart } = require('../controllers/ticket.controll
 
 /* router.get("/", checkLogin ,getTicket)
 router.get("/filter", checkLogin ,getTicketByIDCart) */
-router.get("/",getTicket)
+router.get("/",checkLogin, getTicket)
 router.get("/filter",getTicketByIDCart)
 
 

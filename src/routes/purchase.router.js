@@ -5,7 +5,7 @@ const { Router } = express
 const router = new Router()
 
 router.get("/checkout", checkLogin, checkout)
-router.get("/me", getPurchasesFromUser)
+router.get("/me", checkLogin, getPurchasesFromUser)
 
 
 module.exports = router

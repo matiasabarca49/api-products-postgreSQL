@@ -1,6 +1,5 @@
 //Check Login
 function checkLogin(req, res, next){
-    console.log("Usuario logueado: ", req.session.user)
     if(req.session.user){
         next()
     }

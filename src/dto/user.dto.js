@@ -20,9 +20,6 @@ class UserDTO{
             email: user.email || "Not Declared",
             rol: user.rol || "Not Declared",
             last_connection: user.last_connection || "Not Declared",
-            documents: user.documents || [],
-            purchases: user.purchases || [],
-            cart: user.cart || [],
             created_at: user.created_at || "Not Declared",
             updated_at: user.updated_at || "Not Declared"
         }
@@ -35,14 +32,11 @@ const sendUserFormatted = (user) => {
     const userFormatted = {
         id: user._id, 
         name: user.name || "Not Declared",
-        lastName: user.lastName || "Not Declared",
+        lastName: user.last_name || "Not Declared",
         age: user.age || "Not Declared",
         email: user.email || "Not Declared",
         rol: user.rol || "Not Declared",
-        lastConnection: user.lastConnection || "Not Declared",
-        documents: user.documents || [],
-        purchases: user.purchases || [],
-        cart: user.cart || []
+        lastConnection: user.last_connection || "Not Declared",
     }
           
     return userFormatted

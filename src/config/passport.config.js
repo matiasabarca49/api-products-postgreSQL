@@ -9,12 +9,12 @@ const initializePassport = () =>{
     passport.use('register', new LocalStrategy(
         {passReqToCallback: true, usernameField: 'email'},
         async (req, username, password, done) => {
-            const { name, lastName, age, email} = req.body
+            const { name, last_name, age, email} = req.body
             //Verificamos que no falte ningun campo si no frenamos la operacion
-            if(!name || !lastName || !age || !email || !req.body.password) done({status: "ERROR", reason: "Campos erronéos o faltantes"})
+            if(!name || !last_name || !age || !email || !req.body.password) done({success: false, error: "Campos erronéos o faltantes"})
             try {
                 //Verificamos si el usuario existe en la DB 
-                const userFound = await usersService.findRawByFilter({email: email})
+                const userFound = await usersService.findByEmailRAW(email);
                 //En caso de que el usuario exista. Frenamos la operacion, redirigimos e indicamos que ya existe
                 if(userFound){
                     done(null, false)
@@ -28,8 +28,7 @@ const initializePassport = () =>{
                 }
 
             } catch (error) {
-                console.log(error)
-                done({status: "ERROR", reason: error})
+                done({success: false, error: error})
             }
         }
     )),
@@ -42,11 +41,9 @@ const initializePassport = () =>{
                 //Verificamos si el usuario existe en la DB
                 const {email, password} = req.body
                 const userFound = await usersService.findByEmailRAW(email);
-                console.log("Usuario encontrado en login: ", userFound);
                 //Si existe, verificamos que la "password" proviniente del body, sea correcta.
                 if(userFound){
                     const checkPassword = isValidPassword(userFound.password, password);
-                    console.log("Contraseña correcta: ", checkPassword);
                     checkPassword 
                         //Si la contraseña es correcta, se actualiza la fecha de ultima conexion
                         ? done(null, await usersService.updateLastConnection(userFound.id))

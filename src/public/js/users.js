@@ -50,7 +50,7 @@ async function loadUsers() {
         const response = await fetch(API_URL);
         const data = await response.json();
         console.log("Usuarios obtenidos: ", data);
-        users = data.data.docs || [];
+        users = data.data.payload || [];
         applyFilters();
     } catch (error) {
         showError('Error al cargar usuarios: ' + error.message);
@@ -225,7 +225,7 @@ async function saveUser() {
             loadUsers();
             showSuccess(userId ? 'Usuario actualizado exitosamente' : 'Usuario creado exitosamente');
         } else {
-            showError(data.message || 'Error al guardar usuario');
+            showError(data.error.message || 'Error al guardar usuario');
         }
     } catch (error) {
         showError('Error al guardar usuario: ' + error.message);

@@ -47,10 +47,10 @@ const fetchProducts = (page)=>{
     fetch(`http://localhost:8080/api/products/admin?page=${page}`)
     .then( response => response.json())
     .then( data => {
-        products = data
+        products = data.data
         //Una vez obtenido los productos se llama la funcion que los renderiza en el DOM
-        renderProducts(data.payload)
-        renderBotonPage(data)
+        renderProducts(data.data.payload)
+        renderBotonPage(data.data)
     })
 }
 const fetchProductsOpts = (page,limit, sort, query)=>{
@@ -58,11 +58,10 @@ const fetchProductsOpts = (page,limit, sort, query)=>{
     fetch(`http://localhost:8080/api/products/admin?page=${page}&&limit=${limit}&&sort=${sort}&&category=${query}`)
     .then( response => response.json())
     .then( data => {
-        products = data
-        console.log(data)
+        products = data.data
         //Una vez obtenido los productos se llama la funcion que los renderiza en el DOM
-        renderProducts(data.payload)
-        renderBotonPage(data)
+        renderProducts(data.data.payload)
+        renderBotonPage(data.data)
     })
 }
 
@@ -72,10 +71,10 @@ const fetchProductsSearch = (search)=>{
     fetch(`http://localhost:8080/api/products/admin?title=${search}`)
     .then( response => response.json())
     .then( data => {
-        products = data.payload
+        products = data.data
         //Una vez obtenido los productos se llama la funcion que los renderiza en el DOM
-        renderProducts(data.payload)
-        renderBotonPage(data)
+        renderProducts(data.data.payload)
+        renderBotonPage(data.data)
     })
 }
 
@@ -212,7 +211,7 @@ async function getProductById(productId) {
     //obtener los datos del producto
     const res = await fetch(`http://localhost:8080/api/products/${productId}`)
     const data = await res.json()
-    return data.producto
+    return data.data
 }
 
 // Función para actualizar el producto)
@@ -287,14 +286,14 @@ btnAddProduct.addEventListener('click', () =>{
 //Evento que permite renderizar los elementos de la pagina siguiente
 const nextPag = document.getElementById("nextPag")
 nextPag.addEventListener("click", ()=>{
-    page = products.nextPage == null? page : products.nextPage
+    page = products.hasNextPage? page + 1 : page
     //Evita que se llame la funcion si la proxima pagina es "null"
     page && fetchProductsOpts(page,limit, sort, query)
 })
 //Evento que permite renderizar los elementos de la pagina anterior
 const prevPag = document.getElementById("prevPag")
 prevPag.addEventListener("click", ()=>{
-    page = products.prevPage == null? page : products.prevPage
+    page = products.hasPrevPage? page - 1 : page
     page && fetchProductsOpts(page,limit, sort, query)
 })
 

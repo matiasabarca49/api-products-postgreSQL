@@ -15,10 +15,6 @@ router.get("/products", checkPermAdminAndPremium ,(req,res)=>{
     res.render("admProducts", {userLoged: req.session})
 })
 
-router.get( "/products/add", checkPermAdminAndPremium, (req,res) => {
-    res.render('realTimeProducts', {rol: req.session.rol, userLoged: req.session})
-})
-
 router.get("/users", checkPermAdmin ,async (req, res)=>{
     res.render("users", {userLoged: req.session})
 })

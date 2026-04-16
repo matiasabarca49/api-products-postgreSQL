@@ -10,7 +10,7 @@ const getUsersPageController = async (req, res) =>{
         const products = await productsService.findManageableProducts(req.session);
         const users =  await usersService.findAll();
     
-        return res.render('admin',{ products: products.docs, users: users.docs, userLoged: req.session })
+        return res.render('admin',{ products: products.payload, users: users.payload, userLoged: req.session })
         
     }catch(error){
         console.log(error);

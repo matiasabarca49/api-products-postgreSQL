@@ -1,5 +1,5 @@
-// src/config/db.pg.js
 const { Pool } = require('pg')
+const logger = require('../utils/logger/loggers.js')
 
 const pool = new Pool({
     host:     process.env.PG_HOST,
@@ -12,10 +12,10 @@ const pool = new Pool({
 // Verificamos la conexión al iniciar
 pool.connect((err, client, release) => {
     if (err) {
-        console.error('Error conectando a PostgreSQL:', err.message)
+        logger.error('Error conectando a PostgreSQL:', err.message)
         return
     }
-    console.log('PostgreSQL conectado')
+    logger.info('✅ PostgreSQL conectado')
     release() // devuelve la conexión al pool
 })
 

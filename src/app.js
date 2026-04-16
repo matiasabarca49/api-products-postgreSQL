@@ -1,9 +1,9 @@
-const config = require('./config/config.js')
+/* const config = require('./config/config.js') */
 const express = require("express")
 const handlebars = require("express-handlebars")
-const http = require('http')
+/* const http = require('http') */
 const app = express()
-const server = http.createServer(app)
+/* const server = http.createServer(app) */
 const cors = require('cors')
 
 //Pool de conexiones
@@ -45,8 +45,8 @@ app.use(express.static(__dirname + '/public'))
 const compression = require('express-compression')
 app.use(compression())
 //Logger
-const addLogger = require('./utils/logger/loggers.js')
-app.use(addLogger)
+const winstonLoggers = require('./middlewares/logger.middleware.js')
+app.use(winstonLoggers)
 //CORS
 app.use(cors())
 
@@ -92,7 +92,6 @@ const routeCarts = require('./routes/cart.router.js')
 const routeCartItems = require('./routes/cartItem.router.js')
 const routePurchase = require('./routes/purchase.router.js')
 /* const routeChat = require('./routes/chat.router.js') */
-const routeLoggerTest = require('./routes/logger.router.js')
 const routeMailAPI = require('./routes/mail.router.js')
 const routeTicket = require('./routes/ticket.router.js')
 const routeSessions = require('./routes/sessions.router.js')
@@ -120,22 +119,12 @@ app.use("/", routeViewStore)
 app.use("/admin", routeViewAdm)
 app.use("/mockingproducts", routeMocks)
 /* app.use("/chat", routeChat) */
-app.use("/loggerTest", routeLoggerTest)
 app.use("/users", routeViewUsers)
 app.use('*', routeError)
 
-/**
- * Websockets 
- **/
-const { webSocket } = require('./controllers/websockets.controller.js')
-webSocket(server)
 
-const port = process.env.PORT || config.port
+//Manejador de errores
+const { errorHandler } = require('./middlewares/errorHandler.middleware.js')
+app.use(errorHandler);
 
-
-//Levantar el servidor para que empiece a escuchar
-server.listen(`${port}`, ()=>{ 
-    //Conectar base de datos
-    console.log("[INFO] Environment Mode Option: ", config.environment);
-    
-})
+module.exports = app;
