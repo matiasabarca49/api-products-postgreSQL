@@ -8,7 +8,18 @@ class ProductsRepository{
         this.pool = pool
     }
 
-    //Para tienda: JOIN con categorías, filtros dinámicos, paginación y conteo total
+    /**
+     * Obtener productos para la tienda con paginación, filtro y ordenamiento.
+     * Paginacion:
+     * @param {number} [limit=10]
+     * @param {number} [page=1]
+     * @param {number} [sort=1]
+     * Filtros:
+     * @param {Object} filters - Objeto con los filtros a aplicar (title, category, priceMin, priceMax)
+     * @param {string} [filters.title] - Filtro de búsqueda parcial por título
+     * @param {string} [filters.category_id] - Filtro por categoría
+     * @returns {Promise<Array<Object>>} Objeto con los productos encontrados y la información de paginación 
+     */
     async findAll(filters = {}, limit = 10, page = 1, sort = 1) {
         try{
             const offset = (page - 1) * limit
@@ -74,7 +85,18 @@ class ProductsRepository{
         }
     }
 
-     //Para tienda: JOIN con categorías, filtros dinámicos, paginación y conteo total
+   /**
+     * Obtener productos para la administración con paginación, filtro y ordenamiento.
+     * Paginacion:
+     * @param {number} [limit=10]
+     * @param {number} [page=1]
+     * @param {number} [sort=1]
+     * Filtros:
+     * @param {Object} filters - Objeto con los filtros a aplicar (title, category, priceMin, priceMax)
+     * @param {string} [filters.title] - Filtro de búsqueda parcial por título
+     * @param {string} [filters.category_id] - Filtro por categoría
+     * @returns {Promise<Array<Object>>} Objeto con los productos encontrados y la información de paginación 
+     */
     async findAllAdmin(filters = {}, limit = 10, page = 1, sort = 1) {
         try{
 
@@ -141,7 +163,11 @@ class ProductsRepository{
         }
     }
 
-    // findByID también con JOIN
+    /**
+     * Buscar un producto por su ID
+     * @param {number} id - ID del producto a buscar
+     * @returns {Promise<Object>} Producto encontrado
+     */
     async findByID(id) {
 
         const result = await this.pool.query(
@@ -156,6 +182,11 @@ class ProductsRepository{
         return result.rows[0] ?? null
     }
 
+    /**
+     * Verificar si existe un producto por su ID
+     * @param {number} id - ID del producto a verificar
+     * @returns {Promise<boolean>} Retorna true si el producto existe, false si no existe
+     */
     async existByID(id) {
         const result = await this.pool.query(
             `SELECT 1 FROM products WHERE id = $1`,
@@ -164,6 +195,11 @@ class ProductsRepository{
         return result.rowCount > 0
     }
 
+    /**
+     * Buscar el ID de una categoría por su nombre
+     * @param {string} categoryName - Nombre de la categoría a buscar
+     * @returns {Promise<number|null>} Retorna el ID de la categoría si se encuentra, o null si no se encuentra
+     */
     async findCategoryByName(categoryName) {
         const result = await this.pool.query(
             `SELECT id FROM categories WHERE name = $1`,
@@ -172,7 +208,12 @@ class ProductsRepository{
         return result.rows[0]?.id ?? null
     }
 
-
+    /**
+     * Crear un nuevo producto
+     * @param {Object} data - Objeto con los datos del producto a crear
+     * @returns {Promise<Object>} Producto creado
+     * @throws {DuplicateException} Si se intenta crear un producto con un code o title que ya existe en la base de datos
+     */
     async create(data) {
         try{
             const keys   = Object.keys(data)
@@ -198,6 +239,13 @@ class ProductsRepository{
         }
     }
 
+    /**
+     * Actualizar un producto por su ID
+     * @param {number} id - ID del producto a actualizar
+     * @param {Object} data - Objeto con los datos a actualizar del producto
+     * @returns {Promise<Object>} Producto actualizado
+     * @throws {Error} Si ocurre un error durante la actualización del producto
+     */
     async update(id, data) {
         try{
             const keys   = Object.keys(data)
@@ -219,6 +267,13 @@ class ProductsRepository{
         }
     }
 
+/**
+ * Actualizar el stock de los productos en el carrito
+ * @param {Array<{id: number, quantity: number}>} cartItems - Array con los productos del carrito, cada uno con su ID y la cantidad a comprar
+ * @returns {Promise<void>} No retorna nada, pero lanza un error si no hay stock suficiente para alguno de los productos o si ocurre un error durante la actualización
+ * @throws {AppError} Si no hay stock suficiente para alguno de los productos del carrito
+ * @throws {Error} Si ocurre un error durante la actualización del stock de los productos
+ */
   async updateStock(cartItems) {
         const client = await this.pool.connect();
 
@@ -250,6 +305,12 @@ class ProductsRepository{
         }
     }  
 
+    /**
+     * Eliminar un producto por su ID
+     * @param {number} id - ID del producto a eliminar
+     * @returns {Promise<Object>} Producto eliminado
+     * @throws {Error} Si ocurre un error durante la eliminación del producto
+     */
     async delete(id) {
         try{
             const result = await this.pool.query(
@@ -265,6 +326,12 @@ class ProductsRepository{
         
     }
 
+    /**
+     * Verificar si hay stock suficiente para un producto dado su ID y la cantidad requerida
+     * @param {number} product_id - ID del producto a verificar
+     * @param {number} quantity - Cantidad requerida para la compra
+     * @returns {Promise<boolean>} Retorna true si hay stock suficiente, false si no lo hay
+     */
     async verifyStock(product_id, quantity){
         try{
             const {rows} = await this.pool.query(

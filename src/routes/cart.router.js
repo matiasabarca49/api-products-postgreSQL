@@ -6,37 +6,30 @@ const { Router } = express
 const router = new Router()
 
 //middleware
-const { checkPerCart,checkPerAdmCart, checkPermAdmin } = require('../middlewares/permissions.middleware.js')
+const { checkPermAdmin } = require('../middlewares/permissions.middleware.js')
 
 
 /** 
  *  GET
  **/
-//Obtener el carritos por ID
+
+/**
+ * @route   GET /api/carts
+ * @desc    Obtener lista paginada de carritos con filtros
+ * @access  Private (Admin)
+ * @query   {number} [page=1] - Número de página
+ * @query   {number} [limit=10] - Cantidad de registros por página
+ * @query   {string} [sort=id] - Campo por el cual ordenar
+ * @query   {string} [order=asc] - Dirección del orden (asc/desc)
+ */
 router.get("/", checkPermAdmin, controller.findAll);
-//Obtener el carritos por ID
-router.get("/:cid", checkPerCart, controller.getCartByID )
-//Realiza la compra de los productos almacenados en el carrito del usuario
-router.get("/:cid/purchase", checkPerAdmCart, controller.completeCartPurchase)
 
-/** 
- *  POST
- **/
-//Agrega un cart a la DB(/api/carts/). Para agregar productos al usuario revise su enpoint(/api/users/addcart)
-router.post("/", checkPerAdmCart,controller.addCart)
-router.post("/:cid/product/:pid", checkPerAdmCart,controller.addProductInCart)
-
-/** 
- *  PUT
- **/
-router.put("/:cid", checkPerCart,controller.updateFullCartInDB)
-router.put("/:cid/product/:pid", checkPerAdmCart,controller.updateProductCartInDB)
-
-/** 
- *  DELETE
- **/
-router.delete("/:cid/product/:pid", checkPerAdmCart,controller.deleteProductInCart )
-router.delete("/:cid", checkPerCart, controller.deleteFullCart)
-
+/**
+ * @route   GET /api/carts/:cid
+ * @desc    Obtener carrito por id (Solo Administradores)
+ * @access  Private (Admin)
+ * @middleware checkPermAdmin
+ */
+router.get("/:cid", checkPermAdmin, controller.getCartByID )
 
 module.exports = router

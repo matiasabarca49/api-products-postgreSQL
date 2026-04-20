@@ -2,7 +2,7 @@ const { createHash, isValidPassword } = require('../utils/utils.js')
 const { UserDTO } = require('../dto/user.dto.js')
 const { transporter } = require('../config/config.js')
 const { generateFormatEmail } = require('../utils/utils.js')
-const UsersRepository = require('../repositories/implementations/user.repository.js')
+const UsersRepository = require('../repositories/postgreSQL/user.repository.js')
 const { NotFoundException, ForbiddenException } = require('../exceptions/validation.exception.js')
 
 

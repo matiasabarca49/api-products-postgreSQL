@@ -2,59 +2,66 @@ const CartItemService = require("../service/cartItem.service");
 const cartItemService = new CartItemService();
 
 
-const getCartItemsByUser = async (req, res) =>{
+/*
+*Obtener todos los carritos del Usuario
+ El usuario tiene que estar logueado
+*/
+const getCartItemsByUser = async (req, res, next) =>{
     try{
         const cartItems = await cartItemService.getCartItemsByUser(req.session.idUser);
-        return res.json({success: true, data:cartItems});
+        return res.status(200).json({success: true, data:cartItems});
     }catch(error){
-        console.error('Error al obtener los items del carrito:', error);
-        return res.status(500).json({success: false, message: 'Error al obtener los items del carrito', error: error.message});
+        next(error);
     }
 }
 
-
-const getCartItemById = async (req, res) =>{
-
-}
-
-const getCantItemsInCart = async (req, res) =>{
+/*
+* Obtener la cantidad(numero) de productos en el carrito. 
+  El usuario tiene que estar logueado
+*/
+const getCantItemsInCart = async (req, res, next) =>{
     try{
 
         const cant = await cartItemService.getCantItemsInCart(req.session.idUser);
 
         return res.status(200).json({success: true, data: cant});
     }catch(error){
-        console.error(error);
-        return res.status(500).json({success: false, error: "Error en el servidor"})
+        next(error);
     }
 }
 
-const addProductToCart = async (req, res) =>{
+/*
+* Agregar un producto al carrito actual del usuario
+ @query {number} product_id - id del producto que se quiere agregar
+ @query {number} quantity - cantidad de producto que se quiere agregar
+*/
+const addProductToCart = async (req, res, next) =>{
     try{
         const {product_id, quantity } = req.body;
         const addedItem = await cartItemService.addProductToCart(req.session.idUser, product_id, quantity);
-        return res.json({success: true, data:addedItem});
+        return res.status(200).json({success: true, data:addedItem});
     }catch(error){
-        console.error('Error al agregar el producto al carrito:', error);
-        return res.status(500).json({success: false, message: 'Error al agregar el producto al carrito', error: error.message});
+        next(error);
     }
 }
 
-const removeProductFromCart = async (req, res) =>{
+/**
+ * Remover un producto del carrito actual del usuario
+ * @param {number} id id del producto a eliminar
+ */
+const removeProductFromCart = async (req, res, next) =>{
     try{
         const { id } = req.params;
         await cartItemService.removeProductFromCart(req.session.idUser, id);
-        return res.json({success: true, message: 'Producto eliminado del carrito'});
+        return res.status(200).json({success: true, message: 'Producto eliminado del carrito'});
     }catch(error){
-        console.error('Error al eliminar el producto del carrito:', error);
-        return res.status(500).json({success: false, message: 'Error al eliminar el producto del carrito', error: error.message});
+        next(error);
     }
 }
 
 
 module.exports = { 
     getCartItemsByUser,
-    getCartItemById,
     getCantItemsInCart,
     addProductToCart,
     removeProductFromCart

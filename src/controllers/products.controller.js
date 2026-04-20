@@ -6,7 +6,18 @@ const EErrors = require('../utils/errors/ErrorEnums.js')
 const ProductsService = require('../service/products.service.js')
 const productsService = new ProductsService()
 
-//Obtener todos los productos con paginación, filtro y ordenamiento para la store
+/**
+ * Obtener productos para la tienda con paginación, filtro y ordenamiento. NO retornar productos con status false (inactivos).
+ * Paginacion:
+ * @param {number} [limit=10] 
+ * @param {number} [page=1]
+ * @param {number} [sort=1] 
+ * Filtros:
+ * @param {string} [title] - Filtro de búsqueda parcial por título
+ * @param {string} [category] - Filtro por categoría
+ * @param {number} [priceMin] - Filtro de precio mínimo
+ * @param {number} [priceMax] - Filtro de precio máximo
+ */
 const getProducts = async (req,res, next) =>{
     try{
         const { limit = 10, page = 1, sort = 1 } = req.query;
@@ -41,6 +52,10 @@ const getProducts = async (req,res, next) =>{
     }
 }
 
+/**
+ * Obtener un producto por su ID
+ * @param {string} id - ID del producto a obtener
+ */
 const getById = async (req,res, next) =>{
     try{
         const {id} = req.params
@@ -52,7 +67,18 @@ const getById = async (req,res, next) =>{
     }
 }
 
-//Obtener productos para el panel de administración (Solo Admin y Premium)
+/**
+ * Obtener productos para el panel de administración. Retornar todos los productos sin importar su status, pero solo los productos del usuario si es Premium. Admin puede ver todos los productos.
+ * Paginacion:
+ * @param {number} [limit=10] - Cantidad de registros por página
+ * @param {number} [page=1] - Número de página
+ * @param {string} [sort=1] - Campo por el cual ordenar (sort=1 para ascendente por precio, sort=-1 para descendente por precio)
+ * Filtros:
+ * @param {string} [title] - Filtro de búsqueda parcial por título
+ * @param {string} [category] - Filtro por categoría
+ * @param {number} [priceMin] - Filtro de precio mínimo
+ * @param {number} [priceMax] - Filtro de precio máximo
+ */
 const getManageableProducts = async(req, res, next) => {
     try{
         const { limit = 10, page = 1, sort = 1} = req.query;
@@ -86,6 +112,18 @@ const getManageableProducts = async(req, res, next) => {
     }
 }
 
+/**
+ * Crear un nuevo producto. Solo usuarios con rol Premium o Admin pueden crear productos.
+ * @body {string} title - Título del producto (requerido)
+ * @body {string} description - Descripción del producto
+ * @body {string} code - Código del producto (requerido)
+ * @body {number} stock - Cantidad en stock (requerido)
+ * @body {number} price - Precio del producto
+ * @body {string} category - Categoría del producto
+ * @body {string} thumbnail - URL de la imagen del producto
+ * @body {boolean} status - Estado del producto (activo/inactivo)
+ * @body {string} owner - Usuario que creó el producto
+ */
 const create = async (req, res, next) =>{
     const {title, code, stock} = req.body
     try {
@@ -118,6 +156,10 @@ const create = async (req, res, next) =>{
     
 }
 
+/**
+ * Actualizar un producto por su ID. Solo usuarios con rol Premium o Admin pueden actualizar productos. Premium solo puede actualizar sus productos, Admin puede actualizar cualquier producto.
+ * @params {string} id - ID del producto a actualizar
+ */
 const update = async (req,res, next)=>{
     try{
         const productUpdated = await productsService.update(req.params.id, req.body)
@@ -130,6 +172,10 @@ const update = async (req,res, next)=>{
     }
  }
 
+ /**
+  * Eliminar un producto por su ID. Solo usuarios con rol Premium o Admin pueden eliminar productos. Premium solo puede eliminar sus productos, Admin puede eliminar cualquier producto.
+  * @params {string} id - ID del producto a eliminar
+  */
 const deleteProduct = async (req,res, next) => {
     try{
         const user = req.session

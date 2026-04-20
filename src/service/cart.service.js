@@ -1,5 +1,6 @@
-const CartDTO = require('../dto/cart.dto.js')
-const CartRepository = require('../repositories/implementations/cart.repository.js');
+const CartDTO = require('../dto/cart.dto.js');
+const { NotFoundException } = require('../exceptions/validation.exception.js');
+const CartRepository = require('../repositories/postgreSQL/cart.repository.js');
 
 class CartService{
     constructor(){
@@ -7,25 +8,28 @@ class CartService{
     }
     
 
+    /**
+     * @inheritdoc
+     * @description Obtener todos los carritos
+     */
     async findAll(limit = 10, page = 1){
         return await this.repository.findAll(limit, page);
     }
 
+    /**
+     * @inheritdoc
+     * @description Obtener un carrito por su id
+     */
     async findById(cart_id){
-        return await this.repository.findById(cart_id);
+
+        const carts = await this.repository.findById(cart_id);
+
+        if(!carts){
+            throw new NotFoundException(`No se encontró el carrito con id ${cart_id}`);
+        }
+
+        return carts
     }
-
-    async create(cartItems){
-        //1 - Crear carrito
-        const newCart = await this.repository.create({date_cart: new Date()});
-        //2 - Asignar los productos a eso carrito tabla cart_products
-        await this.repository.assignProductsToCart(newCart.id, cartItems);
-        //3 - contar la cantidad
-        newCart.product = await this.repository.sumTotal(newCart.id);
-
-        return newCart;
-    }
-
 
      /**
      * 

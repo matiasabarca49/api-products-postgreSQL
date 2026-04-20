@@ -13,6 +13,13 @@ class PurchaseRepository{
         this.ticketRepository = new TicketRepository();
     }
 
+    /**
+     * Obtiene todas las compras del usuario con paginación.
+     * @param {number} idUser 
+     * @param {number} [limit=10] 
+     * @param {number} [page=1] 
+     * @returns {Promise<Object>} Resultado con las compras y metadata de paginación.
+     */
     async findAll(idUser, limit = 10, page= 1){
         try{
             const offset = ( page - 1 ) * limit;
@@ -24,11 +31,12 @@ class PurchaseRepository{
                 FROM (
                     SELECT * FROM purchases
                     WHERE user_id = $1
-                    ORDER BY cart_id
+                    ORDER BY cart_id DESC
                     LIMIT $2 OFFSET $3
                 ) pc
                 JOIN cart_products cp ON cp.cart_id = pc.cart_id
                 JOIN products p ON p.id = cp.product_id
+                ORDER BY pc.cart_id DESC
             `;
 
             const sqlCount = 
@@ -77,7 +85,7 @@ class PurchaseRepository{
             const totalPages = Math.ceil(totalDocs / limit)
 
             return {
-                docs: purchases,
+                payload: purchases,
                 totalDocs,
                 totalPages,
                 page,
@@ -87,48 +95,23 @@ class PurchaseRepository{
             }
 
         }catch(error){
-            console.log(error);
             throw error
         }
 
     }
 
-    async create(idUser, cart){
-        try{
-            const sql = `INSERT INTO purchases (user_id, cart_id, date_cart) VALUES ($1, $2, $3) RETURNING *`;
-
-            const result = await this.pool.query(sql, [idUser, cart.id, cart.date_cart]);
-
-            return result.rows[0];
-
-        }catch(error){
-            console.error('Error en create purchase: ', error);
-            throw error;
-        }
-    }
-
+    /**
+     * Completa el proceso de compra del carrito del usuario.
+      * Con Transacción, manejo de errores y rollback.
+     * @param {number} idUser 
+     * @param {Array<Object>} cartItems 
+     * @returns {Promise<Object>} Ticket generado por la compra
+     */
     async checkout(idUser, cartItems){
         const client = await this.pool.connect();
         try{
             //Comenzamos transaccion
             await client.query('BEGIN');
-
-            /* console.log("Comenzando transaccion ---------")
-
-            //1-Obtener cart_items del usuario
-             const { rows : cartItems } = await client.query(
-                `SELECT p.id, p.title, p.description, p.price, p.code, p.thumbnail, 
-                c.name as category,
-                ci.quantity 
-                FROM cart_items ci
-                JOIN products p ON ci.product_id = p.id
-                JOIN categories c ON p.category_id = c.id
-                WHERE ci.user_id = $1
-                `
-                , [idUser]);
-            console.log("Obteniendo Carrito del usuario ......")
-            //2-Verificar stock por cada producto — los que no tienen stock se separan */
-            
             
             //3-Crear registro en carts 
              const { rows: [cart] } = await client.query(
@@ -203,9 +186,6 @@ class PurchaseRepository{
             return ticket;
 
         }catch(error){
-            console.log("Error transaccion X X X X X")
-            console.log("Disparando RollBack")
-            console.error(error)
             await client.query('ROLLBACK');
             throw error;
         }finally{

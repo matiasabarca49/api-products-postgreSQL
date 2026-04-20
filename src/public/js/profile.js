@@ -1,15 +1,17 @@
-const loadPurchases = async () => {
+let currentPage = 1;
+
+const loadPurchases = async (page = 1) => {
     const container = document.getElementById('compras');
-    
-    const res = await fetch('/api/purchases/me');
+
+    const res = await fetch(`/api/purchases/me?page=${page}&limit=5`);
     const { data } = await res.json();
 
-    if (!data.docs.length) {
+    if (!data.payload.length) {
         container.innerHTML = `<p style="color:rgba(255,255,255,0.7)">No hay compras realizadas.</p>`;
         return;
     }
 
-    container.innerHTML = data.docs.map(purchase => `
+    container.innerHTML = data.payload.map(purchase => `
         <div class="purchase-item">
             <div class="purchase-header">
                 <div class="purchase-date">
@@ -34,6 +36,42 @@ const loadPurchases = async () => {
             </div>
         </div>
     `).join('');
+
+    renderPagination(data);
+};
+
+const renderPagination = ({ page, totalPages, hasPrevPage, hasNextPage}) => {
+    const existing = document.getElementById('pagination');
+    if (existing) existing.remove();
+
+    if (totalPages <= 1) return;
+
+    const nav = document.createElement('div');
+    nav.id = 'pagination';
+    nav.className = 'pagination-container';
+    nav.innerHTML = `
+        <ul class="pagination">
+            <li class="page-item">
+                <button class="page-btn" ${!hasPrevPage ? 'disabled style="opacity:0.4;cursor:default"' : ''} 
+                    onclick="changePage(${page - 1})">‹ Anterior</button>
+            </li>
+            <li class="page-item">
+                <span class="page-btn" style="cursor:default">${page} / ${totalPages}</span>
+            </li>
+            <li class="page-item">
+                <button class="page-btn" ${!hasNextPage ? 'disabled style="opacity:0.4;cursor:default"' : ''} 
+                    onclick="changePage(${page + 1})">Siguiente ›</button>
+            </li>
+        </ul>
+    `;
+
+    document.getElementById('compras').after(nav);
+};
+
+const changePage = (page) => {
+    currentPage = page;
+    loadPurchases(page);
+    window.scrollTo({ top: document.getElementById('compras').offsetTop - 20, behavior: 'smooth' });
 };
 
 loadPurchases();

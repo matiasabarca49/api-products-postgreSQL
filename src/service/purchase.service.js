@@ -1,5 +1,4 @@
-const PurchaseRepository = require("../repositories/implementations/purchase.repository.js");
-const CartService = require("./cart.service.js");
+const PurchaseRepository = require("../repositories/postgreSQL/purchase.repository.js");
 const CartItemService = require("./cartItem.service.js");
 const ProductsService = require("./products.service.js");
 const TicketService = require("./ticket.service.js");
@@ -9,10 +8,27 @@ class PurchaseService {
         this.repository  = new PurchaseRepository();
         this.cartItemService = new CartItemService();
         this.productService = new ProductsService();
-        this.cartService = new CartService();
         this.ticketService = new TicketService()
     }
 
+    /**
+     * Obtener las compras del usuario logueado con paginación.
+      * Se debe estar logueado para acceder a esta información.
+      * @param {number} idUser 
+      * @param {number} limit 
+      * @param {number} page 
+      * @returns {Promise<Array>} Lista de compras del usuario.
+     */
+    async getPurchasesByUser(idUser, limit = 10, page = 1){
+        return this.repository.findAll(idUser, limit, page);
+    }
+
+    /**
+     * Realiza el proceso de compra del carrito del usuario. 
+     * Con Transacción, manejo de errores y rollback.
+     * @param {*} idUser 
+     * @returns 
+     */
     async checkout(idUser){
         //1 Obtener productos agregados al carrito
         const cartItems = await this.cartItemService.getCartItemsByUser(idUser);
@@ -24,14 +40,15 @@ class PurchaseService {
             }))
         );
 
+        //Separar los productos con stock de los que no tienen stock
         const withStock = results.filter(item => item.hasStock);
-        const withoutStock = results.filter(item => !item.hasStock);
+        //const withoutStock = results.filter(item => !item.hasStock);
 
-        console.log(withoutStock)
-
+        //Continuar con el proceso de compra solo con los productos que tienen stock
         return await this.repository.checkout(idUser, withStock);
     }
 
+    //Completar purchase. Sin transacción, sin manejo de errores, sin rollback. Solo para probar la lógica de negocio.
     async purchase(idUser){
         /* 
         1-Obtener cart_items del usuario
@@ -73,11 +90,6 @@ class PurchaseService {
         //8-Vaciar cart_items del usuario
         await this.cartItemService.removeProductFromCart(idUser);
         return ticket;
-    }
-
-
-    async getPurchasesByUser(idUser, limit = 10, page = 1){
-        return this.repository.findAll(idUser, limit, page);
     }
 
 }

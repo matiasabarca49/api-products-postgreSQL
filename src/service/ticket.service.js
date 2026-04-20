@@ -1,5 +1,5 @@
 const TicketDTO = require('../dto/ticket.dto.js');
-const TicketRepository = require('../repositories/implementations/ticket.repository.js');
+const TicketRepository = require('../repositories/postgreSQL/ticket.repository.js');
 
 
 class TicketService{

@@ -6,7 +6,13 @@ class CartRepository{
         this.pool = pool
     }
 
-    //Para tienda: JOIN con categorías, filtros dinámicos, paginación y conteo total
+    /**
+     * Obtiene una lista paginada de carritos con sus respectivos productos.
+     * * @param {number} [limit=10] - Cantidad de registros por página.
+     * @param {number} [page=1] - Número de página actual.
+     * @param {number} [sort=1] - Dirección del ordenamiento (1 para ASC, -1 para DESC).
+     * @returns {Promise<Object>} Objeto con los carritos, total de páginas y metadatos de navegación.
+     */
     async findAll(limit = 10, page = 1, sort = 1) {
         const offset = (page - 1) * limit
 
@@ -30,8 +36,11 @@ class CartRepository{
 
         const { rows } = dataResult;
 
-        console.log(rows);
-        
+        /**
+         * Transformación de datos:
+         * Como la consulta SQL devuelve una fila por cada producto (repitiendo datos del carrito),
+         * agrupamos los productos dentro de su carrito correspondiente usando .reduce()
+         */
         const carts = rows.reduce((acc, row) => {
             let cart = acc.find(c => c.cart_id === row.cart_id);
             
@@ -53,8 +62,9 @@ class CartRepository{
         }, []);
         
 
+        // Retornamos la estructura final
         return {
-            docs: carts,
+            payload: carts,
             totalDocs,
             totalPages,
             page,
@@ -64,7 +74,11 @@ class CartRepository{
         }
     }
 
-    // findByID también con JOIN
+    /**
+     * Obtiene un carrito por id.
+     * * @param {number} id - Cantidad de registros por página.
+     * @returns {Promise<Object> | null} Objeto con los carritos, total de páginas y metadatos de navegación.
+     */
     async findById(id) {
         const result = await this.pool.query(
             `SELECT * FROM carts
@@ -74,6 +88,12 @@ class CartRepository{
         return result.rows[0] ?? null
     }
 
+    /**
+   * Verifica si carrito ya existe en la DB.
+   * @param {number} userId - Identificador del usuario.
+   * @param {number} productId - Identificador del producto.
+   * @returns {Promise<boolean>} True si el carrito ya existe en la DB, false en caso contrario.
+   */
     async existByID(id) {
         const result = await this.pool.query(
             `SELECT 1 FROM carts WHERE id = $1`,
@@ -82,6 +102,11 @@ class CartRepository{
         return result.rowCount > 0
     }
 
+    /**
+     * Crear un carrito en la DB
+     * @param {Object} data 
+     * @returns 
+     */
     async create(data) {
         const keys   = Object.keys(data)
         const values = Object.values(data)
@@ -99,6 +124,11 @@ class CartRepository{
         return result.rows[0]
     }
 
+    /**
+     * Asignar productos al carrito que existe en la DB.
+     * @param {number} cart_id 
+     * @param {Array<Object>} cartItems 
+     */
     async assignProductsToCart(cart_id, cartItems) {
         const client = await this.pool.connect();
         try {
@@ -121,6 +151,12 @@ class CartRepository{
         }
     }
 
+    /**
+     * Sumar el total de un carrito en DB
+     * @param {number} cart_id 
+     * @returns {Promise<Object>} Retornar una promesa. La promesa resuelve en un objeto que nos dice el total y cantidad
+     * de productos en un carrito
+     */
     async sumTotal(cart_id) {
         const result = await this.pool.query(
             `SELECT SUM(p.price * cp.quantity) AS total, SUM(cp.quantity) AS cant_product
@@ -135,6 +171,12 @@ class CartRepository{
         }
     }
 
+    /**
+     * Actualizar carrito por ID
+     * @param {number} id 
+     * @param {Object} data - Objeto que contiene la actualizacion de una fila en la tabla carts
+     * @returns {Promise<Object>}
+     */
     async update(id, data) {
         const keys   = Object.keys(data)
         const values = Object.values(data)
@@ -150,11 +192,14 @@ class CartRepository{
             [...values, id]
         )
 
-        console.log("Resultado del update: ", result.rows[0]);
-
         return result.rows[0] ?? null
     }
 
+    /**
+     * Eliminar un carrito de la DB
+     * @param {number} id 
+     * @returns {Promise<Object>}
+     */
     async delete(id) {
         const result = await this.pool.query(
             `DELETE FROM products
