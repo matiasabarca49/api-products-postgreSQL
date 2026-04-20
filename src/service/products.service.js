@@ -1,8 +1,7 @@
-const { transporter } = require("../config/config.js");
-const { generateFormatEmail } = require("../utils/utils.js");
 const ProductDTO = require("../dto/product.dto.js");
 const ProductsRepository = require("../repositories/postgreSQL/productsRepository.js");
 const { NotFoundException, ForbiddenException } = require("../exceptions/validation.exception.js");
+const { sendEmailDeleteProduct } = require("../utils/mail.halper.js");
 
 class ProductsService{
   constructor(){
@@ -152,44 +151,22 @@ class ProductsService{
     if (!productFound) {
       throw new NotFoundException("Producto no encontrado");
     }
-    /* //Enviar mail al propietario del producto
-    if (productFound.owner !== "Admin") {
-      transporter.sendMail(
-        generateFormatEmail(productFound.owner, {
-          subject: "Producto Borrado",
-          head: "El Producto fue borrado correctamente",
-          body: `El producto "${productFound.title}" con código "${productFound.code}" fue borrado. Por el administrador ${user.user} ${user.lastName}. El producto pertenece al usuario con email ${productFound.owner}`,
-        }),
-        (error, info) => {
-          if (error) {
-            req.logger.error(`Peticion ${req.method} en "${
-              "http://" + req.headers.host + "/api/mail" + req.url
-            }" a las ${new Date().toLocaleTimeString()} el ${new Date().toLocaleDateString()}\n
-                    ERROR: Fallo al enviar el mail. EL error es:\n
-                    ${error}`);
-            res.status(500).send({ status: "ERROR", reason: error });
-          } else {
-            req.logger.info(
-              `Mensaje enviado con éxito solicitado en el endpoint${
-                "http://" + req.headers.host + "/api/mail" + req.url
-              }"`
-            );
-          }
-        }
-      );
-    } */
+
     //Eliminar el producto. "Admin" puede eliminar todos los productos, "El propietario solo puede eliminar sus productos"
-    if (user.rol === "Premium") {
-      if (user.email !== productFound.owner) {
-        throw new ForbiddenException("No tienes permisos para eliminar este producto");
-      } else {
+    if (user.rol === "Premium" && user.email !== productFound.owner) {
+      
+      throw new ForbiddenException("No tienes permisos para eliminar este producto");
+
+    }else {
+
+        //Enviar mail al propietario del producto si el producto no es de un Admin
+        if (productFound.owner !== "Admin") {
+          await sendEmailDeleteProduct(user.email, productFound);
+        }
+
         return this.repository.delete(ID);
-      }
-    } else if (user.rol === "Admin") {
-        return this.repository.delete(ID);
-    } else {
-        throw new ForbiddenException("No tienes permisos para eliminar este producto");
     }
+    
   }
 
 

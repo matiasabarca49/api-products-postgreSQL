@@ -28,7 +28,7 @@ const getPurchasesFromUser = async (req,res)=>{
  */
 const checkout = async (req, res, next) =>{
     try{
-        const purchase = await purchaseService.checkout(req.session.idUser);
+        const purchase = await purchaseService.checkout(req.session.idUser, req.session.email);
         return res.json({success: true, data: purchase})
     }catch(error){
         next(error);

@@ -14,39 +14,6 @@ const isValidPassword = (passwordDB ,passwordToValidate) =>{
     return bcrypt.compareSync(passwordToValidate, passwordDB)
 }
 
-//Reescrituras de documentos DB
-//Debido a un error o directiva de Handlebars los productos son reescritos para lograr que handlebars renderice
-const reWriteDocsDB = async (documentFormat, documentsFromBase) =>{
-    const documentsReWrited = []
-    documentsFromBase.forEach( document => {
-        let documentReWrited
-        if(documentFormat === "products"){
-            documentReWrited = {
-                title: document.title || "Not Declared",
-                description: document.description || "Not Declared",
-                price: document.price || "Not Declared",
-                code: document.code || "Not Declared",
-                stock: document.stock || "Not Declared",
-                status: document.status || "Not Declared",
-                category: document.category || "Not Declared",
-                owner: document.owner || "Not Declared",
-                id: document.id 
-            }
-        }else{
-            documentReWrited = {
-                name: document.name || "Not Declared",
-                lastName: document.lastName || "Not Declared",
-                age: document.age || "Not Declared",
-                email: document.email || "Not Declared",
-                rol: document.rol || "Not Declared",
-                id: document.id 
-            }
-        }
-        documentsReWrited.push(documentReWrited)
-    })  
-    return documentsReWrited
-}
-
 //Generación de Mock
 const generateProducts = (nroUser)=>{
     const faker = new Faker({ locale: [es] });
@@ -96,54 +63,12 @@ const searchSecret = (secretToSearch, userMail)=>{
     }
 }
 
-//General Formato Email
-generateFormatEmail = (email, payload) =>{
-    const mailOptions = {
-        from: `Tienda de Productos  <${process.env.GMAIL_CREDENTIAL_USER}>`,
-        to: `${email}`,
-        subject: `${payload.subject}`,
-        html:`
-            <div>  
-                <h1> ${payload.head} </h1>
-                <p> ${payload.body} </p>
-            </div>
-        `,
-        attachments: []  
-    }
-    return mailOptions
-}
 
-const generateLink = (user) =>{
-    const key = createHash(`Cod!34fdsert${ user.email }`)
-    const secret = `${key}&qui=45604545rgfdt355iuiljhgfds/&>S43&filter=user&type=change&user=notFound` 
-    saveSecret(secret)
-    const mailOptionsChangePassword = {
-        from: `Tienda de Productos  <${process.env.GMAIL_CREDENTIAL_USER}>`,
-        to: `${user.email}`,
-        subject: "Solicitud de cambio de contraseña",
-        html:`
-            <div>  
-                <h1> Restauracion de contraseña </h1>
-                <h4>Hola ${user.name}</h4>
-                <p> Ingrese al siguiente link para cambiar la contraseña: </p>
-                <a href="http://localhost:8080/users/generatepassword?secret=${secret}&email=${user.email}">Ir a cambiar constraseña</a>
-                <p>El link para cambio de contraseña expirará en 1 hora. En ese caso deberá solicitar de nuevo</p>
-                <p style="margin-top: 20px">En caso de no solicitar cambio de contraseña. Desestime este correo</p>
-            </div>
-        `,
-        attachments: []  
-    }
-
-    return mailOptionsChangePassword
-}
 
 module.exports= {
     createHash,
     isValidPassword,
-    reWriteDocsDB,
     generateProducts,
     saveSecret,
-    searchSecret,
-    generateFormatEmail,
-    generateLink
+    searchSecret
 }

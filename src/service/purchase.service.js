@@ -1,4 +1,5 @@
 const PurchaseRepository = require("../repositories/postgreSQL/purchase.repository.js");
+const { sendEmailPurchase } = require("../utils/mail.halper.js");
 const CartItemService = require("./cartItem.service.js");
 const ProductsService = require("./products.service.js");
 const TicketService = require("./ticket.service.js");
@@ -29,7 +30,7 @@ class PurchaseService {
      * @param {*} idUser 
      * @returns 
      */
-    async checkout(idUser){
+    async checkout(idUser, emailUser){
         //1 Obtener productos agregados al carrito
         const cartItems = await this.cartItemService.getCartItemsByUser(idUser);
         //2 - Verificar Stock
@@ -45,7 +46,15 @@ class PurchaseService {
         //const withoutStock = results.filter(item => !item.hasStock);
 
         //Continuar con el proceso de compra solo con los productos que tienen stock
-        return await this.repository.checkout(idUser, withStock);
+        const ticketSaved = await this.repository.checkout(idUser, withStock);
+
+        //Traemos el ticket completo con el detalle de los productos para enviar al mail del usuario
+        const fullTicket = await this.ticketService.findTicket(ticketSaved.code);
+
+        //Enviar email al usuario con el detalle de la compra
+        await sendEmailPurchase(emailUser, fullTicket);
+
+        return fullTicket;
     }
 
     //Completar purchase. Sin transacción, sin manejo de errores, sin rollback. Solo para probar la lógica de negocio.

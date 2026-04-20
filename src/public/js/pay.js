@@ -123,20 +123,13 @@ const finishPurchase = async ()=>{
     //Generamos la Compra
     req = await fetch(`http://localhost:8080/api/purchases/checkout`);
     const ticket = await req.json();
-        
-    //Enviamos el Ticket al mail del usuario
-   /*  purchase.ticket.email = user.currentUser.email
-    const resTicket = await fetch('http://localhost:8080/api/mail/send/mail',{
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(purchase.ticket)
-    }) */
-    localStorage.setItem("purchased", true)
-    setTimeout(()=>{
+
+    if(!ticket.success){
+        alert("Error al procesar la compra, intente de nuevo");
+    }else{
         window.location.href= `http://localhost:8080/ticket?code=${ticket.data.code}`
-    },5000)
+    }
+        
 }
 
 const getCart = ()=>{
