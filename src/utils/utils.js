@@ -1,17 +1,24 @@
 const bcrypt = require('bcrypt')
 const { Faker, es } = require('@faker-js/faker')
 
-
-let secretSaved = []
-
-//Encriptación
+/** 
+ * Hashea una contraseña utilizando bcrypt.
+*@param {string} password - La contraseña que se desea hashear.
+*@returns {string} - La contraseña hasheada utilizando bcrypt.
+*/
 const createHash = (password) => {
    return bcrypt.hashSync(password, bcrypt.genSaltSync(10))
    
 }
 
+/**
+ * Compara una contraseña sin hashear con una contraseña hasheada utilizando bcrypt.
+ * @param {string} passwordDB - La contraseña hasheada almacenada en la base de datos.
+ * @param {string} passwordToValidate - La contraseña sin hashear que se desea validar.
+ * @returns {boolean} - Devuelve true si las contraseñas coinciden, de lo contrario, devuelve false.
+ */
 const isValidPassword = (passwordDB ,passwordToValidate) =>{
-    return bcrypt.compareSync(passwordToValidate, passwordDB)
+    return bcrypt.compareSync(passwordToValidate, passwordDB);
 }
 
 //Generación de Mock
@@ -40,35 +47,9 @@ const generateProducts = (nroUser)=>{
     return users
 }
 
-const saveSecret = (secretCreated)=>{
-    secretSaved.push(secretCreated)
-    //Borrar clave guardada para deshabilitar link
-    setTimeout( ()=>{
-       secretSaved = secretSaved.filter( secret => secret != secretCreated)
-    },3600000)
-}
-
-const searchSecret = (secretToSearch, userMail)=>{
-    const isValid = isValidPassword( {password: secretToSearch}, `Cod!34fdsert${userMail}`)
-    if (isValid){
-        const secretFound = secretSaved.find( secret => secret === `${secretToSearch}&qui=45604545rgfdt355iuiljhgfds/&>S43&filter=user&type=change&user=notFound`)
-        if (secretFound){
-            return true
-        }
-        else{
-            return false
-        }    
-    }else{
-        return false
-    }
-}
-
-
 
 module.exports= {
     createHash,
     isValidPassword,
     generateProducts,
-    saveSecret,
-    searchSecret
 }

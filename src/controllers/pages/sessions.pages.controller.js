@@ -1,74 +1,65 @@
-const { searchSecret } = require("../../utils/utils")
+const sessionsService = require('../../service/session.service.js')
 
-const getRegister = (req, res) =>{
+
+/**
+ * En este controlador se manejan las vistas relacionadas con las sesiones, 
+ * como el registro, login, perfil, recuperación de contraseña. 
+ * No se manejan procesos de autenticación o lógica de negocio relacionada con las sesiones, 
+ * ya que eso se maneja en el controlador de sesiones y en el servicio de sesiones respectivamente.
+ */
+
+const getRegister = (req, res, next) =>{
     try{
-        res.render("register")  
+        res.render("register");
     }catch(error){
-        req.logger.error(`Peticion ${req.method} en "${"http://"+req.headers.host + "/api/sessions/register" +req.url}" a las ${new Date().toLocaleTimeString()} el ${new Date().toLocaleDateString()}\n
-        ERROR: Fallo al cargar la vista de registro. EL error es:\n
-        ${error}`)
-        res.status(500).send({status: "ERROR", reason: error})
+        next(error);
     }
 }
 
-const getLogin = async (req, res) =>{
+const getLogin = async (req, res, next) =>{
     try{
-        res.render("login")
+        res.render("login");
     }catch(error){
-        req.logger.error(`Peticion ${req.method} en "${"http://"+req.headers.host + "/api/sessions/login" +req.url}" a las ${new Date().toLocaleTimeString()} el ${new Date().toLocaleDateString()}\n
-        ERROR: Fallo al cargar la vista de login. EL error es:\n
-        ${error}`)
-        res.status(500).send({status: "ERROR", reason: error})
+        next(error);
     }
 }
 
-const getPerfil = async (req, res) =>{
+const getPerfil = async (req, res, next) =>{
     try{
-        res.render("perfil", {userLoged: req.session})
+        res.render("perfil", {userLoged: req.session});
     }catch(error){
-        req.logger.error(`Peticion ${req.method} en "${"http://"+req.headers.host + "/api/sessions/perfil" +req.url}" a las ${new Date().toLocaleTimeString()} el ${new Date().toLocaleDateString()}\n
-        ERROR: Fallo al cargar la vista de perfil. EL error es:\n
-        ${error}`)
-        res.status(500).send({status: "ERROR", reason: error})
+        next(error);
     }
 }
 
-const getChangePassword = (req,res)=>{
+const getChangePassword = (req,res, next)=>{
     try{
         res.render('forgetPassword')
     }catch(error){
-        req.logger.error(`Peticion ${req.method} en "${"http://"+req.headers.host + "/users/changepassword" +req.url}" a las ${new Date().toLocaleTimeString()} el ${new Date().toLocaleDateString()}\n
-        ERROR: Fallo al cargar la vista de cambio de contraseña. EL error es:\n
-        ${error}`)
-        res.status(500).send({status: "ERROR", reason: error})
+        next(error);
     }
 }
 
-const getGeneratePassword = (req,res)=>{
+const getGeneratePassword = async (req,res, next)=>{
     try{
-        const secretFound = searchSecret(req.query.secret, req.query.email)
+        const {secret, email} = req.query;
+        const secretFound = await sessionsService.verifySecret(secret, email);
         secretFound
             ?res.render('generatePassword')
             :res.render('forgetPassword')
     }catch(error){
-        req.logger.error(`Peticion ${req.method} en "${"http://"+req.headers.host + "/users/generatepassword" +req.url}" a las ${new Date().toLocaleTimeString()} el ${new Date().toLocaleDateString()}\n
-        ERROR: Fallo al cargar la vista de generar nueva contraseña. EL error es:\n
-        ${error}`)
-        res.status(500).send({status: "ERROR", reason: error})
+        next(error);
     }
 } 
 
-const getFail = (req,res)=>{
+const getFail = (req,res, next)=>{
     try{
         const {error} = req.query
         error === "register" && res.render("register", {error: true})
         error === "login" && res.render("login", {error: true})
         error === "github" && res.render("login", { githubError: true })
     }catch(error){
-        req.logger.error(`Peticion ${req.method} en "${"http://"+req.headers.host + "/users/fail" +req.url}" a las ${new Date().toLocaleTimeString()} el ${new Date().toLocaleDateString()}\n
-        ERROR: Fallo al cargar la vista de fallo de autenticación. EL error es:\n
-        ${error}`)
-        res.status(500).send({status: "ERROR", reason: error})
+        next(error);
     }
 }
 

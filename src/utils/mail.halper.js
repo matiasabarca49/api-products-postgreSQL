@@ -46,6 +46,31 @@ const sendEmailPurchase = async (email, ticket) =>{
     }
 } 
 
+const sendMailRecoverPass = async (email, secret) =>{
+    try{
+        transporter.sendMail(
+            generateFormatEmail(email, {
+                subject: "Recuperación de Contraseña",
+                head: "Solicitud de Recuperación de Contraseña",
+                body: `Hola ${email},\n\nHas solicitado recuperar tu contraseña. Haz clic en el siguiente enlace para restablecer tu contraseña:\n\nhttp://localhost:8080/users/generatepassword?secret=${secret}&email=${email}`
+            }), (error, info)=>{
+            if(error){
+                req.logger.error(`Peticion /api/session/recoverpass a las ${new Date().toLocaleTimeString()} el ${new Date().toLocaleDateString()}\n
+                ERROR: Fallo al enviar el mail. EL error es:\n
+                ${error}`)
+                throw new AppError(500, "Error al enviar el mail")
+            }
+            else{
+                logger.info(`Mensaje enviado con éxito solicitado en el endpoint${"http://"+req.headers.host + "/api/mail" +req.url}"`)
+                
+            }
+        })
+    }catch(error){
+        logger.error(`Error al enviar el correo de recuperación de contraseña a ${email}: ${error.message}`);
+        throw new AppError(500, "Error al enviar el mail");
+    }
+}
+
 const formatPurchaseEmail = (purchase) => {
     const date = new Date(purchase.purchase_datetime);
     const formattedDate = date.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -188,49 +213,8 @@ const generateFormatEmail = (email, payload) => {
     return mailOptions;
 };
 
-
-//General Formato Email
-/* const generateFormatEmail = (email, payload) =>{
-    const mailOptions = {
-        from: `Tienda de Productos  <${process.env.GMAIL_CREDENTIAL_USER}>`,
-        to: `${email}`,
-        subject: `${payload.subject}`,
-        html:`
-            <div>  
-                <h1> ${payload.head} </h1>
-                <p> ${payload.body} </p>
-            </div>
-        `,
-        attachments: []  
-    }
-    return mailOptions
-} */
-
-const generateLink = (user) =>{
-    const key = createHash(`Cod!34fdsert${ user.email }`)
-    const secret = `${key}&qui=45604545rgfdt355iuiljhgfds/&>S43&filter=user&type=change&user=notFound` 
-    saveSecret(secret)
-    const mailOptionsChangePassword = {
-        from: `Tienda de Productos  <${process.env.GMAIL_CREDENTIAL_USER}>`,
-        to: `${user.email}`,
-        subject: "Solicitud de cambio de contraseña",
-        html:`
-            <div>  
-                <h1> Restauracion de contraseña </h1>
-                <h4>Hola ${user.name}</h4>
-                <p> Ingrese al siguiente link para cambiar la contraseña: </p>
-                <a href="http://localhost:8080/users/generatepassword?secret=${secret}&email=${user.email}">Ir a cambiar constraseña</a>
-                <p>El link para cambio de contraseña expirará en 1 hora. En ese caso deberá solicitar de nuevo</p>
-                <p style="margin-top: 20px">En caso de no solicitar cambio de contraseña. Desestime este correo</p>
-            </div>
-        `,
-        attachments: []  
-    }
-
-    return mailOptionsChangePassword
-}
-
 module.exports = {
     sendEmailDeleteProduct,
-    sendEmailPurchase
+    sendEmailPurchase,
+    sendMailRecoverPass
 }

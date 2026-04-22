@@ -20,5 +20,7 @@ router.post("/register", passport.authenticate('register',{failureRedirect: "/us
 controller.registerUser) 
 router.post("/login", passport.authenticate("login", {failureRedirect: "/users/fail?error=login"}),
 controller.loginUser)
+router.post("/recoverpass", controller.recoverPass)
+router.post("/changepassword", controller.updatePassword)
   
 module.exports = router

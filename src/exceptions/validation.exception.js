@@ -8,7 +8,7 @@ class NotFoundException extends AppError{
 
 class DuplicateException extends AppError{
      constructor(message){
-        super(404, message)
+        super(409, message)
     }
 }
 
