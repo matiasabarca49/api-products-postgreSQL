@@ -1,27 +1,26 @@
 # Repositorio de Store API – Gestión de Productos y Carritos
 
-Este proyecto es una API completa para la gestión de productos y carritos en un mercado online. Permite la obtención, visualización y administración de productos, así como la consulta de carritos almacenados en la base de datos.
+Este proyecto parte del desarrollo de un proyecto anterior:  
+https://github.com/matiasabarca49/Back-end_API-Products  
 
-La aplicación utiliza MongoDB como base de datos y está desarrollada con renderizado del lado del servidor (SSR). Para el Front-end se emplea Handlebars, ofreciendo vistas dinámicas como:
+Es una API completa para la gestión de productos y carritos en un mercado online. Permite la obtención, visualización y administración de productos, así como la consulta de carritos almacenados en la base de datos.
+
+La aplicación utiliza PostgreSQL como base de datos y está desarrollada con renderizado del lado del servidor (SSR). Para el Front-end se emplea Handlebars, ofreciendo vistas dinámicas como:
 
 - Vista de productos desde la base de datos  
 - Tienda online  
 - Login y Registro de usuarios  
-- Chat de mensajes en tiempo real
 
 ## Tecnologías y conceptos utilizados  
 
 - **Node.js** y **Express.js**  
-- **MongoDB** y **Mongoose**  
-- **Handlebars** para SSR  
-- **Paginación** con `mongoose-paginate`  
+- **PostgreSQL** y **pg**  
+- **Handlebars** para SSR   
 - **Autenticación** con `passport-local` y `passport-github`  
 - **Patrón de arquitectura MVC**  
-- **DAO (Data Access Object)**  
 - **Loggers personalizados**  
-- **Documentación con Swagger**  
-- **Errores personalizados (Custom Errors)**  
-- **Testing con TDD y BDD**  
+- **Documentación con Swagger**   
+
 
 ## Estilos
 
@@ -59,7 +58,7 @@ NOTA: Es posible que se requiera permisos de administrador para ejecutar los com
 Se puede descargar desde el propio Github en el apartado -> code-> Donwload ZIP o mediante el comando de clonación en una terminal:
 
 ```
-git clone https://github.com/matiasabarca49/Back-end_API-Products.git
+https://github.com/matiasabarca49/api-products-postgreSQL.git
 ```
 
 ## Instalación
@@ -73,8 +72,15 @@ Es necesario tener instalado nodemon para poder ejecutar la aplicación. Esta he
 ```
 npm install nodemon
 ```
+Debemos crear la db en postgreSQL. El nombre de la DB debe coincidir con el nombre colocado en la variable de entorno.  
 
-Una vez instalados todas las libreriasa necesarias, ejecutamos la aplicacion con el siguiente comando:
+Una vez creada, creamos las tablas:
+
+```
+psql -U <PG_USER> -d <PG_DATABASE> -f ./src/model/pg/schemas.sql
+```
+
+Ya instaladas todas las libreriasa necesarias, como tambien la DB, ejecutamos la aplicacion con el siguiente comando:
 
 ```
 npm start
@@ -86,9 +92,9 @@ Con "npm start" el servidor iniciará en modo desarrollo y el puerto utilizado s
 - **-p** numero de puerto. Por defecto "8080"  
 Ej: 
 
-=> nodemon ./src/app.js -p 9090  
-=> node ./src/app.js -p 9090  
-=> node ./src/app.js -p 9090 --mode development
+=> nodemon ./src/server.js -p 9090  
+=> node ./src/server.js -p 9090  
+=> node ./src/server.js -p 9090 --mode development
 
 NOTA: Es necesario crear un archivo ".env" con variables de entornos obligatorias
 
@@ -96,8 +102,15 @@ NOTA: Es necesario crear un archivo ".env" con variables de entornos obligatoria
 
 ### Obligatorias
 
-- **MONGO_URL** URL de la DB MongoDB.
 - **SECRET_SESSIONS** Secreto para almacenar sesiones en la DB
+- **PG_HOST** Host de postgreSQL.
+- **PG_PORT** Puerto de postgreSQL.
+- **PG_DATABASE** Nombre de la db.  
+
+Credenciales de acceso a la DB:  
+
+- **PG_USER** 
+- **PG_PASSWORD** 
 
 ### Opcionales
 

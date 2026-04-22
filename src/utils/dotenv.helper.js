@@ -1,7 +1,11 @@
 const logger = require("./logger/loggers.js");
 
 const requiredEnvVars = {
-    MONGO_URL: process.env.MONGO_URL?.trim(),
+    PG_HOST: process.env.PG_HOST?.trim(),
+    PG_PORT: process.env.PG_PORT?.trim(),
+    PG_DATABASE: process.env.PG_DATABASE?.trim(),
+    PG_USER: process.env.PG_USER?.trim(),
+    PG_PASSWORD: process.env.PG_PASSWORD?.trim(),
     SECRET_SESSIONS: process.env.SECRET_SESSIONS?.trim(),
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID?.trim(),
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET?.trim(),
@@ -22,8 +26,8 @@ if (missing.length > 0) {
     logger.info(`Variables de entorno faltantes o vacías:\n- ${missing.join(', \n- ')}`);
 }
 
-if(!process.env.MONGO_URL?.trim() || !process.env.SECRET_SESSIONS?.trim()){
-    logger.error("🔴 Las variables de entorno MONGO_URL y SECRET_SESSIONS no están definidas.");
+if(!process.env.PG_HOST?.trim() || !process.env.PG_PORT?.trim() || !process.env.PG_DATABASE?.trim() || !process.env.PG_USER?.trim() || !process.env.PG_PASSWORD?.trim() || !process.env.SECRET_SESSIONS?.trim()){
+    logger.error("🔴 Las variables de entorno para PostgreSQL o SECRET_SESSIONS no están definidas.");
     process.exit()
 }
 
