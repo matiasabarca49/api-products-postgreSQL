@@ -4,17 +4,14 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(100) UNIQUE NOT NULL
 );
 
--- PRODUCTOS
+-- PRODUCTOS (catálogo global)
 CREATE TABLE IF NOT EXISTS products (
     id          SERIAL PRIMARY KEY,
     title       VARCHAR(255) UNIQUE NOT NULL,
     description TEXT,
-    price       NUMERIC(10, 2) NOT NULL,
     thumbnail   VARCHAR(500) NOT NULL,
     code        VARCHAR(100) UNIQUE NOT NULL,
-    stock       INTEGER NOT NULL,
     status      BOOLEAN DEFAULT true,
-    owner       VARCHAR(255),
     created_at  TIMESTAMP DEFAULT NOW(),
     updated_at  TIMESTAMP DEFAULT NOW(),
     category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL
@@ -22,16 +19,19 @@ CREATE TABLE IF NOT EXISTS products (
 
 -- USUARIOS
 CREATE TABLE IF NOT EXISTS users (
-    id              SERIAL PRIMARY KEY,
-    name            VARCHAR(100) NOT NULL,
-    last_name       VARCHAR(100) NOT NULL,
-    age             INTEGER,
-    email           VARCHAR(255) UNIQUE NOT NULL,
-    password        VARCHAR(255) NOT NULL,
-    rol             VARCHAR(20) NOT NULL CHECK (rol IN ('User', 'Premium', 'Admin')),
-    last_connection TIMESTAMPTZ DEFAULT NOW(),
-    created_at      TIMESTAMP DEFAULT NOW(),
-    updated_at      TIMESTAMP DEFAULT NOW()
+    id                  SERIAL PRIMARY KEY,
+    name                VARCHAR(100) NOT NULL,
+    nickname            VARCHAR(100) UNIQUE NOT NULL,
+    last_name           VARCHAR(100) NOT NULL,
+    birth               DATE NOT NULL,
+    email               VARCHAR(255) UNIQUE NOT NULL,
+    dni                 VARCHAR(20) UNIQUE NOT NULL,
+    password            VARCHAR(255) NOT NULL,
+    must_change_pass    BOOLEAN DEFAULT false,
+    rol                 VARCHAR(20) NOT NULL CHECK (rol IN ('user', 'premium', 'admin')),
+    last_connection     TIMESTAMPTZ DEFAULT NOW(),
+    created_at          TIMESTAMP DEFAULT NOW(),
+    updated_at          TIMESTAMP DEFAULT NOW()
 );
 
 -- DOCUMENTOS DEL USUARIO
@@ -40,6 +40,46 @@ CREATE TABLE IF NOT EXISTS user_documents (
     user_id   INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name      VARCHAR(255),
     reference VARCHAR(500)
+);
+
+-- DIRECCIONES DE USUARIOS
+CREATE TABLE IF NOT EXISTS addresses (
+    id           SERIAL PRIMARY KEY,
+    user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    street       VARCHAR(255) NOT NULL,
+    city         VARCHAR(100) NOT NULL,
+    province     VARCHAR(100) NOT NULL,
+    postal_code  VARCHAR(20) NOT NULL,
+    is_default   BOOLEAN DEFAULT false,
+    created_at   TIMESTAMP DEFAULT NOW()
+);
+
+-- PRODUCTOS POR VENDEDOR (inventory / listing)
+CREATE TABLE IF NOT EXISTS seller_products (
+    id         SERIAL PRIMARY KEY,
+    seller_id  INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    price      NUMERIC(10,2) NOT NULL,
+    stock      INTEGER NOT NULL,
+    status     BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+
+    UNIQUE (seller_id, product_id)
+);
+
+-- COMENTARIOS / REVIEWS
+CREATE TABLE IF NOT EXISTS comments (
+    id                SERIAL PRIMARY KEY,
+    user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    seller_product_id INTEGER NOT NULL REFERENCES seller_products(id) ON DELETE CASCADE,
+    
+    rating            INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment           TEXT,
+    
+    created_at        TIMESTAMP DEFAULT NOW(),
+
+    UNIQUE (user_id, seller_product_id)
 );
 
 -- CARRITOS COMPRADOS (snapshot de una compra)
@@ -55,6 +95,7 @@ CREATE TABLE IF NOT EXISTS cart_products (
     id         SERIAL PRIMARY KEY,
     cart_id    INTEGER NOT NULL REFERENCES carts(id) ON DELETE RESTRICT,
     product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+    seller_id INTEGER NOT NULL REFERENCES users(id),
     quantity   INTEGER NOT NULL
 );
 
@@ -83,6 +124,28 @@ CREATE TABLE IF NOT EXISTS tickets (
     total             NUMERIC(10, 2) NOT NULL,
     user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     cart_id           INTEGER NOT NULL REFERENCES carts(id) ON DELETE RESTRICT
+);
+
+-- VENTAS (una fila por producto vendido)
+CREATE TABLE IF NOT EXISTS sales (
+    id              SERIAL PRIMARY KEY,
+    seller_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    buyer_id        INTEGER NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    product_id      INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+    cart_id         INTEGER NOT NULL REFERENCES carts(id) ON DELETE RESTRICT,
+    ticket_id       INTEGER NOT NULL REFERENCES tickets(id) ON DELETE RESTRICT,
+
+    quantity        INTEGER NOT NULL,
+    price           NUMERIC(10,2) NOT NULL, -- precio al momento de compra
+    total           NUMERIC(10,2) NOT NULL,
+
+    status          VARCHAR(20) NOT NULL DEFAULT 'pending'
+                    CHECK (status IN ('pending', 'processed', 'shipped', 'delivered')),
+
+    delivery_type   VARCHAR(20) NOT NULL
+                    CHECK (delivery_type IN ('pickup', 'shipping')),
+
+    created_at      TIMESTAMP DEFAULT NOW()
 );
 
 -- ALMACENAR SESSIONES
@@ -114,5 +177,12 @@ EXECUTE FUNCTION update_updated_at();
 DROP TRIGGER IF EXISTS set_updated_at ON products;
 CREATE TRIGGER set_updated_at
 BEFORE UPDATE ON products
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+-- Trigger tabla "seller_products"
+DROP TRIGGER IF EXISTS set_updated_at ON seller_products;
+CREATE TRIGGER set_updated_at
+BEFORE UPDATE ON seller_products
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();

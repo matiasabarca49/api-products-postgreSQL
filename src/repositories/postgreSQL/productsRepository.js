@@ -53,9 +53,11 @@ class ProductsRepository{
     
             const [dataResult, countResult] = await Promise.all([
                 this.pool.query(
-                    `SELECT p.*, c.name AS category
-                    FROM products p
-                    LEFT JOIN categories c ON p.category_id = c.id
+                    `SELECT sp.*, p.*, c.name AS category, u.name AS store_name
+                    FROM seller_products sp
+                    LEFT JOIN products p ON p.id = sp.product_id
+                    LEFT JOIN categories c ON c.id = p.category_id
+                    LEFT JOIN users u ON u.id = sp.seller_id
                     ${dataWhere}
                     ORDER BY ${sort && sort? `price ${sort > 0 ? 'ASC' : 'DESC'}` : 'id ASC'}
                     LIMIT $1 OFFSET $2
@@ -84,7 +86,7 @@ class ProductsRepository{
             throw error;
         }
     }
-
+    
    /**
      * Obtener productos para la administración con paginación, filtro y ordenamiento.
      * Paginacion:
@@ -172,10 +174,14 @@ class ProductsRepository{
 
         const result = await this.pool.query(
             `SELECT 
-                p.*,
+                p.*, 
+                sp.*, 
+                u.name AS store_name,
                 c.name AS category
              FROM products p
              LEFT JOIN categories c ON p.category_id = c.id
+             LEFT JOIN seller_products sp ON sp.product_id = p.id
+             LEFT JOIN users u ON sp.seller_id = u.id
              WHERE p.id = $1`,
             [id]
         )
