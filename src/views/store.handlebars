@@ -20,17 +20,13 @@
                 </div>
             {{/unless}}
             {{#if userLoged.user}}
-                {{#ifCond userLoged.rol "Admin"}}
+                {{#ifCond userLoged.rol "admin"}}
                     <div>
                         <a class="btn icon-btn" href="/admin"><img class="nav-icon" src="./img/configurar.png" alt="home"></a>
                     </div>
-                {{else}}
-                    <div>
-                        <a class="btn icon-btn" href="chat"><img class="nav-icon" src="./img/chat.png" alt="home"></a>
-                    </div>
                 {{/ifCond}}
             {{/if}}
-            {{#ifCond userLoged.rol "Premium"}}
+            {{#ifCond userLoged.rol "premium"}}
                 <div>
                     <a class="btn icon-btn" href="/admin/products"><img class="nav-icon" src="../../img/upload.png" alt="home"></a>
                 </div>

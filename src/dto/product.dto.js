@@ -3,12 +3,9 @@ class ProductDTO {
         this.title = product.title
         this.description = product.description
         this.code = product.code
-        this.price = product.price
         this.status = product.status
-        this.stock = product.stock
         this.category_id = product.category_id
         this.thumbnail = product.thumbnail || []
-        this.owner = product.owner 
     }
 
     static toResponse(product){
@@ -22,7 +19,10 @@ class ProductDTO {
             stock: product.stock,
             category: product.category,
             thumbnail: product.thumbnail,
-            owner: product.owner
+            store_name: product.store_name,
+            comments: product.comments || [],
+            rating: product.rating || 0,
+            sellers: product.sellers || []
         }
     }
 

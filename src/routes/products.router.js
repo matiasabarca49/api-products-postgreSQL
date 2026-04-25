@@ -1,6 +1,6 @@
 const express = require('express')
 //controllers
-const {getProducts, getById, create, update, deleteProduct, getManageableProducts} = require('../controllers/products.controller.js')
+const {getProducts, getByIdSeller, create, update, deleteProduct, getManageableProducts} = require('../controllers/products.controller.js')
 //middleware
 const { checkPerAddProduct, checkPermAdminAndPremium, checkPermAdmin } = require('../middlewares/permissions.middleware.js')
 const { validateProduct, validateId, validateUpdateProduct } = require('../validations/product.validations.js')
@@ -44,11 +44,12 @@ router.get("/admin",checkPermAdminAndPremium, getManageableProducts)
 
 /**
  * @route GET /api/products/:id 
- * @description Obtener un producto por su ID
+ * @description Obtener un producto por ID de seller_product. La relacion entre productos y users 
+ * es a través de seller_products.
  * @access Public
  * @params {string} id - ID del producto a obtener
  */
-router.get("/:id",getById)
+router.get("/:product_id/:seller_id",getByIdSeller)
 
 /**
 * POST
@@ -66,7 +67,7 @@ router.get("/:id",getById)
  * @body {string} category - Categoría del producto
  * @body {string} thumbnail - URL de la imagen del producto
  * @body {boolean} status - Estado del producto (activo/inactivo)
- * @body {string} owner - Usuario que creó el producto
+ * @body {string} owner_id - Usuario que creó el producto
  * @middleware checkPermAdminAndPremium para verificar que el usuario tenga rol Admin o Premium antes de permitir el acceso a esta ruta. Solo estos roles pueden crear productos.
  * @middleware validateProduct para validar los datos del producto antes de crear el producto.
  */

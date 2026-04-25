@@ -2,6 +2,7 @@ const ProductDTO = require("../dto/product.dto.js");
 const ProductsRepository = require("../repositories/postgreSQL/productsRepository.js");
 const { NotFoundException, ForbiddenException } = require("../exceptions/validation.exception.js");
 const { sendEmailDeleteProduct } = require("../utils/mail.halper.js");
+const AppError = require("../utils/errors/AppError.js");
 
 class ProductsService{
   constructor(){
@@ -48,13 +49,13 @@ class ProductsService{
 
 
   /**
-   * Buscar un producto por su ID
+   * Buscar un producto por ID de seller_product. La relacion entre productos y users es a través de seller_products, por lo que se debe buscar el producto a través de su ID en seller_products para luego retornar la información del producto formateada a DTO. Si no se encuentra el producto con el ID proporcionado, lanzar una excepción de tipo NotFoundException
    * @param {number} id - ID del producto a buscar
    * @returns {Promise<Object>} Producto encontrado formateado a DTO
    * @throws {NotFoundException} Si no se encuentra el producto con el ID proporcionado
    */
-  async findById(id) {
-    const product = await this.repository.findByID(id)
+  async findByIdSeller(idProduct, idSeller){
+    const product = await this.repository.findByIdSeller(idProduct, idSeller);
     if(!product) throw new NotFoundException("Producto no encontrado");
     return this.toDTO(product)
   }
@@ -111,11 +112,28 @@ class ProductsService{
           
           if(!product) throw new NotFoundException("Categoria no encontrada")
         }
-        //Formateamos el documento y lo creamos en la base de datos
-        const productCreated = await this.repository.create(this.toFormatDTO(product))
+
+        //Verificamos si el producto ya existe
+        let productToAssociate = await this.repository.findByCode(product.code);
+        //Si el producto no existe, lo creamos
+        if(!productToAssociate){
+          //Formateamos el documento y lo creamos en la base de datos
+          productToAssociate = await this.repository.create(this.toFormatDTO(product))
+        }
+      
+        if(!productToAssociate) throw new AppError("Error al crear el producto");
+        //Asociamos el producto al Usuario que lo creó a través de seller_products
+        const sellerProduct = {
+          product_id: productToAssociate.id,
+          seller_id: product.owner_id,
+          stock: product.stock,
+          price: product.price
+        }
+
+        await this.repository.associateProductToSeller(sellerProduct)
 
         //Retornamos el documento creado formateado a DTO
-        return this.toDTO(productCreated) 
+        return this.toDTO(productToAssociate) 
   }
 
   /**

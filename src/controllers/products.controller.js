@@ -56,10 +56,10 @@ const getProducts = async (req,res, next) =>{
  * Obtener un producto por su ID
  * @param {string} id - ID del producto a obtener
  */
-const getById = async (req,res, next) =>{
+const getByIdSeller = async (req,res, next) =>{
     try{
-        const {id} = req.params
-        const productFound = await productsService.findById(id)
+        const {product_id, seller_id} = req.params;
+        const productFound = await productsService.findByIdSeller(product_id, seller_id);
         return res.status(200).json({success: true, data: productFound})
          
     }catch(error){
@@ -191,7 +191,7 @@ const deleteProduct = async (req,res, next) => {
 
 module.exports = {
     getProducts,
-    getById,
+    getByIdSeller,
     getManageableProducts,
     create,
     update,

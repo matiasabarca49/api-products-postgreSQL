@@ -4,11 +4,13 @@ class UserDTO{
     constructor(user){
         this.name = user.name
         this.last_name = user.last_name || "No especificado"
-        this.age = user.age || 0
+        this.nickname = user.nickname
+        this.birth = user.birth 
+        this.dni= user.dni
+        this.must_change_password
         this.email = user.email
         this.password = createHash(user.password)
-        this.rol = user.rol || "User"
-        this.last_connection = new Date().toISOString();
+        this.rol = user.rol || "user"
     }
 
     static toResponse(user){
@@ -16,7 +18,8 @@ class UserDTO{
             id: user._id || user.id, 
             name: user.name || "Not Declared",
             last_name: user.last_name || "Not Declared",
-            age: user.age || "Not Declared",
+            birth: user.birth || "Not Declared",
+            dni: user.dni,
             email: user.email || "Not Declared",
             rol: user.rol || "Not Declared",
             last_connection: user.last_connection || "Not Declared",

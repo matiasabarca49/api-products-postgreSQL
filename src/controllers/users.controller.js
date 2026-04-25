@@ -19,7 +19,7 @@ const getAll = async (req, res, next) =>{
 
         const usersGetted = await usersService.findAll(filters, limit, page, sort);
 
-        return res.status(200).json({status: "Succesfull", data: usersGetted})
+        return res.status(200).json({success: true, data: usersGetted})
 
     }catch(error){
        next(error)
@@ -30,11 +30,11 @@ const updateRol = async (req, res) =>{
     try{
         const userUpdated = await usersService.updateRol(req.params.uid)
         userUpdated.status
-            ? res.status(201).send({status: "Succesfull", userUpdated: userUpdated.userUpdated})
-            : res.status(500).send({status: "ERROR", reason: userUpdated.reason ||"Los Administradores no pueden cambiar de rol"})
+            ? res.status(201).json({success: true, data: userUpdated.userUpdated})
+            : res.status(500).json({success: false , error: userUpdated.reason ||"Los Administradores no pueden cambiar de rol"})
     }catch(error){
         console.log(error)
-        res.status(500).json({status: "Error", reason: error.message || "Error al cambiar el rol del usuario"})
+        res.status(500).json({success: false , reason: error.message || "Error al cambiar el rol del usuario"})
     }
 }
 /**
@@ -45,7 +45,7 @@ const create = async (req, res, next) =>{
     try{
         const userCreated = await usersService.create(req.body)
 
-        return res.status(201).send({status: "Succesfull", user: userCreated});
+        return res.status(201).json({success: true , data: userCreated});
     }catch(error){
         next(error);
     }
@@ -59,7 +59,7 @@ const update = async (req, res, next) =>{
     try{
         const { uid } = req.params
         const userUpdated = await usersService.update(uid, req.body)
-        return res.status(200).json({status: "Succesfull", userUpdated})
+        return res.status(200).json({success: true, data: userUpdated})
     }catch(error){
         next(error)
     }

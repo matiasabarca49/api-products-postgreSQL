@@ -17,6 +17,15 @@ CREATE TABLE IF NOT EXISTS products (
     category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL
 );
 
+-- PROMOCIONES --
+CREATE TABLE promotions (
+    id SERIAL PRIMARY KEY,
+    seller_product_id INTEGER REFERENCES seller_products(id),
+    discount NUMERIC(5,2),
+    start_date TIMESTAMP,
+    end_date TIMESTAMP
+);
+
 -- USUARIOS
 CREATE TABLE IF NOT EXISTS users (
     id                  SERIAL PRIMARY KEY,
@@ -72,14 +81,14 @@ CREATE TABLE IF NOT EXISTS seller_products (
 CREATE TABLE IF NOT EXISTS comments (
     id                SERIAL PRIMARY KEY,
     user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    seller_product_id INTEGER NOT NULL REFERENCES seller_products(id) ON DELETE CASCADE,
+    product_id        INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     
     rating            INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
     comment           TEXT,
     
     created_at        TIMESTAMP DEFAULT NOW(),
 
-    UNIQUE (user_id, seller_product_id)
+    UNIQUE (user_id, product_id)
 );
 
 -- CARRITOS COMPRADOS (snapshot de una compra)
@@ -107,12 +116,13 @@ CREATE TABLE IF NOT EXISTS purchases (
     date_cart TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- CARRITO ACTIVO DEL USUARIO
 CREATE TABLE IF NOT EXISTS cart_items (
-    id         SERIAL PRIMARY KEY,
-    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    quantity   INTEGER NOT NULL
+    id                  SERIAL PRIMARY KEY,
+    user_id             INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    seller_product_id   INTEGER NOT NULL REFERENCES seller_products(id) ON DELETE CASCADE,
+    quantity            INTEGER NOT NULL
+
+    UNIQUE(user_id, seller_product_id)
 );
 
 -- TICKETS

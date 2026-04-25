@@ -53,6 +53,83 @@ class ProductsRepository{
     
             const [dataResult, countResult] = await Promise.all([
                 this.pool.query(
+                    `SELECT p.*, c.name AS category,
+                    (
+                        SELECT json_agg(
+                            json_build_object(
+                                'seller_id', u.id,
+                                'name', u.name,
+                                'price', sp.price,
+                                'stock', sp.stock
+                            )
+                            ORDER BY sp.price ASC
+                        )
+                        FROM seller_products sp 
+                        LEFT JOIN users u ON u.id = sp.seller_id
+                        WHERE sp.product_id = p.id  
+                    ) AS sellers
+                    FROM products p
+                    LEFT JOIN categories c ON c.id = p.category_id
+                    ${dataWhere}
+                    LIMIT $1 OFFSET $2
+                    `,
+                    [limit, offset, ...filterValues]
+                ),
+                this.pool.query(
+                    `SELECT COUNT(*) FROM products ${countWhere}`,
+                    filterValues
+                )
+            ])
+    
+            const totalDocs  = parseInt(countResult.rows[0].count)
+            const totalPages = Math.ceil(totalDocs / limit)
+    
+            return {
+                payload: dataResult.rows,
+                totalDocs,
+                totalPages,
+                page,
+                limit,
+                hasPrevPage: page > 1,
+                hasNextPage: page < totalPages,
+            }
+        }catch(error){
+            throw error;
+        }
+    }
+    /* async findAll(filters = {}, limit = 10, page = 1, sort = 1) {
+        try{
+            const offset = (page - 1) * limit
+    
+            let title;
+    
+            if(filters.title){
+                title = filters.title;
+                delete filters.title;
+            }
+            
+            const filterKeys   = Object.keys(filters)
+            const filterValues = Object.values(filters)
+    
+            // WHERE para la query de datos: los filtros arrancan en $3 (después de limit y offset)
+            let dataWhere = filterKeys.length > 0
+                ? 'WHERE ' + filterKeys.map((key, i) => `p.${key} = $${i + 3}`).join(' AND ')
+                : ''
+    
+            // WHERE para el COUNT: los filtros arrancan en $1 (no hay limit ni offset antes)
+            let countWhere = filterKeys.length > 0
+                ? 'WHERE ' + filterKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')
+                : ''
+    
+            if(title){
+                dataWhere += ` AND p.title ILIKE $${filterKeys.length + 3}`; 
+                countWhere += ` AND title ILIKE $${filterKeys.length + 1}`
+                filterKeys.push("title");
+                filterValues.push(`%${title}%`);
+            }
+    
+            const [dataResult, countResult] = await Promise.all([
+                this.pool.query(
                     `SELECT sp.*, p.*, c.name AS category, u.name AS store_name
                     FROM seller_products sp
                     LEFT JOIN products p ON p.id = sp.product_id
@@ -85,7 +162,7 @@ class ProductsRepository{
         }catch(error){
             throw error;
         }
-    }
+    } */
     
    /**
      * Obtener productos para la administración con paginación, filtro y ordenamiento.
@@ -134,12 +211,15 @@ class ProductsRepository{
     
             const [dataResult, countResult] = await Promise.all([
                 this.pool.query(
-                    `SELECT p.*, c.name AS category
-                    FROM products p
-                    LEFT JOIN categories c ON p.category_id = c.id
+                    `SELECT sp.*, p.*, c.name AS category, u.name AS store_name
+                    FROM seller_products sp
+                    LEFT JOIN products p ON p.id = sp.product_id
+                    LEFT JOIN categories c ON c.id = p.category_id
+                    LEFT JOIN users u ON u.id = sp.seller_id
                     ${dataWhere}
                     ORDER BY ${sort && sort? `price ${sort > 0 ? 'ASC' : 'DESC'}` : 'id ASC'}
-                    LIMIT $1 OFFSET $2`,
+                    LIMIT $1 OFFSET $2
+                    `,
                     [limit, offset, ...filterValues]
                 ),
                 this.pool.query(
@@ -166,24 +246,96 @@ class ProductsRepository{
     }
 
     /**
-     * Buscar un producto por su ID
+     * Buscar un producto por ID de seller_product. La relacion entre productos y users 
+     * es a través de seller_products, por lo que se debe buscar el producto a través de su ID 
+     * en seller_products para luego retornar la información del producto encontrado. 
+     * Si no se encuentra el producto con el ID proporcionado, retornar null.
      * @param {number} id - ID del producto a buscar
      * @returns {Promise<Object>} Producto encontrado
      */
-    async findByID(id) {
+    async findByIdSeller(idProduct, idSeller) {
 
         const result = await this.pool.query(
-            `SELECT 
-                p.*, 
-                sp.*, 
+            `
+            SELECT 
+                p.id, p.title, p.description, p.code, p.thumbnail, p.status,
+                c.name AS category,
+                sp.price, sp.stock,
                 u.name AS store_name,
-                c.name AS category
-             FROM products p
-             LEFT JOIN categories c ON p.category_id = c.id
-             LEFT JOIN seller_products sp ON sp.product_id = p.id
-             LEFT JOIN users u ON sp.seller_id = u.id
-             WHERE p.id = $1`,
-            [id]
+                (
+                    SELECT json_agg(
+                    json_build_object(
+                        'rating', com.rating,
+                        'comment', com.comment,
+                        'user_name', u.name
+                        )
+                    )
+                    FROM comments com
+                    LEFT JOIN users u ON com.user_id = u.id
+                    WHERE com.product_id = p.id
+                ) AS comments,
+                (
+                    SELECT AVG(rating) FROM comments WHERE product_id = p.id
+                ) AS rating,
+                (SELECT json_agg(
+                    json_build_object(
+                        'id', u.id,
+                        'price', sp.price,
+                        'name', u.name
+                    ))
+                    FROM seller_products sp
+                    LEFT JOIN users u ON sp.seller_id = u.id
+                    WHERE sp.product_id = p.id AND sp.seller_id != $2
+                ) AS sellers
+                FROM seller_products sp
+                JOIN products p ON sp.product_id = p.id
+                LEFT JOIN categories c ON p.category_id = c.id
+                LEFT JOIN users u ON sp.seller_id = u.id
+                WHERE sp.product_id = $1 AND sp.seller_id = $2;
+            `,
+            [idProduct, idSeller]
+        )
+        return result.rows[0] ?? null
+    }
+    /**
+     * Buscar un producto por ID de seller_product. La relacion entre productos y users 
+     * es a través de seller_products, por lo que se debe buscar el producto a través de su ID 
+     * en seller_products para luego retornar la información del producto encontrado. 
+     * Si no se encuentra el producto con el ID proporcionado, retornar null.
+     * @param {number} id - ID del producto a buscar
+     * @returns {Promise<Object>} Producto encontrado
+     */
+    async findByID(idProduct) {
+
+        const result = await this.pool.query(
+            `
+            SELECT 
+                p.id, p.title, p.description, p.code, p.thumbnail, p.status,
+                c.name AS category,
+                sp.price, sp.stock,
+                u.name AS store_name,
+                (
+                    SELECT json_agg(
+                    json_build_object(
+                        'rating', com.rating,
+                        'comment', com.comment,
+                        'user_name', u.name
+                        )
+                    )
+                    FROM comments com
+                    LEFT JOIN users u ON com.user_id = u.id
+                    WHERE com.product_id = p.id
+                ) AS comments,
+                (
+                    SELECT AVG(rating) FROM comments WHERE product_id = p.id
+                ) AS rating
+                FROM seller_products sp
+                JOIN products p ON sp.product_id = p.id
+                LEFT JOIN categories c ON p.category_id = c.id
+                LEFT JOIN users u ON sp.seller_id = u.id
+                WHERE sp.product_id = $1;
+            `,
+            [idProduct]
         )
         return result.rows[0] ?? null
     }
@@ -214,6 +366,30 @@ class ProductsRepository{
         return result.rows[0]?.id ?? null
     }
 
+    async findByCode(code){
+        try{
+            const result = await this.pool.query(
+                `SELECT * FROM products WHERE code = $1`,
+                [code]
+            )
+            return result.rows[0] ?? null;
+        }catch(error){
+            throw error;
+        }
+    }
+
+    async existByCode(code){
+        try{
+            const result = await this.pool.query(
+                `SELECT 1 FROM products WHERE code = $1`,
+                [code]
+            )
+            return result.rows.length > 0;
+        }catch(error){
+            throw error;
+        }
+    }
+
     /**
      * Crear un nuevo producto
      * @param {Object} data - Objeto con los datos del producto a crear
@@ -241,6 +417,38 @@ class ProductsRepository{
                 throw new DuplicateException("Code o Titulo Duplicado");
             }
 
+            throw error;
+        }
+    }
+
+    /**
+     * Asociar usuario y producto a través de seller_products
+     * @param {Object} sellerProduct - Objeto con los datos para asociar el producto al usuario
+     * @param {number} sellerProduct.product_id - ID del producto a asociar
+     * @param {number} sellerProduct.user_id - ID del usuario a asociar
+     * @param {number} sellerProduct.stock - Stock del producto para ese usuario
+     * @param {number} sellerProduct.price - Precio del producto para ese usuario
+     * @returns {Promise<void>} No retorna nada, pero lanza un error si ocurre un error durante la asociación
+     */
+    async associateProductToSeller(sellerProduct){
+        try{
+            const keys = Object.keys(sellerProduct);
+            const values = Object.values(sellerProduct);
+
+            const preholders  = keys.map((_, i) => `$${i + 1}`).join(",");
+            const columns = keys.join(",");
+            
+            await this.pool.query(
+                `INSERT INTO seller_products (${columns})
+                VALUES(${preholders})`,
+                values
+            )
+            return;
+
+        }catch(error){
+            if(error.code === '23505') {
+                throw new DuplicateException("El producto o codigo ya está asociado a este vendedor");
+            }
             throw error;
         }
     }

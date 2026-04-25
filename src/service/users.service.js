@@ -46,9 +46,11 @@ class UsersService{
         return userFound
     }
 
-    async create(document){
+    async create(user){
+
+        user.must_change_password = true;
         //Formateamos el documento
-        const userCreated = await this.repository.create(this.toFormatDTO(document));
+        const userCreated = await this.repository.create(this.toFormatDTO(user));
 
         // Buscar si la clase hija definió toDTO
         return this.toDTO(userCreated);

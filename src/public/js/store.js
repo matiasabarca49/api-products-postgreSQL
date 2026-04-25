@@ -3,6 +3,7 @@ const renderProducts = (array)=>{
     const contProducts = document.getElementById('products')
     contProducts.innerHTML= ""
     array.forEach(product => {
+        const bestSeller = product.sellers[0];
         const div = document.createElement('div')
         div.className= "product-card"
         div.style.maxWidth= "18rem"
@@ -15,8 +16,8 @@ const renderProducts = (array)=>{
                                 <h5 class="card-title">${product.title}</h5>
                             </div>
                             <div class="card-footer"> 
-                                <span class="card-price">$ ${product.price}</span>
-                                <a class="btn-success" href="http://localhost:8080/productview?id=${product.id}">Ver Más</a>
+                                <span class="card-price">$ ${bestSeller.price}</span>
+                                <a class="btn-success" href="http://localhost:8080/productview?i=${product.id}&s=${bestSeller.seller_id}">Ver Más</a>
                             </div>  
                     `
         contProducts.appendChild(div)
@@ -106,9 +107,9 @@ ordenDesc.addEventListener("click", ()=>{
 //Evento para filtrar por categoría
 const productRopa = document.getElementById("productRopa")
 productRopa.addEventListener("click", ()=>{
-    fetchProductsOpts("category", "Ropa")
+    fetchProductsOpts("category", "ropa")
 })
 const productTecno = document.getElementById("productTecno")
 productTecno.addEventListener("click", ()=>{
-    fetchProductsOpts("category", "Tecnología")
+    fetchProductsOpts("category", "tecnologia")
 })

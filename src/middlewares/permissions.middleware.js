@@ -1,5 +1,5 @@
 const checkPermAdmin = (req, res ,next) =>{
-    if(req.session.rol === "Admin"){
+    if(req.session.rol === "admin"){
         next()
     }
     else{
@@ -8,7 +8,7 @@ const checkPermAdmin = (req, res ,next) =>{
 }
 
 function checkPermAdminAndPremium(req, res, next){
-    if(req.session.rol === "Admin" || req.session.rol === "Premium"){
+    if(req.session.rol === "admin" || req.session.rol === "premium"){
         next()
     }
     else{
@@ -17,7 +17,7 @@ function checkPermAdminAndPremium(req, res, next){
 }
 
 const checkPerAddProduct = (req, res ,next) => {
-    if (req.session.rol === "Admin" || req.session.rol === "Premium" ){
+    if (req.session.rol === "admin" || req.session.rol === "premium" ){
         next()
     }
     else{
@@ -26,7 +26,7 @@ const checkPerAddProduct = (req, res ,next) => {
 }
 
 const checkPerAdmCart = (req, res, next) =>{
-    if(req.session.rol === "User" || req.session.rol === "Premium"){
+    if(req.session.rol === "user" || req.session.rol === "premium"){
         next()
     }
     else{
@@ -35,7 +35,7 @@ const checkPerAdmCart = (req, res, next) =>{
 }
 
 const CheckPerRol = (req, res, next) =>{
-    if(req.session.rol === "Admin"){
+    if(req.session.rol === "admin"){
         next()
     }else{
         res.status(401).send({status: "ERROR", reason: "Solo los administradores pueden administrar a los usuarios"}) 
@@ -43,10 +43,10 @@ const CheckPerRol = (req, res, next) =>{
 }
 
 const checkPerCart = (req, res, next)=>{
-    if(req.session.rol === "Admin"){
+    if(req.session.rol === "admin"){
         next()
     }
-    else if(req.session.rol === "User" || req.session.rol === "Premium"){
+    else if(req.session.rol === "user" || req.session.rol === "premium"){
         /* res.send({status: "ERROR", reason: "Solo los usuarios pueden agregar productos al carrito" }) */
         res.send("Solo los Administradores pueden ver los carritos de compra")
     }
@@ -57,7 +57,7 @@ const checkPerCart = (req, res, next)=>{
 }
 
 const checkPerShowCart = (req, res, next)=>{
-    if(req.session.rol === "Admin"){
+    if(req.session.rol === "admin"){
         next()
     }
     else{
@@ -67,7 +67,7 @@ const checkPerShowCart = (req, res, next)=>{
 
 
 const checkPerChat = ( req, res, next )=> {
-    if (req.session.rol === "Admin"){
+    if (req.session.rol === "admin"){
         res.send("Los administradores no pueden acceder al chat")
     }
     else{

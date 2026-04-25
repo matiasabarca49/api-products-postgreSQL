@@ -40,10 +40,10 @@ const validateProduct = [
         .optional()
         .isString().withMessage('La miniatura debe ser una URL válida')
         .trim(),
-    body('owner')
+    body('owner_id')
         .exists().withMessage('El propietario es requerido')
         .notEmpty().withMessage('El propietario no puede estar vacío')
-        .isString().withMessage('El propietario debe ser un texto')
+        .isInt().withMessage('El propietario debe ser un entero')
         .trim(),
         
     handleValidationErrors

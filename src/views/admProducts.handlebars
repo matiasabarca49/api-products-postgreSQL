@@ -20,7 +20,7 @@
                 </div>
             {{/unless}}
             {{#if userLoged.user}}
-                {{#ifCond userLoged.rol "Admin"}}
+                {{#ifCond userLoged.rol "admin"}}
                     <div>
                         <a class="btn icon-btn" href="/admin"><img class="nav-icon" src="../img/configurar.png" alt="home"></a>
                     </div>
@@ -31,7 +31,7 @@
 </header>
 <main class="main-container">
     {{#if userLoged.user}}
-        {{#ifCond userLoged.rol "Premium"}}
+        {{#ifCond userLoged.rol "premium"}}
             <div>
                 <a class="back-button" href="/"> Regresar </a>                    
             </div>
@@ -56,10 +56,10 @@
             <label for="categoryFilter">Categoría:</label>
             <select id="categoryFilter" class="filter-select">
                 <option value="">Todas</option>
-                <option value="Ropa">Ropa</option>
-                <option value="Tecnología">Tecnología</option>
-                <option value="Bazar">Bazar</option>
-                <option value="Calzado">Calzado</option>
+                <option value="ropa">Ropa</option>
+                <option value="tecnología">Tecnología</option>
+                <option value="bazar">Bazar</option>
+                <option value="calzado">Calzado</option>
             </select>
         </div>
         
@@ -118,9 +118,10 @@
                     <div class="form-group">
                         <label for="categoryId" required>Categoría</label>
                         <select id="categoryId" name="category">
-                            <option value="Bazar">Bazar</option>
-                            <option value="Ropa">Ropa</option>
-                            <option value="Tecnología">Tecnología</option>
+                            <option value="bazar">Bazar</option>
+                            <option value="ropa">Ropa</option>
+                            <option value="tecnología">Tecnología</option>
+                            <option value="calzado">Calzado</option>
                         </select>
                     </div>
 
@@ -155,11 +156,6 @@
                             <option value="false">false</option>
                             <option value="true">true</option>
                         </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editStock">Owner</label>
-                        <input type="text" id="ownerId" name="owner" min="0" required>
                     </div>
                     
                     <div class="modal-actions">

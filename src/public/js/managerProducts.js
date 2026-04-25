@@ -27,7 +27,7 @@ const renderProducts = (array) => {
                             </div>
                             <div class="card-footer"> 
                                 <span class="card-price">$ ${product.price}</span>
-                                <a class="btn btn-light" href="http://localhost:8080/productview?id=${product.id}">Ver en Tienda</a>
+                                <a class="btn btn-light" href="http://localhost:8080/productview?i=${product.id}&s=${product.seller_id}">Ver en Tienda</a>
                             </div>  
                     `
         contProducts.appendChild(div)
@@ -81,6 +81,11 @@ const fetchProductsSearch = (search)=>{
 // Función para agregar un nuevo producto
 async function addProduct() {
     
+    //Obtenemos el usuario
+    const userData = await getUser();
+
+    console.log("Usuario logeado: ", userData)
+
     document.getElementById('modalTitle').innerText = 'Agregar Producto';
 
     document.getElementById('titleId').value = '';
@@ -89,15 +94,10 @@ async function addProduct() {
     document.getElementById('descriptionId').value =  '';
     document.getElementById('stockId').value =  '';
     document.getElementById('statusId').value = 'false';
-    document.getElementById('ownerId').value = '';
 
     const code = document.getElementById('codeId')
     code.value = '';
-    code.disabled = false;
-    const owner = document.getElementById('ownerId')
-    owner.value = '';
-    owner.disabled = false;
-        
+    code.disabled = false;        
     
     // Mostrar el modal
     document.getElementById('ProductModal').style.display = 'block';
@@ -116,7 +116,7 @@ async function addProduct() {
             description: formData.get('description'),
             stock: parseInt(formData.get('stock')),
             status: formData.get('status'),
-            owner: formData.get('owner'),
+            owner_id: userData.data.id, // Usar el ID del usuario logeado
             thumbnail: formData.get('thumbnail')
         };
         
@@ -269,11 +269,17 @@ function deleteProduct(productId) {
     }
 }
 
+//Obtener usuario logeado para mostrar su nombre en el header
+const getUser = async() =>{
+    const data = await fetch(`http://localhost:8080/api/sessions/current`);
+    return await data.json();
+}
 
 //Algoritmo Principal
 
 let page = 1, limit = 10, sort = 1, query=""
 let products = []
+
 
 fetchProducts(page)
 
