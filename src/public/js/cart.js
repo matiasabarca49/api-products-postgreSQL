@@ -23,7 +23,7 @@ const addToCart = async (product)=>{
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({product_id: product.id})
+                body: JSON.stringify({seller_product_id: product.seller_product_id})
             })
             const data = resToProductSended.json()
             totalProducts()

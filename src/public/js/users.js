@@ -181,8 +181,10 @@ async function saveUser() {
     const userData = {
         name: document.getElementById('userName').value,
         last_name: document.getElementById('userLastName').value,
+        nickname: document.getElementById('nickname').value,
+        dni: document.getElementById('dni').value,
         email: document.getElementById('userEmail').value,
-        age: parseInt(document.getElementById('userAge').value) || undefined,
+        birth: document.getElementById('userAge').value || undefined,
         rol: document.getElementById('userRole').value
     };
 

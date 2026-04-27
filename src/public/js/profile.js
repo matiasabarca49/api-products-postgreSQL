@@ -23,13 +23,14 @@ const loadPurchases = async (page = 1) => {
                 ${purchase.products.map(item => `
                     <div class="purchase-product-card">
                         <div class="purchase-card-header">
-                            <p class="purchase-card-category">x${item.quantity}</p>
+                            <p>Vendido por: ${item.store_name}</p>
+                            <p class="purchase-card-category">${item.quantity} x $${(item.price).toLocaleString('es-AR')}</p>
                         </div>
                         <div class="purchase-card-body">
                             <h5 class="purchase-card-title">${item.title}</h5>
                         </div>
                         <div class="purchase-card-footer">
-                            <div class="purchase-card-price">$${parseFloat(item.price).toLocaleString('es-AR')}</div>
+                            <div class="purchase-card-price">$${(parseFloat(item.price) * parseInt(item.quantity)).toLocaleString('es-AR')}</div>
                         </div>
                     </div>
                 `).join('')}

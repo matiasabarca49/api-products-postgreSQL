@@ -77,6 +77,15 @@ CREATE TABLE IF NOT EXISTS seller_products (
     UNIQUE (seller_id, product_id)
 );
 
+-- Tiendas -- cada usuario puede tener una tienda, pero no es obligatorio. Solo los usuarios con rol "premium" pueden tener tienda.
+CREATE TABLE IF NOT EXISTS stores (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- COMENTARIOS / REVIEWS
 CREATE TABLE IF NOT EXISTS comments (
     id                SERIAL PRIMARY KEY,
@@ -101,11 +110,11 @@ CREATE TABLE IF NOT EXISTS carts (
 
 -- PRODUCTOS DENTRO DE UN CARRITO COMPRADO
 CREATE TABLE IF NOT EXISTS cart_products (
-    id         SERIAL PRIMARY KEY,
-    cart_id    INTEGER NOT NULL REFERENCES carts(id) ON DELETE RESTRICT,
-    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
-    seller_id INTEGER NOT NULL REFERENCES users(id),
-    quantity   INTEGER NOT NULL
+    id SERIAL PRIMARY KEY,
+    cart_id INTEGER NOT NULL REFERENCES carts(id) ON DELETE RESTRICT,
+    seller_product_id INTEGER NOT NULL REFERENCES seller_products(id) ON DELETE RESTRICT,
+    quantity INTEGER NOT NULL,
+    price NUMERIC(10,2) NOT NULL
 );
 
 -- HISTORIAL DE COMPRAS DEL USUARIO
@@ -120,7 +129,7 @@ CREATE TABLE IF NOT EXISTS cart_items (
     id                  SERIAL PRIMARY KEY,
     user_id             INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     seller_product_id   INTEGER NOT NULL REFERENCES seller_products(id) ON DELETE CASCADE,
-    quantity            INTEGER NOT NULL
+    quantity            INTEGER NOT NULL,
 
     UNIQUE(user_id, seller_product_id)
 );

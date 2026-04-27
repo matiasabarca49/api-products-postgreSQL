@@ -27,7 +27,7 @@ class PurchaseRepository{
 
             const sqlData = 
             `
-                SELECT pc.cart_id, pc.date_cart, p.title, p.price, cp.quantity
+                SELECT pc.cart_id, pc.date_cart, p.title, cp.price, cp.quantity, sp.seller_id, u.name AS store_name
                 FROM (
                     SELECT * FROM purchases
                     WHERE user_id = $1
@@ -35,7 +35,9 @@ class PurchaseRepository{
                     LIMIT $2 OFFSET $3
                 ) pc
                 JOIN cart_products cp ON cp.cart_id = pc.cart_id
-                JOIN products p ON p.id = cp.product_id
+                JOIN seller_products sp ON sp.id = cp.seller_product_id
+                JOIN users u ON u.id = sp.seller_id
+                JOIN products p ON p.id = sp.product_id
                 ORDER BY pc.cart_id DESC
             `;
 
@@ -71,11 +73,13 @@ class PurchaseRepository{
                         title: row.title,
                         price: row.price,
                         quantity: row.quantity,
+                        store_name: row.store_name,
+                        id_seller: row.seller_id
                     }
                 )
 
                 purchase.total =  purchase.total ?   purchase.total + parseFloat(row.price * row.quantity)  : parseFloat(row.price * row.quantity); 
-                purchase.amount = purchase.amount ?   purchase.amount + 1  : 1;
+                purchase.amount = purchase.amount ?   purchase.amount + row.quantity  : 1;
 
                 return acc;
 
@@ -121,16 +125,15 @@ class PurchaseRepository{
             //4-Insertar en cart_products los productos que sí tienen stock
             for (const item of cartItems) {
                 await client.query(
-                    `INSERT INTO cart_products (cart_id, product_id, quantity) VALUES ($1, $2, $3)`,
-                    [cart.id, item.id, item.quantity]
+                    `INSERT INTO cart_products (cart_id, seller_product_id, quantity, price) VALUES ($1, $2, $3, $4)`,
+                    [cart.id, item.seller_product_id, item.quantity, item.price]
                 );
             }
             console.log("Productos asignados a Carrito en DB......")
             //Contar cantidad de productos
              const cantProd = await client.query(
-                `SELECT SUM(p.price * cp.quantity) AS total, SUM(cp.quantity) AS cant_product
+                `SELECT SUM(cp.price * cp.quantity) AS total, SUM(cp.quantity) AS cant_product
                 FROM cart_products cp
-                JOIN products p ON cp.product_id = p.id
                 WHERE cp.cart_id = $1`,
                 [cart.id]
             )
@@ -142,8 +145,8 @@ class PurchaseRepository{
             //5- Descontar Stock
             for(const item of cartItems){
                 await client.query(
-                        `UPDATE products SET stock= stock - $1 WHERE id=$2`,
-                    [item.quantity, item.id]
+                        `UPDATE seller_products SET stock= stock - $1 WHERE id=$2`,
+                    [item.quantity, item.seller_product_id]
                 )
             }
             console.log("Stock Descontado......");
@@ -165,16 +168,28 @@ class PurchaseRepository{
             );
             
             console.log("Ticket creado.....")
-            //8-Vaciar cart_items del usuario
+
+            //8 - Generar venta(sale)
+
+            for(const item of cartItems){
+                await client.query(
+                    `INSERT INTO sales (ticket_id, seller_id, buyer_id, product_id, cart_id,quantity, price, total, status, delivery_type)
+                    VALUES($1, $2, $3, $4, $5, $6, $7, $8,'pending', 'shipping')`,
+                    [ticket.id, item.seller_id, idUser, item.id, cart.id, item.quantity, item.price, item.price * item.quantity]
+                )
+            }
+
+            console.log("Venta generada...")
+            //9-Vaciar cart_items del usuario
 
             for (const item of cartItems) {
                 await client.query(
              `
                 DELETE FROM cart_items
-                WHERE user_id = $1 AND product_id = $2
+                WHERE user_id = $1 AND seller_product_id = $2
                 RETURNING *
                 `, 
-                [idUser, item.id])
+                [idUser, item.seller_product_id])
             }
 
             console.log("Productos del carrito del usuario removidos.....")

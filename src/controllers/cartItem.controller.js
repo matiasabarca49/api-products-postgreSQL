@@ -37,8 +37,8 @@ const getCantItemsInCart = async (req, res, next) =>{
 */
 const addProductToCart = async (req, res, next) =>{
     try{
-        const {product_id, quantity } = req.body;
-        const addedItem = await cartItemService.addProductToCart(req.session.idUser, product_id, quantity);
+        const {seller_product_id, quantity } = req.body;
+        const addedItem = await cartItemService.addProductToCart(req.session.idUser, seller_product_id, quantity);
         return res.status(200).json({success: true, data:addedItem});
     }catch(error){
         next(error);
@@ -47,12 +47,12 @@ const addProductToCart = async (req, res, next) =>{
 
 /**
  * Remover un producto del carrito actual del usuario
- * @param {number} id id del producto a eliminar
+ * @param {number} seller_product_id id de la oferta a eliminar. id de seller_products(Oferta de vendedor)
  */
 const removeProductFromCart = async (req, res, next) =>{
     try{
-        const { id } = req.params;
-        await cartItemService.removeProductFromCart(req.session.idUser, id);
+        const { seller_product_id } = req.params;
+        await cartItemService.removeProductFromCart(req.session.idUser, seller_product_id);
         return res.status(200).json({success: true, message: 'Producto eliminado del carrito'});
     }catch(error){
         next(error);

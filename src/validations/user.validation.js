@@ -38,7 +38,7 @@ const validateCreateUser = [
     .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
   body('rol')
     .notEmpty().withMessage('El rol es requerido')
-    .isIn(['user', 'premium', 'admin']).withMessage('El rol debe ser User, Premium o Admin'),
+    .isIn(['user', 'premium', 'admin']).withMessage('El rol debe ser user, premium o admin'),
   
   handleValidationErrors
 ];

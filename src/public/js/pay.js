@@ -5,6 +5,7 @@ const render = (cart)=>{
     cartCont.innerHTML = " "
     if( cart.length !== 0){
         cart.forEach(product => {
+            console.log(product)
             const div = document.createElement("div")
             div.classList = "cart-item-container"
             div.innerHTML =         
@@ -12,11 +13,12 @@ const render = (cart)=>{
                     <div class="cart-item cart-item-content">
                     <div class="item-header">
                         <p class="item-category">${product.category}</p>
-                        <button class="remove-btn" id="delete${product.id}">X</button>
+                        <button class="remove-btn" id="delete${product.seller_product_id}">X</button>
                     </div>
                     <div class="item-body">
                         <h5 class="item-title">${product.title}</h5>
                         <p class="item-quantity">Cantidad: ${product.quantity}</p>
+                        <div class="mt-3"> Vendido por: ${product.store_name}</div>
                     </div>
                     <div class="item-footer">
                         <div class="item-calculation">${product.price} x ${product.quantity}</div>
@@ -28,9 +30,9 @@ const render = (cart)=>{
              `
             cartCont.appendChild(div)
             //Agregar Evento para eliminar producto
-            const btnDelete = document.getElementById(`delete${product.id}`)
+            const btnDelete = document.getElementById(`delete${product.seller_product_id}`)
             btnDelete.addEventListener("click", ()=>{
-                deleteProduct(product.id)
+                deleteProduct(product.seller_product_id)
             })
         })
         //Total de la compra
@@ -58,8 +60,9 @@ const render = (cart)=>{
     
 }
 
-const deleteProduct = async (idProduct) =>{
-    const res =  await fetch(`http://localhost:8080/api/cartItems/remove/${idProduct}`, {
+const deleteProduct = async (seller_product_id) =>{
+    console.log("Se intenta eliminar producto id: ", seller_product_id)
+    const res =  await fetch(`http://localhost:8080/api/cartItems/remove/${seller_product_id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
@@ -68,53 +71,8 @@ const deleteProduct = async (idProduct) =>{
     getCart()
 }
 
-//Funcion que formatea el carrito, solo deja el ID de los productos
-const reWritedForDB = (cart) =>{
-    const cartReWrited = cart.map(  productCart => {
-        return {
-            product: productCart.product._id,
-            quantity: productCart.quantity
-        }
-    } )
-    return cartReWrited
-}
 
 //Funcion que se ejecuta al hacer click al boton pagar
-/* const finishPurchase = async ()=>{
-    const resUser = await fetch(`http://localhost:8080/api/sessions/current`)
-    const user = await resUser.json()
-    const dateAtMomentPurchase = new Date()
-    const finalCart = {
-        dateCart: `${dateAtMomentPurchase.getDate()}/${dateAtMomentPurchase.getMonth()+1}/${dateAtMomentPurchase.getFullYear()}`,
-        products: user.currentUser.cart
-    }
-    //Agregamos el carrito a la DB
-    const res = await fetch('http://localhost:8080/api/carts',{
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(finalCart)
-    })
-    const newCartAdded = await res.json()
-    //Generamos la compra en el usuario
-    const resPurchase = await fetch(`http://localhost:8080/api/carts/${newCartAdded.cart.id}/purchase`)
-    const purchase = await resPurchase.json()
-    //Enviamos el Ticket al mail del usuario
-    purchase.ticket.email = user.currentUser.email
-    const resTicket = await fetch('http://localhost:8080/api/mail/send/mail',{
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(purchase.ticket)
-    })
-    localStorage.setItem("purchased", true)
-    setTimeout(()=>{
-        window.location.href= `http://localhost:8080/ticket?code=${purchase.ticket.code}&&cart=${newCartAdded.cart.id}`
-    },5000)
-} */
-
 const finishPurchase = async ()=>{
     //Corroborramos la sesion
     let req = await fetch(`http://localhost:8080/api/sessions/current`);

@@ -15,11 +15,15 @@ class CartItemRepository{
     async getCartItemsByUser(idUser){
         try{
             const result = await this.pool.query(
-                `SELECT p.id, p.title, p.description, p.price, p.code, p.thumbnail, 
+                `SELECT p.id, p.title, p.description, sp.price, p.code, p.thumbnail, 
                 c.name as category,
-                ci.quantity 
+                ci.quantity, ci.seller_product_id,
+                u.name AS store_name,
+                u.id AS seller_id
                 FROM cart_items ci
-                JOIN products p ON ci.product_id = p.id
+                JOIN seller_products sp ON sp.id = ci.seller_product_id
+                JOIN users u ON u.id = sp.seller_id
+                JOIN products p ON p.id = sp.product_id
                 JOIN categories c ON p.category_id = c.id
                 WHERE ci.user_id = $1
                 `
@@ -65,21 +69,21 @@ class CartItemRepository{
      * @throws {NotFoundException} Si el usuario o el producto no existen (Error 23503).
      * @throws {Error} Para otros errores de base de datos.
      */
-    async addProductToCart(idUser, product_id, quantity = 1){
+    async addProductToCart(idUser, seller_product_id, quantity = 1){
         try{
             
-            if(await this.existsItem(idUser, product_id)){
-                return await this.updateQuantity(idUser, product_id, quantity);
+            if(await this.existsItem(idUser, seller_product_id)){
+                return await this.updateQuantity(idUser, seller_product_id, quantity);
             }
     
-            const result = await this.pool.query('INSERT INTO cart_items (user_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *'
-            , [idUser, product_id, quantity])
+            const result = await this.pool.query('INSERT INTO cart_items (user_id, seller_product_id, quantity) VALUES ($1, $2, $3) RETURNING *'
+            , [idUser, seller_product_id, quantity])
         
             return result.rows[0]?? null;
 
         }catch(error){
             if (error.code === '23503') {
-                if (error.constraint === 'cart_items_product_id_fkey') throw new NotFoundException('Producto no encontrado');
+                if (error.constraint === 'cart_items_seller_product_id_fkey') throw new NotFoundException('Producto no encontrado');
                 if (error.constraint === 'cart_items_user_id_fkey') throw new NotFoundException('Usuario no encontrado');
             }
             throw error;
@@ -94,13 +98,13 @@ class CartItemRepository{
    * @returns {Promise<boolean>} True si el producto ya está en el carrito, false en caso contrario.
    * @throws {Error} Si ocurre un error en la conexión o consulta a la base de datos.
    */
-  async existsItem(userId, productId) {
+  async existsItem(userId, seller_product_id) {
     try{
         const sql = `
           SELECT 1 FROM cart_items
-          WHERE user_id = $1 AND product_id = $2
+          WHERE user_id = $1 AND seller_product_id = $2
         `;
-        const { rowCount } = await pool.query(sql, [userId, productId])
+        const { rowCount } = await pool.query(sql, [userId, seller_product_id])
         
         return rowCount > 0;
     }catch(error){
@@ -116,15 +120,15 @@ class CartItemRepository{
    * @returns {Promise<Object>} item con la cantidad actualizada
    * @throws {Error} Si ocurre un error en la conexión o en la actualizacion.
    */
-  async updateQuantity(userId, productId, quantity = 1) {
+  async updateQuantity(userId, seller_product_id, quantity = 1) {
     try{
         const sql = `
           UPDATE cart_items
           SET quantity = quantity + $3
-          WHERE user_id = $1 AND product_id = $2
+          WHERE user_id = $1 AND seller_product_id = $2
           RETURNING *
         `;
-        const { rows } = await pool.query(sql, [userId, productId, quantity])
+        const { rows } = await pool.query(sql, [userId, seller_product_id, quantity])
             
         return rows[0];
     }catch(error){
@@ -139,14 +143,14 @@ class CartItemRepository{
    * @returns {Promise<Object> | null} Retorna el objeto eliminado o null
    * @throws {Error} Si ocurre un error en la conexión o en la actualizacion.
    */
-  async removeProductFromCart(userId, productId) {
+  async removeProductFromCart(userId, seller_product_id) {
     try{
         const sql = `
           DELETE FROM cart_items
-          WHERE user_id = $1 AND product_id = $2
+          WHERE user_id = $1 AND seller_product_id = $2
           RETURNING *
         `;
-        const { rows } = await pool.query(sql, [userId, productId])
+        const { rows } = await pool.query(sql, [userId, seller_product_id])
             
         return rows[0] ?? null;
 

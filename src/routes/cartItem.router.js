@@ -44,7 +44,7 @@ router.post("/add", checkLogin, addProductToCart);
  * Param: { id: number }
  * Response: 200 { message: string }
  */
-router.delete("/remove/:id", checkLogin, removeProductFromCart);
+router.delete("/remove/:seller_product_id", checkLogin, removeProductFromCart);
 
 
 

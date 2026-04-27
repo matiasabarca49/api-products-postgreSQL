@@ -13,6 +13,9 @@ const renderProducts = (ticket, products, user)=>{
                         <div class="purchase-card-body">
                             <h5 class="purchase-card-title">${item.title}</h5>
                         </div>
+                        <div class="m-3">
+                           <h6>Vendido por: ${item.store_name}</h6>  
+                        </div>
                         <div class="purchase-card-footer">
                             <h4 class="text-body-tertiary">Cantidad: ${item.quantity}</h4>
                             <h4>$${item.price * item.quantity}</h4> 

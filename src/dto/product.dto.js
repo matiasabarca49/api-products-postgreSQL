@@ -16,6 +16,7 @@ class ProductDTO {
             code: product.code,
             price: product.price,
             status: product.status,
+            seller_product_id: product.seller_product_id,
             stock: product.stock,
             category: product.category,
             thumbnail: product.thumbnail,

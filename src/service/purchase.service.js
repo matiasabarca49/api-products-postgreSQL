@@ -37,7 +37,7 @@ class PurchaseService {
         const results = await Promise.all(
             cartItems.map(async item => ({
                 ...item,
-                hasStock: await this.productService.verifyStock(item.id, item.quantity)
+                hasStock: await this.productService.verifyStock(item.seller_product_id, item.quantity)
             }))
         );
 

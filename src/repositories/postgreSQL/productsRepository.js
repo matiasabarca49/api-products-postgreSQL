@@ -260,7 +260,7 @@ class ProductsRepository{
             SELECT 
                 p.id, p.title, p.description, p.code, p.thumbnail, p.status,
                 c.name AS category,
-                sp.price, sp.stock,
+                sp.price, sp.stock, sp.id AS seller_product_id,
                 u.name AS store_name,
                 (
                     SELECT json_agg(
@@ -546,11 +546,11 @@ class ProductsRepository{
      * @param {number} quantity - Cantidad requerida para la compra
      * @returns {Promise<boolean>} Retorna true si hay stock suficiente, false si no lo hay
      */
-    async verifyStock(product_id, quantity){
+    async verifyStock(seller_product_id, quantity){
         try{
             const {rows} = await this.pool.query(
-                `SELECT stock FROM products WHERE id=$1`,
-                [product_id]
+                `SELECT stock FROM seller_products WHERE id=$1`,
+                [seller_product_id]
             )
 
             if (!rows[0]) throw new NotFoundException("Producto no encontrado");

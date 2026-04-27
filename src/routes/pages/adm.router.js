@@ -23,5 +23,9 @@ router.get("/carts", checkPermAdmin,(req,res)=>{
     res.render("cartview", {userLoged: req.session})
 })
 
+router.get("/sales", checkPermAdminAndPremium,(req,res)=>{
+    res.render("sales", {userLoged: req.session})
+})
+
 module.exports = router
 

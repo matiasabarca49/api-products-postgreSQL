@@ -25,16 +25,16 @@ class CartItemService{
          * @inheritdoc
          * @description Agrega un items al carrito delegando la operacion al repositorio.
         */
-        async addProductToCart(idUser, product_id, quantity = 1){
-                return await this.repository.addProductToCart(idUser, product_id, quantity);
+        async addProductToCart(idUser, seller_product_id, quantity = 1){
+                return await this.repository.addProductToCart(idUser, seller_product_id, quantity);
         }
 
         /**
          * @inheritdoc
          * @description Elimina un item del carrito llamando al repositorio.
         */
-        async removeProductFromCart(idUser, product_id){
-                return await this.repository.removeProductFromCart(idUser, product_id);
+        async removeProductFromCart(idUser, seller_product_id){
+                return await this.repository.removeProductFromCart(idUser, seller_product_id);
         }
 
         /**
