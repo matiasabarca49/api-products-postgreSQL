@@ -43,7 +43,7 @@ const Sales = (() => {
         }
     }
 
-    // ─── Filter & Sort (client-side sobre la pagina actual) ───
+    // ─── Filter & Sort ────────────────────────────────────────
     function applyFilters() {
         const query        = searchInput.value.trim().toLowerCase();
         const sort         = sortSelect.value;
@@ -99,7 +99,7 @@ const Sales = (() => {
     }
 
     // ─── Badge helpers ────────────────────────────────────────
-    function statusBadge(status, saleId) {
+    function statusBadge(status, saleIds) {
         var map = {
             pending:   { label: 'Pendiente', icon: '🕐', bg: 'rgba(255,193,7,0.2)',  border: 'rgba(255,193,7,0.5)',  color: '#ffc107' },
             approved:  { label: 'Aprobado',  icon: '✅', bg: 'rgba(40,167,69,0.2)',  border: 'rgba(40,167,69,0.5)',  color: '#28a745' },
@@ -116,9 +116,12 @@ const Sales = (() => {
                 return '<option value="' + st + '">' + m.icon + ' ' + m.label + '</option>';
             }).join('');
 
+        // ids separados por coma para evitar problemas con comillas en atributos HTML
+        var idsAttr = saleIds.join(',');
+
         return (
             '<span style="background:' + s.bg + ';border:1px solid ' + s.border + ';color:' + s.color + ';padding:0.4rem 1rem;border-radius:20px;font-size:0.88rem;font-weight:600;">' + s.icon + ' ' + s.label + '</span>' +
-            '<select class="status-changer filter-select" data-id="' + saleId + '" style="font-size:0.82rem;padding:0.35rem 0.75rem;border-radius:20px;cursor:pointer;min-width:0;">' +
+            '<select class="status-changer filter-select" data-ids="' + idsAttr + '" style="font-size:0.82rem;padding:0.35rem 0.75rem;border-radius:20px;cursor:pointer;min-width:0;">' +
                 '<option value="" disabled selected>Cambiar...</option>' +
                 options +
             '</select>'
@@ -135,13 +138,13 @@ const Sales = (() => {
     }
 
     // ─── Change status ────────────────────────────────────────
-    async function changeStatus(saleId, newStatus, selectEl) {
+    async function changeStatus(saleIds, newStatus, selectEl) {
         selectEl.disabled = true;
         try {
-            var res = await fetch('/api/sales/' + saleId, {
+            var res = await fetch('/api/sales/states', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus })
+                body: JSON.stringify({ ids: saleIds, status: newStatus })
             });
             if (!res.ok) throw new Error('HTTP ' + res.status);
             fetchSales(currentPage);
@@ -151,10 +154,12 @@ const Sales = (() => {
         }
     }
 
+    // ─── Sale card ────────────────────────────────────────────
     function renderSaleCard(sale) {
         var date        = formatDate(sale.date_cart);
         var products    = sale.products.map(renderProductPill).join('');
         var amountLabel = sale.amount + ' producto' + (sale.amount != 1 ? 's' : '');
+        var saleIds     = sale.products.map(function(p) { return p.id_sale; });
 
         return (
             '<div class="purchase-item" style="animation:fadeIn 0.5s ease-out;">' +
@@ -162,7 +167,7 @@ const Sales = (() => {
                 '<div class="purchase-header" style="flex-wrap:wrap;gap:0.75rem;">' +
                     '<span class="purchase-date">' + date + '</span>' +
                     '<div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">' +
-                        statusBadge(sale.status, sale.sale_id) +
+                        statusBadge(sale.status, saleIds) +
                         deliveryBadge(sale.delivery_type) +
                         '<span style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;padding:0.4rem 1rem;border-radius:20px;font-size:0.88rem;font-weight:500;">📦 ' + amountLabel + '</span>' +
                         '<span style="padding:0.4rem 1rem;border-radius:20px;border:1px solid rgba(0,255,58,0.4);background:rgba(0,255,58,0.1);color:#00ff3a;font-size:1.1rem;font-weight:bold;">' + formatCurrency(parseFloat(sale.total)) + '</span>' +
@@ -284,9 +289,9 @@ const Sales = (() => {
         container.addEventListener('change', function(e) {
             if (e.target.classList.contains('status-changer')) {
                 e.stopPropagation();
-                var saleId    = e.target.dataset.id;
+                var saleIds   = e.target.dataset.ids.split(',').map(Number);
                 var newStatus = e.target.value;
-                if (saleId && newStatus) changeStatus(saleId, newStatus, e.target);
+                if (saleIds.length && newStatus) changeStatus(saleIds, newStatus, e.target);
             }
         });
     }

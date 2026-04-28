@@ -11,6 +11,20 @@ const findAll = async (req, res, next) => {
     }
 }
 
+const changeState = async (req, res, next) => {
+    try{
+        const { ids, status } = req.body;
+
+        const updatedSale = await saleService.changeState( ids, status);
+
+        res.status(200).json({success: true, data: updatedSale});
+    }
+    catch(error){
+        next(error);
+    }
+}
+
 module.exports = {
-    findAll
+    findAll,
+    changeState
 }

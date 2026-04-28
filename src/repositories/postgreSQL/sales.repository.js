@@ -33,6 +33,7 @@ class SalesRepository{
                     (
                         SELECT json_agg(
                             json_build_object(
+                                'id_sale', s.id,
                                 'title', p.title,
                                 'price', cp.price,
                                 'quantity', cp.quantity
@@ -41,6 +42,7 @@ class SalesRepository{
                         FROM cart_products cp
                         JOIN seller_products sp ON sp.id = cp.seller_product_id
                         JOIN products p ON p.id = sp.product_id
+                        JOIN sales s ON s.product_id = p.id AND s.seller_id = sp.seller_id AND s.cart_id = cp.cart_id
                         WHERE cp.cart_id = c.id 
                         AND sp.seller_id = $1
                     ) AS products
@@ -71,8 +73,6 @@ class SalesRepository{
                 this.pool.query(sqlCount, [idUser]),
             ]);
 
-            console.log(dataResult.rows);
-
             const totalDocs  = parseInt(countResult.rows[0].count)
             const totalPages = Math.ceil(totalDocs / limit)
     
@@ -89,6 +89,55 @@ class SalesRepository{
         }
         catch(error){
             throw error;
+        }
+    }
+
+    /**
+     * Cambia el estado de una venta. El nuevo estado debe ser uno de los siguientes:
+     *  'pending', 'processed', 'shipped', 'delivered', 'cancelled' o 'approved'.
+     * Este método utiliza transacciones para asegurar que todas las actualizaciones se realicen de manera atómica. 
+     * @param {Array} ids - Un array de IDs de ventas a actualizar.
+     * @param {String} newState - El nuevo estado a asignar a las ventas.
+     */
+    async changeState(ids, status){
+        //obtenemos el cliente
+        const client = await this.pool.connect();
+        try{
+            client.query('BEGIN');
+
+            const sql = 
+            `
+                UPDATE sales
+                SET status = $1
+                WHERE id = $2
+                RETURNING *
+            `;
+            for (const idSale of ids) {
+
+                await client.query(sql, [status, idSale]);
+
+            }
+
+            client.query('COMMIT');
+    
+        }
+        catch(error){
+            client.query('ROLLBACK');
+            throw error;
+        }finally{
+            client.release();
+        }
+    }
+
+
+    async existsById(id){
+        try{
+            const result = await this.pool.query("SELECT 1 FROM sales WHERE id = $1", [id]);
+
+            return result.rows > 0;
+
+        }catch(error){
+            return false;
         }
     }
 }

@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS sales (
     total           NUMERIC(10,2) NOT NULL,
 
     status          VARCHAR(20) NOT NULL DEFAULT 'pending'
-                    CHECK (status IN ('pending', 'processed', 'shipped', 'delivered')),
+                    CHECK (status IN ('pending', 'processed', 'shipped', 'delivered', 'cancelled', 'approved')),
 
     delivery_type   VARCHAR(20) NOT NULL
                     CHECK (delivery_type IN ('pickup', 'shipping')),
