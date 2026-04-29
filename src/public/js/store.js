@@ -3,6 +3,9 @@ const renderProducts = (array)=>{
     const contProducts = document.getElementById('products')
     contProducts.innerHTML= ""
     array.forEach(product => {
+
+        if (!product.sellers || product.sellers.length === 0) return;
+
         const bestSeller = product.sellers[0];
         const div = document.createElement('div')
         div.className= "product-card"

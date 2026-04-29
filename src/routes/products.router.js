@@ -1,6 +1,6 @@
 const express = require('express')
 //controllers
-const {getProducts, getByIdSeller, create, update, deleteProduct, getManageableProducts} = require('../controllers/products.controller.js')
+const {getProducts, getByIdSeller, create, update, deleteProduct, getManageableProducts, updateProductFromSeller} = require('../controllers/products.controller.js')
 //middleware
 const { checkPerAddProduct, checkPermAdminAndPremium, checkPermAdmin } = require('../middlewares/permissions.middleware.js')
 const { validateProduct, validateId, validateUpdateProduct } = require('../validations/product.validations.js')
@@ -79,14 +79,24 @@ router.post("/", checkPermAdminAndPremium, validateProduct, create)
 
 /**
  * @route PUT /api/products/:id
- * @description Actualizar un producto por su ID. Solo usuarios con rol Premium o Admin pueden actualizar productos. Premium solo puede actualizar sus productos, Admin puede actualizar cualquier producto.
- * @access Private (Premium y Admin)
+ * @description Actualizar un producto por su ID. Solo el Admin pueden actualizar productos.
+ * @access Private (Admin)
  * @params {string} id - ID del producto a actualizar
- * @middleware checkPermAdminAndPremium para verificar que el usuario tenga rol Admin o Premium antes de permitir el acceso a esta ruta. Solo estos roles pueden actualizar productos.
+ * @middleware checkPermAdmin para verificar que el usuario tenga rol Admin o Premium antes de permitir el acceso a esta ruta. Solo estos roles pueden actualizar productos.
  * @middleware validateUpdateProduct para validar los datos del producto antes de actualizar el producto.
  */
 /* router.put("/:id", checkPerAddProduct, validateUpdateProduct, update) */
-router.put("/:id", checkPermAdminAndPremium, update);
+router.put("/:id", checkPermAdmin, update);
+
+/**
+ * @route PUT /api/products/:product_id/seller/:seller_id
+ * @description Actualizar el status, stock y precio del producto del usuario premium
+ * @access Private (Premium y Admin)
+ * @params {string} product_id - ID del producto a actualizar
+ * @params {string} seller_id -  ID del vendedor que vende el producto
+ * @middleware checkPermAdminAndPremium
+ */
+router.put("/:product_id/seller/:seller_id", checkPermAdminAndPremium, updateProductFromSeller);
 
 /**
 * DELETE

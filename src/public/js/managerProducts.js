@@ -1,7 +1,10 @@
-const renderProducts = (array) => {
+const renderProducts = async (array) => {
+    const user = await getUser();
+    console.log("Usuario actual: ", user);
     const contProducts = document.getElementById('products')
     contProducts.innerHTML = ""
     array.forEach(product => {
+        console.log(product)
         const div = document.createElement('div')
         div.className = "product-card"
         div.style.maxWidth = "18rem"
@@ -11,26 +14,48 @@ const renderProducts = (array) => {
                                 <div class="header-content">
                                     <p class="card-category">${product.category}</p>
                                     <div class="header-buttons">
-                                        <button class="btn principal-button edit-btn" onclick="editProduct('${product.id}')">
-                                            ✎
+                                    ${ user.rol === "admin"
+                                        ? 
+
+                                        `
+                                            <button class="btn principal-button edit-btn" id=editProduct${product.seller_product_id}>
+                                                ✎
+                                            </button>
+                                        `
+                                        : ""
+                                    }
+                                        
+                                        <button class="btn btn-danger status-btn" id=statusProduct${product.seller_product_id}>
+                                            $
                                         </button>
-                                        <button class="btn btn-danger delete-btn" onclick="deleteProduct('${product.id}')">
+                                        <button class="btn btn-danger delete-btn" onclick="deleteProduct('${product.seller_product_id}')">
                                             ✕
                                         </button>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <h6 class="text-body-secondary">ID: ${product.id}</h6>
+                                <h6 class="text-body-secondary">ID: ${product.seller_product_id}</h6>
                                 <h5 class="card-title">${product.title}</h5>
                                 <h6>stock: ${product.stock}</h6>
                             </div>
                             <div class="card-footer"> 
                                 <span class="card-price">$ ${product.price}</span>
-                                <a class="btn btn-light" href="http://localhost:8080/productview?i=${product.id}&s=${product.seller_id}">Ver en Tienda</a>
+                                <a class="btn btn-light" href="http://localhost:8080/productview?i=${product.product_id}&s=${product.seller_id}">Ver en Tienda</a>
                             </div>  
                     `
         contProducts.appendChild(div)
+
+        document.getElementById(`statusProduct${product.seller_product_id}`).addEventListener('click', ()=>{
+            editStatusProduct(product);
+        })
+
+        if(user.rol === "admin"){
+            document.getElementById(`editProduct${product.seller_product_id}`).addEventListener('click', ()=>{
+                editProduct(product);
+            })
+        }
+
     })
 }
 
@@ -116,7 +141,7 @@ async function addProduct() {
             description: formData.get('description'),
             stock: parseInt(formData.get('stock')),
             status: formData.get('status'),
-            owner_id: userData.data.id, // Usar el ID del usuario logeado
+            owner_id: userData.id, // Usar el ID del usuario logeado
             thumbnail: formData.get('thumbnail')
         };
         
@@ -130,28 +155,31 @@ async function addProduct() {
 }
 
 // Función para abrir el modal y cargar los datos del producto
-async function editProduct(productId) {
+async function editProduct(product) {
     document.getElementById('modalTitle').innerText = 'Editar Producto';
     // obtener los datos del producto por ID
-    const product = await getProductById(productId);
+    const productDB = await getProductById(product);
     
     if (product) {
         // Llenar el formulario con los datos del producto
-        document.getElementById('titleId').value = product.title || '';
-        document.getElementById('categoryId').value = product.category || '';
-        document.getElementById('priceId').value = product.price || '';
-        document.getElementById('stockId').value = product.stock || '';
-        document.getElementById('descriptionId').value = product.description || '';
-        document.getElementById('statusId').value = product.status || '';
-        document.getElementById('thumbnailId').value = product.thumbnail || '';
+        document.getElementById('titleId').value = productDB.title || '';
+        document.getElementById('categoryId').value = productDB.category || '';
+        document.getElementById('codeId').value = productDB.code || '';
+        document.getElementById('priceId').value = productDB.price || '';
+        document.getElementById('stockId').value = productDB.stock || '';
+        document.getElementById('descriptionId').value = productDB.description || '';
+        document.getElementById('statusId').value = productDB.seller_status;
+        document.getElementById('thumbnailId').value = productDB.thumbnail || '';
 
         //Campos que no pueden editarse
         const code = document.getElementById('codeId')
-        code.value = product.code || '';
         code.disabled = true;
-        const owner = document.getElementById('ownerId')
-        owner.value = product.owner || '';
-        owner.disabled = true;
+        const stock = document.getElementById('stockId')
+        stock.disabled = true;
+        const price = document.getElementById('priceId')
+        price.disabled = true;
+        const status = document.getElementById('statusId')
+        status.disabled = true;
 
         // Mostrar el modal
         document.getElementById('ProductModal').style.display = 'block';
@@ -165,15 +193,12 @@ async function editProduct(productId) {
             const updatedProduct = {
                 title: document.getElementById('titleId').value,
                 category: formData.get('category'),
-                price: parseFloat(formData.get('price')),
                 description: formData.get('description'),
-                stock: parseInt(formData.get('stock')),
-                status: formData.get('status'),
                 thumbnail: formData.get('thumbnail')
             };
             
             //Actualizar el producto
-            updateProduct(productId, updatedProduct);
+            updateProduct(product.product_id, updatedProduct);
             
             // Cerrar el modal
             modal.style.display = 'none';
@@ -183,7 +208,45 @@ async function editProduct(productId) {
     }
 }
 
-// Cerrar modal
+// Función para abrir el modal y cargar los datos del producto
+async function editStatusProduct(product) {
+    document.getElementById('modalTitle').innerText = 'Editar Producto';
+    // obtener los datos del producto por ID
+    const productDB = await getProductById(product);
+
+    if (productDB) {
+        // Llenar el formulario con los datos del producto
+        document.getElementById('statusSId').value = productDB.seller_status;
+        document.getElementById('priceSId').value = productDB.price || '';
+        document.getElementById('stockSId').value = productDB.stock || '';
+
+        // Mostrar el modal
+        document.getElementById('statusModal').style.display = 'block';
+
+        //Envío del formulario
+        const modal = document.getElementById('statusModal');
+        document.getElementById('statusForm').onsubmit = function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            
+            const updatedProduct = {
+                price: document.getElementById('priceSId').value,
+                status: formData.get('status'),
+                stock: formData.get('stock'),
+            };
+            
+            //Actualizar el producto
+            updateSellerProduct(product, updatedProduct);
+            
+            // Cerrar el modal
+            modal.style.display = 'none';
+             document.getElementById('titleId').value = '';
+        
+        }
+    }
+}
+
+// Cerrar modal productos
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('ProductModal');
     const closeBtn = document.querySelector('.close-modal');
@@ -207,17 +270,60 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-async function getProductById(productId) {
+// Cerrar modal productos
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('statusModal');
+    const cancelBtn = document.getElementById('cancelStatusModal');
+    const closeBtn = document.getElementById('closeStatusModal');
+    
+    // Cerrar con X
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+    
+    // Cerrar con botón Cancelar
+    cancelBtn.onclick = function() {
+        modal.style.display = 'none';
+    }
+    
+    // Cerrar al hacer clic fuera del modal
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+});
+
+
+
+
+async function getProductById(product) {
     //obtener los datos del producto
-    const res = await fetch(`http://localhost:8080/api/products/${productId}`)
-    const data = await res.json()
+    const res = await fetch(`http://localhost:8080/api/products/${product.product_id}/${product.seller_id}`)
+    const data = await res.json();
     return data.data
 }
 
-// Función para actualizar el producto)
-async function updateProduct(productId, updatedProduct) {
+// Función para actualizar el estado del producto
+async function updateSellerProduct(product, updatedProduct) {
     
-    const res =  await  fetch(`http://localhost:8080/api/products/${productId}`,{
+    const res =  await  fetch(`http://localhost:8080/api/products/${product.product_id}/seller/${product.seller_id}`,{
+        method: "PUT",
+        credentials : "include", // to send HTTP only cookies
+        headers: {
+            "Content-Type" : "application/json",
+            'Accept': 'application/json'
+        }, 
+        body: JSON.stringify(updatedProduct)
+        }
+    )
+    fetchProducts(1)
+
+}
+// Función para actualizar el producto
+async function updateProduct(id, updatedProduct) {
+    
+    const res =  await  fetch(`http://localhost:8080/api/products/${id}`,{
         method: "PUT",
         credentials : "include", // to send HTTP only cookies
         headers: {
@@ -233,8 +339,6 @@ async function updateProduct(productId, updatedProduct) {
 
 // Función para actualizar el producto)
 async function addProductFetch(product) {
-
-    console.log("Producto a agregar: ", product)
     
     const res =  await  fetch(`http://localhost:8080/api/products/`,{
         method: "POST",
@@ -251,10 +355,9 @@ async function addProductFetch(product) {
 
 }
 
-function deleteProduct(productId) {
+function deleteProduct(seller_product_id) {
     if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-        console.log('Eliminando producto:', productId);
-        fetch(`http://localhost:8080/api/products/${productId}`,{  
+        fetch(`http://localhost:8080/api/products/${seller_product_id}`,{  
                 method : "DELETE",
                 credentials : "include", // to send HTTP only cookies
                 headers: {
@@ -271,15 +374,15 @@ function deleteProduct(productId) {
 
 //Obtener usuario logeado para mostrar su nombre en el header
 const getUser = async() =>{
-    const data = await fetch(`http://localhost:8080/api/sessions/current`);
-    return await data.json();
+    const req = await fetch(`http://localhost:8080/api/sessions/current`);
+    const data = await req.json();
+    return data.data;
 }
 
 //Algoritmo Principal
 
 let page = 1, limit = 10, sort = 1, query=""
 let products = []
-
 
 fetchProducts(page)
 
@@ -330,7 +433,6 @@ const btnSearch = document.getElementById("searchInputButton")
 btnSearch.addEventListener("click", ()=>{
     query = productCategory.value
     const search = document.getElementById("searchInput").value
-    console.log(search)
     fetchProductsSearch(search)
 })
 

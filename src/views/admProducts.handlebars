@@ -120,7 +120,7 @@
                         <select id="categoryId" name="category">
                             <option value="bazar">Bazar</option>
                             <option value="ropa">Ropa</option>
-                            <option value="tecnología">Tecnología</option>
+                            <option value="tecnologia">Tecnología</option>
                             <option value="calzado">Calzado</option>
                         </select>
                     </div>
@@ -132,7 +132,7 @@
                     
                     <div class="form-group">
                         <label for="Price">Precio</label>
-                        <input type="number" id="priceId" name="price" step="0.01" required>
+                        <input type="number" id="priceId" name="price" step="0.01">
                     </div>
                     
                     <div class="form-group">
@@ -142,7 +142,7 @@
                     
                     <div class="form-group">
                         <label for="editStock">Stock</label>
-                        <input type="number" id="stockId" name="stock" min="0" required>
+                        <input type="number" id="stockId" name="stock" min="0">
                     </div>
 
                     <div class="form-group">
@@ -165,6 +165,40 @@
                 </form>
             </div>
         </div>
-</div>
+    </div>
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Editar Producto</h2>
+                <span class="close-modal" id="closeStatusModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="statusForm">
+                    
+                    <div class="form-group">
+                        <label for="Price">Precio</label>
+                        <input type="number" id="priceSId" name="price" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editStock">Stock</label>
+                        <input type="number" id="stockSId" name="stock" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="statusSId">Status</label>
+                        <select id="statusSId" name="status">
+                            <option value="false">false</option>
+                            <option value="true">true</option>
+                        </select>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-danger cancel-btn" id="cancelStatusModal">Cancelar</button>
+                        <button type="submit" class="btn btn-success save-btn" >Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 </main>
 <script src="../../js/managerProducts.js"></script>

@@ -36,7 +36,7 @@ class ProductsService{
       delete filters.category;
     }
 
-    filters.status = true; // Solo mostrar productos activos
+    //filters.status = true; // Solo mostrar productos activos
 
     const products = await this.repository.findAll(filters, limit, page, sort)
 
@@ -73,9 +73,9 @@ class ProductsService{
   async findManageableProducts(user, filters = {}, limit, page, sort) {
 
     // Solo los productos del usuario si es Premium, Admin puede ver todos los productos
-    if (user.rol === "Premium") {
-      filters.owner = user.email;
-    }
+    if (user.rol === "premium") {
+      filters.seller_id = user.idUser;
+    } 
 
     // Si se recibe un filtro de categoría, convertirlo a category_id para la consulta
     if(filters.category){
@@ -154,8 +154,21 @@ class ProductsService{
           
       if(!updatedProduct) throw new NotFoundException("Categoria no encontrada")
     }
-    
+
+    //Actualizar producto
     return await this.repository.update(id, updatedProduct)
+  }
+
+  /**
+   * Actualizar stock de user premium
+   */
+  async updateProductFromSeller(user, product_id, seller_id, dataToUpdate){
+  
+    if(user.rol === "premium" && user.idUser != seller_id){
+      throw new ForbiddenException("No tiene permiso para modificar este producto");
+    }
+
+    return await this.repository.updateProductFromSeller(product_id, seller_id, dataToUpdate);
   }
 
   /**
@@ -185,6 +198,10 @@ class ProductsService{
         return this.repository.delete(ID);
     }
     
+  }
+
+  async deleteFromSeller(id_product_seller, user){
+     return this.repository.deleteFromSeller(id_product_seller);
   }
 
 

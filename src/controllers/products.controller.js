@@ -162,6 +162,7 @@ const create = async (req, res, next) =>{
  */
 const update = async (req,res, next)=>{
     try{
+ 
         const productUpdated = await productsService.update(req.params.id, req.body)
         
         return res.status(200).json({success: true, message: "Producto actualizado correctamente", data: productUpdated})
@@ -170,7 +171,27 @@ const update = async (req,res, next)=>{
     catch(error){
        next(error);
     }
- }
+}
+
+/**
+ * Aumentar stock
+ */
+const updateProductFromSeller = async (req, res, next) => {
+    try{
+        const {product_id, seller_id} = req.params;
+
+        const dataToUpdate = {};
+
+        if(req.body.stock) dataToUpdate.stock = req.body.stock;
+        if(req.body.status) dataToUpdate.status = req.body.status;
+        if(req.body.price) dataToUpdate.price = req.body.price;
+
+        const product = await productsService.updateProductFromSeller(req.session, product_id, seller_id, dataToUpdate);
+        return res.status(200).json({success: true, data: product});
+    }catch(error){
+        next(error)
+    }
+}
 
  /**
   * Eliminar un producto por su ID. Solo usuarios con rol Premium o Admin pueden eliminar productos. Premium solo puede eliminar sus productos, Admin puede eliminar cualquier producto.
@@ -179,7 +200,7 @@ const update = async (req,res, next)=>{
 const deleteProduct = async (req,res, next) => {
     try{
         const user = req.session
-        const productDelete = await productsService.delProduct(req.params.id, user)
+        const productDelete = await productsService.deleteFromSeller(req.params.id, user)
         return res.status(200).json({success: true, message: "Producto borrado correctamente", data: productDelete});
         
     }
@@ -195,5 +216,6 @@ module.exports = {
     getManageableProducts,
     create,
     update,
+    updateProductFromSeller,
     deleteProduct
 }
