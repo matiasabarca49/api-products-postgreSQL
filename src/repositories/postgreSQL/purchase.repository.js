@@ -27,7 +27,20 @@ class PurchaseRepository{
 
             const sqlData = 
             `
-                SELECT pc.cart_id, pc.date_cart, p.title, cp.price, cp.quantity, sp.seller_id, u.name AS store_name
+                SELECT pc.cart_id, pc.date_cart, 
+                p.title, p.id AS product_id,
+                cp.price, cp.quantity, 
+                sp.seller_id, 
+                (
+                    SELECT
+                        json_build_object(
+                            'rating', cm.rating,
+                            'comment', cm.comment
+                        )
+                    FROM comments cm
+                    WHERE cm.user_id = $1 AND cm.product_id = p.id
+                ) AS comment,
+                u.name AS store_name
                 FROM (
                     SELECT * FROM purchases
                     WHERE user_id = $1
@@ -70,8 +83,10 @@ class PurchaseRepository{
 
                 purchase.products.push(
                     {
+                        product_id: row.product_id,
                         title: row.title,
                         price: row.price,
+                        comment: row.comment || null,
                         quantity: row.quantity,
                         store_name: row.store_name,
                         id_seller: row.seller_id

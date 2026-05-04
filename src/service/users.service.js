@@ -46,6 +46,10 @@ class UsersService{
         return userFound
     }
 
+    async getAddresess(idUser){
+        return await this.repository.getAddresses(idUser)
+    }
+
     async create(user){
 
         user.must_change_password = true;

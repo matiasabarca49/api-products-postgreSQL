@@ -211,6 +211,7 @@ async function editProduct(product) {
 // Función para abrir el modal y cargar los datos del producto
 async function editStatusProduct(product) {
     document.getElementById('modalTitle').innerText = 'Editar Producto';
+    document.getElementById('titleStatusId').innerText = `${product.title}`;
     // obtener los datos del producto por ID
     const productDB = await getProductById(product);
 

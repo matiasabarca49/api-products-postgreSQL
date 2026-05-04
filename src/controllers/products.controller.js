@@ -157,6 +157,24 @@ const create = async (req, res, next) =>{
 }
 
 /**
+ * Agregar comentarios a productos
+ * 
+*/
+const addCommentToProduct = async (req, res, next) => {
+    try{
+
+        const comment = req.body;
+
+        const commentAdded = await productsService.addComment(req.session, comment);
+
+        res.status(200).json({success: true, data: commentAdded});
+
+    }catch(error){
+        next(error);
+    }
+}
+
+/**
  * Actualizar un producto por su ID. Solo usuarios con rol Premium o Admin pueden actualizar productos. Premium solo puede actualizar sus productos, Admin puede actualizar cualquier producto.
  * @params {string} id - ID del producto a actualizar
  */
@@ -215,6 +233,7 @@ module.exports = {
     getByIdSeller,
     getManageableProducts,
     create,
+    addCommentToProduct,
     update,
     updateProductFromSeller,
     deleteProduct

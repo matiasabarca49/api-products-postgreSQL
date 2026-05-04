@@ -407,6 +407,39 @@ class ProductsRepository{
         }
     }
 
+
+    /**
+     * Agregar comentario a un producto
+     */
+    async addComment(comment){
+        try{
+
+            const values = Object.values(comment);
+            const keys = Object.keys(comment);
+
+            const placeHolders = keys.map( (_, i) => `$${i +1}` ).join(", ");
+            const columns = keys.map( key => `${key}`).join(", ")
+
+
+            const sql = `
+                INSERT INTO comments (${columns})
+                VALUES(${placeHolders})
+                RETURNING*
+            `
+
+            const result = await this.pool.query(sql, values)
+
+            return result.rows;
+
+        }catch(error){
+            if(error.code === '23505') {
+                throw new DuplicateException("El usuario ya comentó este producto");
+            }
+            throw error;
+        }  
+    }
+
+
     /**
      * Actualizar un producto por su ID
      * @param {number} id - ID del producto a actualizar

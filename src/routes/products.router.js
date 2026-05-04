@@ -1,9 +1,10 @@
 const express = require('express')
 //controllers
-const {getProducts, getByIdSeller, create, update, deleteProduct, getManageableProducts, updateProductFromSeller} = require('../controllers/products.controller.js')
+const {getProducts, getByIdSeller, create, update, deleteProduct, getManageableProducts, updateProductFromSeller, addCommentToProduct} = require('../controllers/products.controller.js')
 //middleware
 const { checkPerAddProduct, checkPermAdminAndPremium, checkPermAdmin } = require('../middlewares/permissions.middleware.js')
 const { validateProduct, validateId, validateUpdateProduct } = require('../validations/product.validations.js')
+const { checkLogin } = require('../middlewares/sessions.middleware.js')
 
 //Desestructuramos el objeto para obtener el constructor de Rutas
 const { Router } = express
@@ -72,6 +73,11 @@ router.get("/:product_id/:seller_id",getByIdSeller)
  * @middleware validateProduct para validar los datos del producto antes de crear el producto.
  */
 router.post("/", checkPermAdminAndPremium, validateProduct, create)
+
+/**
+ * @description Agregar comentario
+ */
+router.post("/comment", checkLogin, addCommentToProduct)
 
 /**
 * PUT

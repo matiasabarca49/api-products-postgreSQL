@@ -4,32 +4,75 @@
 </div>
 <div class='container mt-5 block-component'>
     <h1 class='first-text'>Registrarse en la tienda</h1>
-    <form  class="container" action="/api/sessions/register" method="post" >
+    <form class="container" action="/api/sessions/register" method="post">
+
+        {{!-- Datos personales --}}
         <div class="d-flex gap-2">
             <div class="flex-grow-1">
-                <label htmlFor="">Nombre:</label>
+                <label>Nombre:</label>
                 <input class='w-100' type="text" name="name" required/>
             </div>
             <div class="flex-grow-1">
-                <label htmlFor="">Apellido:</label>
+                <label>Apellido:</label>
                 <input class='w-100' type="text" name="last_name" required/>
-             </div>
+            </div>
         </div>
         <div>
-            <label htmlFor="">Edad:</label>
+            <label>Edad:</label>
             <input class='w-100' type="text" name="age" required/>
         </div>
         <div>
-            <label htmlFor="">Email:</label>
+            <label>Email:</label>
             <input class='w-100' type="text" name="email" required/>
         </div>
         <div>
-            <label htmlFor="">Contraseña:</label>
+            <label>Contraseña:</label>
             <input class="w-100" type="password" name="password" required/>
         </div>
+
+        {{!-- Dirección --}}
+        <div style="
+            margin: 1.5rem 0 0.5rem;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.08);
+        ">
+            <p style="
+                color: rgba(255,255,255,0.6);
+                font-size: 1rem;
+                font-weight: 600;
+                letter-spacing: 1px;
+                margin: 0 0 1rem 0;
+            ">📍 ¿A donde queres que te enviemos tus productos?</p>
+
+            <div class="d-flex gap-2" style="margin-bottom: 0.75rem;">
+                <div class="flex-grow-1">
+                    <label>Calle y número:</label>
+                    <input class="w-100" type="text" name="street" placeholder="Ej: San Martín 123" required/>
+                </div>
+                <div class="flex-grow-1">
+                    <label>Ciudad:</label>
+                    <input class="w-100" type="text" name="city" placeholder="Ej: Mendoza" required/>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <div class="flex-grow-1">
+                    <label>Provincia:</label>
+                    <input class="w-100" type="text" name="province" placeholder="Ej: Mendoza" required/>
+                </div>
+                <div style="max-width: 160px;">
+                    <label>Código postal:</label>
+                    <input class="w-100" type="text" name="postal_code" placeholder="Ej: 5500" required/>
+                </div>
+            </div>
+        </div>
+
         {{#if error}}
             <div class="m-2 text-danger">El usuario ya está registrado o campos incompletos</div>
         {{/if}}
+
         <button class='btn-success my-2'>Registrarse</button>
     </form>
 </div>

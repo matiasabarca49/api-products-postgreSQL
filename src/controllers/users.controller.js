@@ -26,6 +26,15 @@ const getAll = async (req, res, next) =>{
     }
 }
 
+const getAdreddess = async (req, res, next) =>{
+    try{
+        const addresses = await usersService.getAddresess(req.session.idUser);
+        return res.status(200).json({success: true, data: addresses});
+    }catch(error){
+        next(error)
+    }
+}
+
 const updateRol = async (req, res) =>{
     try{
         const userUpdated = await usersService.updateRol(req.params.uid)
@@ -111,6 +120,7 @@ const deleteInactiveUser = async (req, res) =>{
 
 module.exports = {
     getAll,
+    getAdreddess,
     updateRol,
     create,
     addDocument,

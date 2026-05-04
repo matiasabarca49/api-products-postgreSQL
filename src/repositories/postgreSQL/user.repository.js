@@ -122,6 +122,35 @@ class UsersRepository{
         return result.rows[0] ?? null;
     }
 
+    async getAddresses(idUser){
+        try{
+            const sql = 
+            `
+                SELECT u.id AS user_id, u.name, u.last_name,
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            'street', a.street,
+                            'city', a.city,
+                            'province', a.province,
+                            'postal_code', a.postal_code,
+                            'is_delfault', a.is_default
+                        )
+                    )
+                    FROM addresses a    
+                    WHERE a.user_id = $1
+                )  AS adressess 
+                FROM users u
+                WHERE u.id = $1
+            `
+            const result = await this.pool.query(sql, [idUser]);
+
+            return result.rows
+        }catch(error){
+            throw error;
+        }
+    }
+
     async create(data) {
         try {
             const keys   = Object.keys(data)

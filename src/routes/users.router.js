@@ -4,7 +4,7 @@ const router = new Router()
 //Multer
 const uploader = require('../utils/multer.js')
 //controllers
-const { getAll, updateRol, addProductToCart, addDocument, deleteUser, deleteInactiveUser, removeProductFromCart, create, update } = require('../controllers/users.controller.js')
+const { getAll, updateRol, addProductToCart, addDocument, deleteUser, deleteInactiveUser, removeProductFromCart, create, update, getAdreddess } = require('../controllers/users.controller.js')
 //middleware
 const {checkPerAdmCart, CheckPerRol, checkPermAdmin} = require('../middlewares/permissions.middleware.js')
 const { validateCreateUser, validateUpdateUser, validateId } = require('../validations/user.validation.js')
@@ -14,6 +14,7 @@ const { validateCreateUser, validateUpdateUser, validateId } = require('../valid
 *   GET 
 **/
 router.get("/",checkPermAdmin ,getAll)
+router.get("/addresses", getAdreddess);
 
 /**
 *   POST 

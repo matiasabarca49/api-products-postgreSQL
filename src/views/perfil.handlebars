@@ -60,6 +60,32 @@
             </div>
         </div>
     </div>
+
+{{!-- UPGRADE A PREMIUM --}}
+{{#ifCond userLoged.rol "user"}}
+<div style="display:flex; justify-content:center; margin: 2rem 0 1rem;">
+    <a href="" class="btn btn-danger"
+    onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 10px 35px rgba(247,151,30,0.6)'"
+    onmouseout="this.style.transform='';this.style.boxShadow='0 6px 25px rgba(247,151,30,0.45)'">
+        Subir a Premium
+    </a>
+</div>
+{{/ifCond}}
+
+{{!-- SECCIÓN DE DIRECCIONES --}}
+<div class="purchase-history-container" style="margin-top:2.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; flex-wrap:wrap; gap:1rem;">
+        <h3 class="purchase-history-title" style="margin:0;">Mis Direcciones:</h3>
+        <button id="btnNewAddress" class="save-btn" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.65rem 1.4rem;border-radius:25px;">
+            + Agregar dirección
+        </button>
+    </div>
+    <div id="addressList">
+        {{!-- Se carga con JS --}}
+    </div>
+</div>
+
+{{!-- SECCION COMPRAS --}}
 <div class="purchase-history-container">
     <h3 class="purchase-history-title">Historial de compras:</h3>
     <div id="compras">

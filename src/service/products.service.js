@@ -137,6 +137,21 @@ class ProductsService{
   }
 
   /**
+   * Agregar comentarios a productos
+   */
+  async addComment(user, comment){
+    
+    if(!await this.repository.existByID(comment.product_id)){
+      throw new NotFoundException("El producto no existe");
+    }
+
+    //Agregamos el usuario actual
+    comment.user_id = user.idUser;
+
+    return await this.repository.addComment(comment);
+  }
+
+  /**
    * Actualizar un producto por su ID. Solo usuarios con rol Premium o Admin pueden actualizar productos. Premium solo puede actualizar sus productos, Admin puede actualizar cualquier producto. Si se recibe una categoría, convertirla a category_id para la consulta
    * @param {number} id - ID del producto a actualizar
    * @param {Object} updatedProduct - Objeto con los datos a actualizar del producto
