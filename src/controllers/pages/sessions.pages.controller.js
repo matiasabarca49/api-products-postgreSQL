@@ -26,7 +26,7 @@ const getLogin = async (req, res, next) =>{
 
 const getPerfil = async (req, res, next) =>{
     try{
-        res.render("perfil", {userLoged: req.session});
+        res.render("profile", {userLoged: req.session});
     }catch(error){
         next(error);
     }

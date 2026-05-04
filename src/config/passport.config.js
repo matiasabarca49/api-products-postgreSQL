@@ -3,15 +3,16 @@ const LocalStrategy = require('passport-local').Strategy
 const { isValidPassword } = require('../utils/utils.js')
 //Users Service
 const UsersService = require('../service/users.service.js')
+const { UserDTO } = require('../dto/user.dto.js')
 const usersService = new UsersService()
 
 const initializePassport = () =>{
     passport.use('register', new LocalStrategy(
         {passReqToCallback: true, usernameField: 'email'},
         async (req, username, password, done) => {
-            const { name, last_name, age, email} = req.body
+            const { name, last_name, birth, email} = req.body;
             //Verificamos que no falte ningun campo si no frenamos la operacion
-            if(!name || !last_name || !age || !email || !req.body.password) done({success: false, error: "Campos erronéos o faltantes"})
+            if(!name || !last_name || !birth || !email || !req.body.password) done({success: false, error: "Campos erronéos o faltantes"})
             try {
                 //Verificamos si el usuario existe en la DB 
                 const userFound = await usersService.findByEmailRAW(email);
@@ -20,14 +21,14 @@ const initializePassport = () =>{
                     done(null, false)
                 }
                 else{
-                    //Si no existe, lo creamos formateado con DTO. Le asignamos el Rol y al password lo segurizamos
                     //Se agrega a la DB el nuevo user
-                    const userAdded = await usersService.create(req.body)
+                    const userAdded = await usersService.createCompleteUser(req.body);
                     //Salimos y devolvemos el usuario creado
                     done(null, userAdded)
                 }
 
             } catch (error) {
+                console.log(error);
                 done({success: false, error: error})
             }
         }

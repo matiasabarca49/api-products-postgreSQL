@@ -18,4 +18,12 @@ const getUsersPageController = async (req, res) =>{
     }
 } 
 
-module.exports = { getUsersPageController }
+const getUpgradeUser = (req, res, next) =>{
+    try{
+        return res.render('upgradeUser');
+    }catch(error){
+      next(error)
+    }
+}
+
+module.exports = { getUsersPageController, getUpgradeUser }

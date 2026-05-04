@@ -40,7 +40,7 @@ class PurchaseRepository{
                     FROM comments cm
                     WHERE cm.user_id = $1 AND cm.product_id = p.id
                 ) AS comment,
-                u.name AS store_name
+                s.name AS store_name
                 FROM (
                     SELECT * FROM purchases
                     WHERE user_id = $1
@@ -50,6 +50,7 @@ class PurchaseRepository{
                 JOIN cart_products cp ON cp.cart_id = pc.cart_id
                 JOIN seller_products sp ON sp.id = cp.seller_product_id
                 JOIN users u ON u.id = sp.seller_id
+                JOIN stores s ON s.user_id = u.id
                 JOIN products p ON p.id = sp.product_id
                 ORDER BY pc.cart_id DESC
             `;

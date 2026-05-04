@@ -60,6 +60,19 @@ const create = async (req, res, next) =>{
     }
 }
 
+const upgradeUser = async (req, res, next) =>{
+    try{
+        const user = await usersService.upgradeUser(req.session.idUser, req.body);
+
+        //Renovando datos de session
+        req.session.rol = "premium";
+
+        return res.status(200).json({success: true, data: user});
+    }catch(error){
+        next(error);
+    }
+}
+
 /**
 * PUT
 */
@@ -123,6 +136,7 @@ module.exports = {
     getAdreddess,
     updateRol,
     create,
+    upgradeUser,
     addDocument,
     update,
     deleteUser,

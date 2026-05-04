@@ -47,8 +47,8 @@
                 <span class="profile-value">{{userLoged.last_name}}</span>
             </div>
             <div class="profile-field">
-                <span class="profile-label">Edad:</span>
-                <span class="profile-value">{{userLoged.age}}</span>
+                <span class="profile-label">Nacimiento:</span>
+                <span class="profile-value">{{userLoged.birth}}</span>
             </div>
             <div class="profile-field">
                 <span class="profile-label">Email:</span>
@@ -64,7 +64,7 @@
 {{!-- UPGRADE A PREMIUM --}}
 {{#ifCond userLoged.rol "user"}}
 <div style="display:flex; justify-content:center; margin: 2rem 0 1rem;">
-    <a href="" class="btn btn-danger"
+    <a href="/users/upgrade" class="btn btn-danger"
     onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 10px 35px rgba(247,151,30,0.6)'"
     onmouseout="this.style.transform='';this.style.boxShadow='0 6px 25px rgba(247,151,30,0.45)'">
         Subir a Premium

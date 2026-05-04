@@ -21,7 +21,7 @@ class TicketRepository{
                                     SELECT json_agg(
                                         json_build_object(
                                          'id_seller', u.id,
-                                         'store_name', u.name,
+                                         'store_name', s.name,
                                          'product_id', p.id,
                                          'title', p.title,
                                          'price', cp.price,
@@ -32,6 +32,7 @@ class TicketRepository{
                                      JOIN seller_products sp ON sp.id = cp.seller_product_id
                                      JOIN products p on p.id = sp.product_id
                                      JOIN users u ON u.id = sp.seller_id
+                                     JOIN stores s ON s.user_id = u.id
                                      WHERE cp.cart_id = t.cart_id
                                 ) AS products
                             FROM tickets t

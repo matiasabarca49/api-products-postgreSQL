@@ -146,6 +146,7 @@ class UsersRepository{
             const result = await this.pool.query(sql, [idUser]);
 
             return result.rows
+
         }catch(error){
             throw error;
         }
@@ -166,13 +167,50 @@ class UsersRepository{
                  RETURNING *`,
                 values
             )
-            return result.rows[0]
+            return result.rows[0];
+
         } catch (error) {
 
             if (error.code === '23505') {
                 throw new DuplicateException("Email Duplicado");
             }
 
+            throw error;
+        }
+    }
+
+    async createStore(data){
+        try{
+
+            const values = Object.values(data);
+            const keys = Object.keys(data);
+            const colums = keys.map( key => `${key}` ). join(", ");
+            const placesjoins= keys.map( (_, i) => `$${ i + 1 }`).join(", ");
+
+            const sql = ` INSERT INTO stores (${colums}) VALUES(${placesjoins}) RETURNING *`
+
+            const result = await this.pool.query(sql, values);
+
+            return result.rows[0];
+
+        }catch(error){
+            throw error
+        }
+    }
+
+    async addAddress(data){
+        try{
+            const values = Object.values(data);
+            const keys = Object.keys(data);
+            const colums = keys.map( key => `${key}` ). join(", ");
+            const placesjoins= keys.map( (_, i) => `$${ i + 1 }`).join(", ");
+
+            const sql = ` INSERT INTO addresses (${colums}) VALUES(${placesjoins}) RETURNING *`
+
+            const result = await this.pool.query(sql, values);
+
+            return result.rows;
+        }catch(error){
             throw error;
         }
     }

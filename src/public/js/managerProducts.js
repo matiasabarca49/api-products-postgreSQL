@@ -37,7 +37,8 @@ const renderProducts = async (array) => {
                             <div class="card-body">
                                 <h6 class="text-body-secondary">ID: ${product.seller_product_id}</h6>
                                 <h5 class="card-title">${product.title}</h5>
-                                <h6>stock: ${product.stock}</h6>
+                                <div>stock: ${product.stock}</div>
+                                <div class="mt-2"> Vendidor por: <b>${product.store_name}</b></div>
                             </div>
                             <div class="card-footer"> 
                                 <span class="card-price">$ ${product.price}</span>

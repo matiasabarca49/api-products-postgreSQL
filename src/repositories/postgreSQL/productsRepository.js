@@ -60,7 +60,7 @@ class ProductsRepository{
                             SELECT json_agg(
                                 json_build_object(
                                     'seller_id', u.id,
-                                    'name', u.name,
+                                    'name', s.name,
                                     'price', sp.price,
                                     'stock', sp.stock
                                 )
@@ -68,6 +68,7 @@ class ProductsRepository{
                             )
                             FROM seller_products sp 
                             LEFT JOIN users u ON u.id = sp.seller_id
+                            LEFT JOIN stores s ON s.user_id = u.id
                             WHERE sp.product_id = p.id  
                             AND sp.status = true
                         ),
@@ -165,11 +166,12 @@ class ProductsRepository{
                     `SELECT sp.stock, sp.price, sp.status AS seller_status, sp.id AS seller_product_id, sp.seller_id,
                     p.id AS product_id, p.title, p.code, p.description, p.thumbnail, p.status AS product_status,
                     c.name AS category, 
-                    u.name AS store_name
+                    s.name AS store_name
                     FROM seller_products sp
                     LEFT JOIN products p ON p.id = sp.product_id
                     LEFT JOIN categories c ON c.id = p.category_id
                     LEFT JOIN users u ON u.id = sp.seller_id
+                    LEFT JOIN stores s ON s.user_id = u.id
                     ${dataWhere}
                     ORDER BY ${sort && sort? `sp.price ${sort > 0 ? 'ASC' : 'DESC'}` : 'id ASC'}
                     LIMIT $1 OFFSET $2
@@ -215,7 +217,7 @@ class ProductsRepository{
                 p.id, p.title, p.description, p.code, p.thumbnail, p.status AS product_status,
                 c.name AS category,
                 sp.price, sp.stock, sp.status AS seller_status, sp.id AS seller_product_id,
-                u.name AS store_name,
+                s.name AS store_name,
                 (
                     SELECT json_agg(
                     json_build_object(
@@ -235,16 +237,18 @@ class ProductsRepository{
                     json_build_object(
                         'id', u.id,
                         'price', sp.price,
-                        'name', u.name
+                        'name', st.name
                     ))
                     FROM seller_products sp
                     LEFT JOIN users u ON sp.seller_id = u.id
+                    LEFT JOIN stores st ON st.user_id = u.id
                     WHERE sp.product_id = p.id AND sp.seller_id != $2
                 ) AS sellers
                 FROM seller_products sp
                 JOIN products p ON sp.product_id = p.id
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN users u ON sp.seller_id = u.id
+                LEFT JOIN stores s ON s.user_id = u.id
                 WHERE sp.product_id = $1 AND sp.seller_id = $2;
             `,
             [idProduct, idSeller]
@@ -267,7 +271,7 @@ class ProductsRepository{
                 p.id, p.title, p.description, p.code, p.thumbnail, p.status,
                 c.name AS category,
                 sp.price, sp.stock,
-                u.name AS store_name,
+                s.name AS store_name,
                 (
                     SELECT json_agg(
                     json_build_object(
@@ -287,6 +291,7 @@ class ProductsRepository{
                 JOIN products p ON sp.product_id = p.id
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN users u ON sp.seller_id = u.id
+                LEFT JOIN stores s ON s.user_id = u.id
                 WHERE sp.product_id = $1;
             `,
             [idProduct]

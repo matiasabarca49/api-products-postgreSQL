@@ -1,9 +1,10 @@
 const { createHash, isValidPassword } = require('../utils/utils.js') 
-const { UserDTO } = require('../dto/user.dto.js')
+const { UserDTO, CreateAddressDTO, CreateStoreDTO } = require('../dto/user.dto.js')
 const { transporter } = require('../config/config.js')
 const { generateFormatEmail } = require('../utils/utils.js')
 const UsersRepository = require('../repositories/postgreSQL/user.repository.js')
 const { NotFoundException, ForbiddenException } = require('../exceptions/validation.exception.js')
+const { use } = require('passport')
 
 
 class UsersService{
@@ -60,26 +61,62 @@ class UsersService{
         return this.toDTO(userCreated);
     }
 
-   async addDocument(idUser,document){
-    let documentsUpdated
-    const userFound = await this.findById(idUser)
-    //Buscando si ya existe el documento en DB
-    const documentFound = userFound.documents.find( documentDB => documentDB.name === document.name)
-    if(documentFound){
-       const documentFilter = userFound.documents.filter( documentDB => documentDB.name !== document.name)
-        documentsUpdated = [...documentFilter, document]
+    async createCompleteUser(data){
+        //Creamos el usuario 
+        const userAdded = await this.create(data);
+
+        //Agregamos la direccion a la DB
+        data.user_id = userAdded.id;
+        data.is_default = true;
+        await this.addAddress(data);
+
+        return userAdded;
     }
-    else{
-        documentsUpdated = [...userFound.documents, document]  
+
+    async addAddress(data){
+
+        //Formateamos la Direccion
+        const addressDTO = new CreateAddressDTO(data);
+
+        return await this.repository.addAddress(addressDTO);
     }
-    //Agregamos el documento a la DB
-    if(userFound){
-        const userUpdated = await this.update(idUser, {documents: documentsUpdated})
-        return userUpdated
-    }else{
-        return false
+
+    async addDocument(idUser,document){
+        let documentsUpdated
+        const userFound = await this.findById(idUser)
+        //Buscando si ya existe el documento en DB
+        const documentFound = userFound.documents.find( documentDB => documentDB.name === document.name)
+        if(documentFound){
+        const documentFilter = userFound.documents.filter( documentDB => documentDB.name !== document.name)
+            documentsUpdated = [...documentFilter, document]
+        }
+        else{
+            documentsUpdated = [...userFound.documents, document]  
+        }
+        //Agregamos el documento a la DB
+        if(userFound){
+            const userUpdated = await this.update(idUser, {documents: documentsUpdated})
+            return userUpdated
+        }else{
+            return false
+        }
     }
-   }
+
+    async upgradeUser(idUser, data){
+
+        //Creamos la tienda
+        data.user_id = idUser;
+        
+        const storeDTO = new CreateStoreDTO(data);
+        
+        await this.repository.createStore(storeDTO);
+
+        //Actualizar el rol del usuario
+        const user = await this.update(idUser, {rol: "premium"})
+
+        return user
+    }
+
 
    async update(id, data){
         const userFound = await this.repository.existByID(id);

@@ -30,6 +30,25 @@ class UserDTO{
     
 }
 
+class CreateAddressDTO{
+    constructor(address){
+        this.user_id = address.user_id;
+        this.street = address.street;
+        this.city = address.city;
+        this.province = address.province;
+        this.postal_code = address.postal_code;
+        this.is_default = address.is_default;
+    }
+}
+
+class CreateStoreDTO{
+    constructor(store){
+        this.user_id = store.user_id;
+        this.name = store.name;
+        this.description = store.description;
+    }
+}
+
 const sendUserFormatted = (user) => {
     
     const userFormatted = {
@@ -66,6 +85,8 @@ const sendUsersFormatted = (users) => {
 
 module.exports = {
     UserDTO,
+    CreateAddressDTO,
+    CreateStoreDTO,
     sendUserFormatted,
     sendUsersFormatted
 }
