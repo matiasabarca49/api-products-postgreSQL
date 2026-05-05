@@ -3,13 +3,15 @@
 Este proyecto parte del desarrollo de un proyecto anterior:  
 https://github.com/matiasabarca49/Back-end_API-Products  
 
-Es una API completa para la gestión de productos y carritos en un mercado online. Permite la obtención, visualización y administración de productos, así como la consulta de carritos almacenados en la base de datos.
+Es un sistema web para la gestión de un marketplace online. Incluye registro y autenticación de usuarios, administración de productos y ventas, creación de tiendas para vendedores premium y historial de compras con comentarios y calificaciones.  
 
-La aplicación utiliza PostgreSQL como base de datos y está desarrollada con renderizado del lado del servidor (SSR). Para el Front-end se emplea Handlebars, ofreciendo vistas dinámicas como:
+La aplicación utiliza PostgreSQL como base de datos y está desarrollada con renderizado del lado del servidor (SSR). Para el front-end se emplea Handlebars, ofreciendo vistas dinámicas como:
 
-- Vista de productos desde la base de datos  
-- Tienda online  
-- Login y Registro de usuarios  
+- Administración de productos por vendedor
+- Tienda online con carrito de compras
+- Login y registro de usuarios
+- Creación y administración de tiendas
+- Panel de administración de productos y usuarios
 
 ## Tecnologías y conceptos utilizados  
 

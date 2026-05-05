@@ -27,10 +27,11 @@ class ProductsService{
   async findAll(filters = {}, limit, page, sort) {
     // Si se recibe un filtro de categoría, convertirlo a category_id para la consulta
     if(filters.category){
-      const category = await this.repository.findCategoryByName(filters.category);
+      const category = await this.repository.findCategoryBySlug(filters.category);
 
       if(category){
-        filters.category_id = category;
+        filters.path = category.path;
+        delete filters.category;
       }
 
       delete filters.category;
@@ -79,10 +80,11 @@ class ProductsService{
 
     // Si se recibe un filtro de categoría, convertirlo a category_id para la consulta
     if(filters.category){
-      const category = await this.repository.findCategoryByName(filters.category);
+      const category = await this.repository.findCategoryBySlug(filters.category);
 
       if(category){
-        filters.category_id = category;
+        filters.path = category.path;
+        delete filters.category
       }
 
       delete filters.category;
@@ -238,11 +240,11 @@ class ProductsService{
    */
   async #returnCategory(product){
 
-    const category = await this.repository.findCategoryByName(product.category);
+    const category = await this.repository.findCategoryBySlug(product.category);
 
     if(!category) return null;
 
-    product.category_id = category;
+    product.category_id = category.id;
 
     delete product.category;
     

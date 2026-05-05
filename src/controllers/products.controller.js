@@ -37,6 +37,7 @@ const getProducts = async (req,res, next) =>{
                 data: {
                     payload: products.payload,
                     totalPages: products.totalPages,
+                    totalDocs: products.totalDocs,
                     prevPage: products.prevPage,
                     page: products.page,
                     nextPage: products.nextPage,
@@ -98,6 +99,7 @@ const getManageableProducts = async(req, res, next) => {
                 data: {
                     payload: productsFound.payload,
                     totalPages: productsFound.totalPages,
+                    totalDocs: productsFound.totalDocs,
                     prevPage: productsFound.prevPage,
                     page: productsFound.page,
                     nextPage: productsFound.nextPage,

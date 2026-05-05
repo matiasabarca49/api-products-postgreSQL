@@ -26,10 +26,16 @@ class ProductsRepository{
     
             let title;
             let status;
+            let path;
     
             if(filters.title){
                 title = filters.title;
                 delete filters.title;
+            }
+
+            if(filters.path){
+                path = filters.path
+                delete filters.path
             }
             
             const filterKeys   = Object.keys(filters)
@@ -50,6 +56,13 @@ class ProductsRepository{
                 countWhere += ` AND title ILIKE $${filterKeys.length + 1}`
                 filterKeys.push("title");
                 filterValues.push(`%${title}%`);
+            }
+
+            if(path){
+                dataWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}c.path ILIKE $${filterKeys.length + 3}`; 
+                countWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}c.path ILIKE $${filterKeys.length + 1}`
+                filterKeys.push("path");
+                filterValues.push(`%${path}%`);
             }
     
             const [dataResult, countResult] = await Promise.all([
@@ -82,7 +95,9 @@ class ProductsRepository{
                     [limit, offset, ...filterValues]
                 ),
                 this.pool.query(
-                    `SELECT COUNT(*) FROM products ${countWhere}`,
+                    `SELECT COUNT(*) FROM products p
+                    JOIN categories c ON c.id = p.category_id 
+                    ${countWhere}`,
                     filterValues
                 )
             ])
@@ -123,6 +138,7 @@ class ProductsRepository{
     
             let title;
             let seller_id;
+            let path;
     
             if(filters.title){
                 title = filters.title;
@@ -132,6 +148,11 @@ class ProductsRepository{
             if(filters.seller_id){
                 seller_id = filters.seller_id;
                 delete filters.seller_id;
+            }
+
+            if(filters.path){
+                path = filters.path
+                delete filters.path
             }
             
             const filterKeys   = Object.keys(filters)
@@ -144,7 +165,7 @@ class ProductsRepository{
     
             // WHERE para el COUNT: los filtros arrancan en $1 (no hay limit ni offset antes)
             let countWhere = filterKeys.length > 0
-                ? 'WHERE ' + filterKeys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')
+                ? 'WHERE ' + filterKeys.map((key, i) => `p.${key} = $${i + 1}`).join(' AND ')
                 : ''
     
     
@@ -158,14 +179,23 @@ class ProductsRepository{
             if(seller_id){
                 dataWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}sp.seller_id = $${filterKeys.length + 3}`; 
                 countWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}sp.seller_id = $${filterKeys.length + 1}`
+                filterKeys.push("seller_id");
                 filterValues.push(seller_id);
             }
-    
+
+            if(path){
+                dataWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}c.path ILIKE $${filterKeys.length + 3}`; 
+                countWhere += `${filterKeys.length > 0 ? ' AND ' : 'WHERE '}c.path ILIKE $${filterKeys.length + 1}`
+                filterKeys.push("path");
+                filterValues.push(`%${path}%`);
+            }
+
+
             const [dataResult, countResult] = await Promise.all([
                 this.pool.query(
                     `SELECT sp.stock, sp.price, sp.status AS seller_status, sp.id AS seller_product_id, sp.seller_id,
                     p.id AS product_id, p.title, p.code, p.description, p.thumbnail, p.status AS product_status,
-                    c.name AS category, 
+                    c.name AS category, c.path AS category_path,
                     s.name AS store_name
                     FROM seller_products sp
                     LEFT JOIN products p ON p.id = sp.product_id
@@ -179,7 +209,10 @@ class ProductsRepository{
                     [limit, offset, ...filterValues]
                 ),
                 this.pool.query(
-                    `SELECT COUNT(*) FROM seller_products sp ${countWhere}`,
+                    `SELECT COUNT(*) FROM seller_products sp 
+                    JOIN products p ON p.id = sp.product_id
+                    JOIN categories c ON c.id = p.category_id
+                    ${countWhere}`,
                     filterValues
                 )
             ])
@@ -215,7 +248,7 @@ class ProductsRepository{
             `
             SELECT 
                 p.id, p.title, p.description, p.code, p.thumbnail, p.status AS product_status,
-                c.name AS category,
+                c.name AS category, c.path AS category_path,
                 sp.price, sp.stock, sp.status AS seller_status, sp.id AS seller_product_id,
                 s.name AS store_name,
                 (
@@ -317,12 +350,12 @@ class ProductsRepository{
      * @param {string} categoryName - Nombre de la categoría a buscar
      * @returns {Promise<number|null>} Retorna el ID de la categoría si se encuentra, o null si no se encuentra
      */
-    async findCategoryByName(categoryName) {
+    async findCategoryBySlug(categoryName) {
         const result = await this.pool.query(
-            `SELECT id FROM categories WHERE name = $1`,
-            [categoryName]
+            `SELECT id, path FROM categories WHERE slug = $1`,
+            [categoryName.toLowerCase()]
         )
-        return result.rows[0]?.id ?? null
+        return result.rows[0] ?? null
     }
 
     async findByCode(code){

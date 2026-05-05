@@ -20,6 +20,7 @@ class ProductDTO {
             seller_product_id: product.seller_product_id,
             stock: product.stock,
             category: product.category,
+            category_path: product.category_path,
             thumbnail: product.thumbnail,
             store_name: product.store_name,
             comments: product.comments || [],

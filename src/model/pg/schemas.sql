@@ -1,8 +1,36 @@
 -- CATEGORÍAS
 CREATE TABLE IF NOT EXISTS categories (
-    id   SERIAL PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL
+    id SERIAL PRIMARY KEY,
+
+    name TEXT NOT NULL,
+
+    slug TEXT NOT NULL,
+    
+    parent_id INT REFERENCES categories(id) ON DELETE SET NULL,
+
+    -- Path Completo
+    path TEXT NOT NULL,
+
+    is_active BOOLEAN DEFAULT true,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Evita duplicados de slug en la misma jerarquía
+    CONSTRAINT unique_slug_per_level UNIQUE (slug, parent_id),
+
+    -- Evita path vacío
+    CONSTRAINT path_not_empty CHECK (path <> '')
 );
+
+-- Para búsquedas por path (LIKE 'tecnologia/%')
+CREATE INDEX idx_categories_path ON categories(path);
+
+-- Para relaciones padre-hijo
+CREATE INDEX idx_categories_parent_id ON categories(parent_id);
+
+-- Para búsqueda directa por slug
+CREATE INDEX idx_categories_slug ON categories(slug);
 
 -- PRODUCTOS (catálogo global)
 CREATE TABLE IF NOT EXISTS products (
@@ -203,5 +231,12 @@ EXECUTE FUNCTION update_updated_at();
 DROP TRIGGER IF EXISTS set_updated_at ON seller_products;
 CREATE TRIGGER set_updated_at
 BEFORE UPDATE ON seller_products
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+-- Trigger para categorias
+DROP TRIGGER IF EXISTS set_updated_at ON categories;
+CREATE TRIGGER set_updated_at
+BEFORE UPDATE ON categories
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
