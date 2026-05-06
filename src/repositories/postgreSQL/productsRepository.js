@@ -1,6 +1,5 @@
 const pool = require('../../config/pg.config.js');
-const { NotFoundException, DuplicateException } = require('../../exceptions/validation.exception.js');
-const {AppError} = require('../../exceptions/excepciones.js');
+const { AppError, NotFoundException, DuplicateException, ForeignKeyConstraintException } = require('../../exceptions/excepciones.js');
 
 class ProductsRepository{
 
@@ -67,7 +66,7 @@ class ProductsRepository{
     
             const [dataResult, countResult] = await Promise.all([
                 this.pool.query(
-                    `SELECT p.*, c.name AS category,
+                    `SELECT p.*, c.slug AS category,
                     COALESCE(
                         (
                             SELECT json_agg(
@@ -195,7 +194,7 @@ class ProductsRepository{
                 this.pool.query(
                     `SELECT sp.stock, sp.price, sp.status AS seller_status, sp.id AS seller_product_id, sp.seller_id,
                     p.id AS product_id, p.title, p.code, p.description, p.thumbnail, p.status AS product_status,
-                    c.name AS category, c.path AS category_path,
+                    c.slug AS category, c.path AS category_path,
                     s.name AS store_name
                     FROM seller_products sp
                     LEFT JOIN products p ON p.id = sp.product_id
@@ -248,7 +247,7 @@ class ProductsRepository{
             `
             SELECT 
                 p.id, p.title, p.description, p.code, p.thumbnail, p.status AS product_status,
-                c.name AS category, c.path AS category_path,
+                c.slug AS category, c.path AS category_path,
                 sp.price, sp.stock, sp.status AS seller_status, sp.id AS seller_product_id,
                 s.name AS store_name,
                 (
@@ -585,6 +584,9 @@ async updateProductFromSeller(product_id, seller_id, dataToUpdate){
             )
             return result.rows[0] ?? null
         }catch(error){
+            if(error.code === '23503') {
+                throw new ForeignKeyConstraintException("Producto con referencias. No se puede eliminar");
+            }
             throw error;
         };
         
@@ -606,6 +608,9 @@ async updateProductFromSeller(product_id, seller_id, dataToUpdate){
             )
             return result.rows[0] ?? null
         }catch(error){
+            if(error.code === '23503') {
+                throw new ForeignKeyConstraintException("Producto con referencias. No se puede eliminar");
+            }
             throw error;
         };
         

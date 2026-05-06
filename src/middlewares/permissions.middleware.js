@@ -1,18 +1,33 @@
+const authorizeRoles = (...allowedRoles) => {
+  return (req, res, next) => {
+
+    const { rol } = req.user;
+
+    console.log("Usuario: ", req.user)
+
+    if (!allowedRoles.includes(rol)) {
+      return res.status(403).json({ success:false, error: {message: "No autorizado", statusCode: 403} });
+    }
+
+    next();
+  };
+};
+
 const checkPermAdmin = (req, res ,next) =>{
-    if(req.session.rol === "admin"){
-        next()
+    if(!req.session || req.session.rol !== "admin"){
+        return res.status(401).json({success: false, error: "no autorizado"})
     }
     else{
-        res.status(401).send({status: "Error", reason: "no autorizado"})
+        next()
     }
 }
 
 function checkPermAdminAndPremium(req, res, next){
-    if(req.session.rol === "admin" || req.session.rol === "premium"){
-        next()
+    if(!req.session || req.session.rol !== "admin" && req.session.rol !== "premium"){
+        return res.status(401).json({success: false, error: "no autorizado"})
     }
     else{
-        res.status(401).send({status: "Error", reason: "no autorizado"})
+        next()
     }
 }
 
@@ -76,6 +91,7 @@ const checkPerChat = ( req, res, next )=> {
 }
 
 module.exports = {
+    authorizeRoles,
     checkPermAdmin,
     checkPermAdminAndPremium,
     checkPerAddProduct,

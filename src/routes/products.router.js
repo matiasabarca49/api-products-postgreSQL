@@ -1,10 +1,10 @@
 const express = require('express')
 //controllers
-const {getProducts, getByIdSeller, create, update, deleteProduct, getManageableProducts, updateProductFromSeller, addCommentToProduct} = require('../controllers/products.controller.js')
+const {getProducts, getByIdSeller, create, update, deleteProduct, getManageableProducts, updateProductFromSeller, addCommentToProduct, deleteProductFromSeller} = require('../controllers/products.controller.js')
 //middleware
-const { checkPerAddProduct, checkPermAdminAndPremium, checkPermAdmin } = require('../middlewares/permissions.middleware.js')
-const { validateProduct, validateId, validateUpdateProduct } = require('../validations/product.validations.js')
-const { checkLogin } = require('../middlewares/sessions.middleware.js')
+const {checkPermAdminAndPremium, checkPermAdmin, authorizeRoles } = require('../middlewares/permissions.middleware.js')
+const { validateProduct, validateId, validateUpdateProduct, validateComment } = require('../validations/product.validations.js')
+const { checkLogin, auth } = require('../middlewares/sessions.middleware.js')
 
 //Desestructuramos el objeto para obtener el constructor de Rutas
 const { Router } = express
@@ -13,8 +13,9 @@ const router = new Router()
 
 
 /**
-* GET
+* RUTAS PUBLICAS
 **/
+
 /**
  * @route GET /api/products
  * @description Obtener todos los productos con paginación, filtro y ordenamiento para la store. NO retornar productos con status false (inactivos).
@@ -28,6 +29,20 @@ const router = new Router()
  * @query {number} [priceMax] - Filtro de precio máximo
  */
 router.get("/", getProducts)
+
+/**
+ * @route GET /api/products/:id 
+ * @description Obtener un producto por ID de seller_product. La relacion entre productos y users 
+ * es a través de seller_products.
+ * @access Public
+ * @params {string} id - ID del producto a obtener
+ */
+router.get("/:product_id/:seller_id",getByIdSeller)
+
+/**
+ * RUTAS CON AUTENTICACION Y AUTORIZACION
+ */
+
 /**
  * @route GET /api/products/admin
  * @description Obtener todos los productos para el panel de administración. Retornar todos los productos sin importar su status, pero solo los productos del usuario si es Premium. Admin puede ver todos los productos.
@@ -39,18 +54,12 @@ router.get("/", getProducts)
  * @query {number} [limit=10] - Cantidad de registros por página
  * @query {number} [page=1] - Número de página
  * @query {string} [sort=1] - Campo por el cual ordenar (sort=1 para ascendente por precio, sort=-1 para descendente por precio)
- * @middleware checkPermAdminAndPremium para verificar que el usuario tenga rol Admin o Premium antes de permitir el acceso a esta ruta. Premium solo puede ver sus productos, Admin puede ver todos los productos.
+ * @middleware auth para verificar autenticacion del usuario
+ * @middleware authorizeRoles (autorizacion) verificar que el usuario tenga rol Admin o Premium antes de permitir el acceso a esta ruta. Premium solo puede ver sus productos, Admin puede ver todos los productos.
  */
-router.get("/admin",checkPermAdminAndPremium, getManageableProducts)
+router.get("/admin", auth, authorizeRoles("admin", "premium"), getManageableProducts)
 
-/**
- * @route GET /api/products/:id 
- * @description Obtener un producto por ID de seller_product. La relacion entre productos y users 
- * es a través de seller_products.
- * @access Public
- * @params {string} id - ID del producto a obtener
- */
-router.get("/:product_id/:seller_id",getByIdSeller)
+
 
 /**
 * POST
@@ -68,16 +77,20 @@ router.get("/:product_id/:seller_id",getByIdSeller)
  * @body {string} category - Categoría del producto
  * @body {string} thumbnail - URL de la imagen del producto
  * @body {boolean} status - Estado del producto (activo/inactivo)
- * @body {string} owner_id - Usuario que creó el producto
- * @middleware checkPermAdminAndPremium para verificar que el usuario tenga rol Admin o Premium antes de permitir el acceso a esta ruta. Solo estos roles pueden crear productos.
- * @middleware validateProduct para validar los datos del producto antes de crear el producto.
+ * @middleware auth autenticacion.
+ * @middleware authRoles (Autorizacion) verificar que el usuario tenga rol Admin o Premium antes de permitir el acceso a esta ruta. Solo estos roles pueden crear productos.
+ * @middleware validateProduct validar los datos del producto.
  */
-router.post("/", checkPermAdminAndPremium, validateProduct, create)
+router.post("/", auth, authorizeRoles("admin", "premium") ,validateProduct, create)
 
 /**
- * @description Agregar comentario
+ * @route POST /api/products/comment
+ * @description Agregar comentario a un producto
+ * @access Private (Auth)
+ * @middleware auth autenticacion.
+ * @middleware  validateComment validación.
  */
-router.post("/comment", checkLogin, addCommentToProduct)
+router.post("/comment", auth, validateComment, addCommentToProduct)
 
 /**
 * PUT
@@ -88,11 +101,11 @@ router.post("/comment", checkLogin, addCommentToProduct)
  * @description Actualizar un producto por su ID. Solo el Admin pueden actualizar productos.
  * @access Private (Admin)
  * @params {string} id - ID del producto a actualizar
- * @middleware checkPermAdmin para verificar que el usuario tenga rol Admin o Premium antes de permitir el acceso a esta ruta. Solo estos roles pueden actualizar productos.
- * @middleware validateUpdateProduct para validar los datos del producto antes de actualizar el producto.
+ * @middleware auth (autenticación)
+ * @middleware authorizeRoles para verificar que el usuario tenga rol Admin o Premium antes de permitir el acceso a esta ruta. Solo estos roles pueden actualizar productos.
+ * @middleware validateUpdateProduct validar los datos del producto antes de actualizar el producto.
  */
-/* router.put("/:id", checkPerAddProduct, validateUpdateProduct, update) */
-router.put("/:id", checkPermAdmin, update);
+router.put("/:id", auth, authorizeRoles("admin"), validateUpdateProduct, update);
 
 /**
  * @route PUT /api/products/:product_id/seller/:seller_id
@@ -102,21 +115,20 @@ router.put("/:id", checkPermAdmin, update);
  * @params {string} seller_id -  ID del vendedor que vende el producto
  * @middleware checkPermAdminAndPremium
  */
-router.put("/:product_id/seller/:seller_id", checkPermAdminAndPremium, updateProductFromSeller);
+router.put("/:product_id/seller/:seller_id", auth, authorizeRoles("admin", "premium"), updateProductFromSeller);
 
 /**
 * DELETE
 */
 /** 
  * @route DELETE /api/products/:id
- * @description Eliminar un producto por su ID. Solo usuarios con rol Premium o Admin pueden eliminar productos. Premium solo puede eliminar sus productos, Admin puede eliminar cualquier producto.
+ * @description Eliminar un producto de Vendedor. Solo usuarios con rol Premium o Admin pueden eliminar productos. Premium solo puede eliminar sus productos, Admin puede eliminar cualquier producto.
  * @access Private (Premium y Admin)
  * @params {string} id - ID del producto a eliminar
  * @middleware checkPermAdminAndPremium para verificar que el usuario tenga rol Admin o Premium antes de permitir el acceso a esta ruta. Solo estos roles pueden eliminar productos.
  * @middleware validateId para validar el ID del producto antes de eliminarlo.
  */
-/* router.delete("/:id", checkPerAddProduct, validateId('id'), deleteProduct) */
-router.delete("/:id", checkPermAdminAndPremium, deleteProduct);
+router.delete("/:id", auth, authorizeRoles("admin", "premium"), deleteProductFromSeller);
 
 
 module.exports = router

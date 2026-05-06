@@ -4,6 +4,8 @@ const { generateProductErrorInfo } = require('../utils/errors/messageCreater.js'
 const EErrors = require('../utils/errors/ErrorEnums.js')
 //Administrador de productos
 const ProductsService = require('../service/products.service.js')
+const { BadRequestException } = require('../exceptions/validation.exception.js')
+const { CreateRequestDTO, CreateCommentRequestDTO, UpdateProductRequestDTO, UpdateProductSellerRequestDTO } = require('../dto/product.dto.js')
 const productsService = new ProductsService()
 
 /**
@@ -127,28 +129,14 @@ const getManageableProducts = async(req, res, next) => {
  * @body {string} owner - Usuario que creó el producto
  */
 const create = async (req, res, next) =>{
-    const {title, code, stock} = req.body
     try {
-        if(!title || !code || !stock || stock < 1){
-            const customError = new CustomError()
-            customError.createError({
-                name:"Product creation error",
-                cause: generateProductErrorInfo(req.body),
-                message: "Error to create Product",
-                code: EErrors.CREATE_PRODUCT_ERROR
 
-            })
-        }
-        //Si el body es correcto
-        //Agregar el usuario que creó el producto
-        if(req.session.rol === "Premium"){
-            req.body.owner = req.session.email
-        }
-        else{
-            req.body.owner = "Admin"
-        }
+        const idUser = req.user.id;
 
-        const productAdded = await productsService.create(req.body)
+        //DTO de Request
+        const productRequestDTO = new CreateRequestDTO(req.body)
+
+        const productAdded = await productsService.create(idUser, productRequestDTO);
         
         return res.status(201).json({success: true, message: "Producto agregado a DB correctamente", data: productAdded})
             
@@ -165,9 +153,11 @@ const create = async (req, res, next) =>{
 const addCommentToProduct = async (req, res, next) => {
     try{
 
-        const comment = req.body;
+        const  idUser = req.user.id
 
-        const commentAdded = await productsService.addComment(req.session, comment);
+        const comment = new CreateCommentRequestDTO(req.body);
+
+        const commentAdded = await productsService.addComment(idUser, comment);
 
         res.status(200).json({success: true, data: commentAdded});
 
@@ -182,8 +172,11 @@ const addCommentToProduct = async (req, res, next) => {
  */
 const update = async (req,res, next)=>{
     try{
- 
-        const productUpdated = await productsService.update(req.params.id, req.body)
+        const {id} = req.params;
+        //DTO de Request
+        const updateProductDTO = new UpdateProductRequestDTO(req.body);
+
+        const productUpdated = await productsService.update(id, updateProductDTO);
         
         return res.status(200).json({success: true, message: "Producto actualizado correctamente", data: productUpdated})
            
@@ -200,13 +193,13 @@ const updateProductFromSeller = async (req, res, next) => {
     try{
         const {product_id, seller_id} = req.params;
 
-        const dataToUpdate = {};
+        const user = req.user;
 
-        if(req.body.stock) dataToUpdate.stock = req.body.stock;
-        if(req.body.status) dataToUpdate.status = req.body.status;
-        if(req.body.price) dataToUpdate.price = req.body.price;
+        //DTO de Request
+        const productSellerDTO = new UpdateProductSellerRequestDTO(req.body);
 
-        const product = await productsService.updateProductFromSeller(req.session, product_id, seller_id, dataToUpdate);
+        const product = await productsService.updateProductFromSeller(user, product_id, seller_id, productSellerDTO);
+
         return res.status(200).json({success: true, data: product});
     }catch(error){
         next(error)
@@ -217,10 +210,9 @@ const updateProductFromSeller = async (req, res, next) => {
   * Eliminar un producto por su ID. Solo usuarios con rol Premium o Admin pueden eliminar productos. Premium solo puede eliminar sus productos, Admin puede eliminar cualquier producto.
   * @params {string} id - ID del producto a eliminar
   */
-const deleteProduct = async (req,res, next) => {
+const deleteProductFromSeller = async (req,res, next) => {
     try{
-        const user = req.session
-        const productDelete = await productsService.deleteFromSeller(req.params.id, user)
+        const productDelete = await productsService.deleteFromSeller(req.params.id)
         return res.status(200).json({success: true, message: "Producto borrado correctamente", data: productDelete});
         
     }
@@ -238,5 +230,5 @@ module.exports = {
     addCommentToProduct,
     update,
     updateProductFromSeller,
-    deleteProduct
+    deleteProductFromSeller
 }

@@ -1,4 +1,4 @@
-const ProductDTO = require("../dto/product.dto.js");
+const { ProductDTO } = require("../dto/product.dto.js");
 const ProductsRepository = require("../repositories/postgreSQL/productsRepository.js");
 const { NotFoundException, ForbiddenException } = require("../exceptions/validation.exception.js");
 const { sendEmailDeleteProduct } = require("../utils/mail.halper.js");
@@ -106,7 +106,7 @@ class ProductsService{
    * @returns {Promise<Object>} Producto creado formateado a DTO
    * @throws {NotFoundException} Si se recibe una categoría que no existe en la base de datos
    */
-  async create(product){
+  async create(idUser, product){
 
         if(product.category){
 
@@ -127,7 +127,7 @@ class ProductsService{
         //Asociamos el producto al Usuario que lo creó a través de seller_products
         const sellerProduct = {
           product_id: productToAssociate.id,
-          seller_id: product.owner_id,
+          seller_id: idUser,
           stock: product.stock,
           price: product.price
         }
@@ -141,14 +141,14 @@ class ProductsService{
   /**
    * Agregar comentarios a productos
    */
-  async addComment(user, comment){
+  async addComment(idUser, comment){
     
     if(!await this.repository.existByID(comment.product_id)){
       throw new NotFoundException("El producto no existe");
     }
 
     //Agregamos el usuario actual
-    comment.user_id = user.idUser;
+    comment.user_id = idUser;
 
     return await this.repository.addComment(comment);
   }
@@ -181,7 +181,7 @@ class ProductsService{
    */
   async updateProductFromSeller(user, product_id, seller_id, dataToUpdate){
   
-    if(user.rol === "premium" && user.idUser != seller_id){
+    if(user.rol === "premium" && user.id != seller_id){
       throw new ForbiddenException("No tiene permiso para modificar este producto");
     }
 
@@ -217,7 +217,7 @@ class ProductsService{
     
   }
 
-  async deleteFromSeller(id_product_seller, user){
+  async deleteFromSeller(id_product_seller){
      return this.repository.deleteFromSeller(id_product_seller);
   }
 

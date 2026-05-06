@@ -31,4 +31,50 @@ class ProductDTO {
 
 }
 
-module.exports = ProductDTO
+
+class CreateRequestDTO{
+    constructor(product){
+        this.title = product.title
+        this.description = product.description
+        this.code = product.code
+        this.status = product.status
+        this.category = product.category
+        this.thumbnail = product.thumbnail || "Not URL"
+        this.stock = product.stock
+        this.price = product.price
+    }
+}
+
+
+class UpdateProductRequestDTO{
+    constructor(product){
+        this.title = product.title;
+        this.description = product.description;
+        this.thumbnail = product.thumbnail;
+        this.category = product.category;
+    }
+}
+
+class CreateCommentRequestDTO{
+    constructor(comment){
+        this.product_id = comment.product_id;
+        this.rating = comment.rating;
+        this.comment = comment.comment;
+    }
+}
+
+class UpdateProductSellerRequestDTO{
+    constructor(product){
+        this.status = product.status;
+        this.price = product.price;
+        this.stock = product.stock;
+    }
+}
+
+module.exports = {
+    ProductDTO,
+    CreateRequestDTO,
+    UpdateProductRequestDTO,
+    UpdateProductSellerRequestDTO,
+    CreateCommentRequestDTO
+}
