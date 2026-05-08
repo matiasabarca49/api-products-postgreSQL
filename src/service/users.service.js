@@ -1,5 +1,5 @@
 const { createHash, isValidPassword } = require('../utils/utils.js') 
-const { UserDTO, CreateAddressDTO, CreateStoreDTO } = require('../dto/user.dto.js')
+const { UserDTO, AddressDTO, StoreDTO } = require('../dto/user.dto.js')
 const { transporter } = require('../config/config.js')
 const { generateFormatEmail } = require('../utils/utils.js')
 const UsersRepository = require('../repositories/postgreSQL/user.repository.js')
@@ -53,22 +53,30 @@ class UsersService{
 
     async create(user){
 
+        //passoword
+        user.password = createHash(user.password)
         user.must_change_password = true;
+        //Rol del usuario
+        if(!user.rol) user.rol = "user";
+
         //Formateamos el documento
         const userCreated = await this.repository.create(this.toFormatDTO(user));
 
-        // Buscar si la clase hija definió toDTO
+        //Formatear con DTO
         return this.toDTO(userCreated);
     }
 
-    async createCompleteUser(data){
+    async createCompleteUser(user){
+
+        //Formateamos el usuario
+        const userDTO = this.toFormatDTO(user)
         //Creamos el usuario 
-        const userAdded = await this.create(data);
+        const userAdded = await this.create(userDTO);
 
         //Agregamos la direccion a la DB
-        data.user_id = userAdded.id;
-        data.is_default = true;
-        await this.addAddress(data);
+        user.user_id = userAdded.id;
+        user.is_default = true;
+        await this.addAddress(user);
 
         return userAdded;
     }
@@ -76,7 +84,7 @@ class UsersService{
     async addAddress(data){
 
         //Formateamos la Direccion
-        const addressDTO = new CreateAddressDTO(data);
+        const addressDTO = new AddressDTO(data);
 
         return await this.repository.addAddress(addressDTO);
     }
@@ -103,12 +111,9 @@ class UsersService{
     }
 
     async upgradeUser(idUser, data){
-
         //Creamos la tienda
         data.user_id = idUser;
-        
-        const storeDTO = new CreateStoreDTO(data);
-        
+        const storeDTO = new StoreDTO(data);
         await this.repository.createStore(storeDTO);
 
         //Actualizar el rol del usuario
@@ -124,6 +129,7 @@ class UsersService{
             throw new NotFoundException("Usuario no encontrado");
         }
         const userUpdated = await this.repository.update(id, data)
+
         return this.toDTO(userUpdated)
    }
 
@@ -143,33 +149,6 @@ class UsersService{
         }    
        
    }
-
-   async updateRol(idUser){
-        const documents = ["Identificacion", "Comprobante de domicilio", "Comprobante de estado de cuenta"]
-        const userFound = await this.findById(idUser)
-        if (userFound.rol === "User"){
-            let cont=0
-            userFound.documents.forEach( document => {
-                if(documents.includes(document.name)){
-                    cont++
-                }
-            })
-            if (cont === 3){
-                const userUpdated = await this.update(idUser,{rol: "Premium"})
-                return {status: true, userUpdated: {_id: userUpdated._id, name: userUpdated.name, lastName: userUpdated.lastName, email: userUpdated.email, rol: userUpdated.rol}} 
-            }
-            else{
-                return {status: false, reason: "Faltan Cargar Documentos"}
-            }
-        }
-        else if(userFound.rol === "Premium"){
-            const userUpdated = await this.update(idUser,{rol: "User"})
-            return {status: true, userUpdated: {_id: userUpdated._id, name: userUpdated.name, lastName: userUpdated.lastName, email: userUpdated.email, rol: userUpdated.rol}}
-        }
-        else{
-            return {status: false, reason: "El usuario no fue encontrado"}
-        }
-    }  
 
     async updateLastConnection(idUser){
         const date = new Date()

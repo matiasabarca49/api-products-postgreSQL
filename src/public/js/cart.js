@@ -45,7 +45,11 @@ const totalProducts = async ()=>{
     try{
         const resUser = await fetch(`http://localhost:8080/api/cartItems/cant`)
         const cart = await resUser.json()
-        cant = cart.data
+        if(cart.success){
+            cant = cart.data;
+        }else{
+            cart = "0";
+        }
     }
     catch{
         cant = 0

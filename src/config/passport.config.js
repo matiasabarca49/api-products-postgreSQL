@@ -3,7 +3,7 @@ const LocalStrategy = require('passport-local').Strategy
 const { isValidPassword } = require('../utils/utils.js')
 //Users Service
 const UsersService = require('../service/users.service.js')
-const { UserDTO } = require('../dto/user.dto.js')
+const { CreateCompleteUserRequestDTO } = require('../dto/user.dto.js')
 const usersService = new UsersService()
 
 const initializePassport = () =>{
@@ -22,7 +22,9 @@ const initializePassport = () =>{
                 }
                 else{
                     //Se agrega a la DB el nuevo user
-                    const userAdded = await usersService.createCompleteUser(req.body);
+                    //Formateamos con DTO de Request
+                    const userRequestDTO = new CreateCompleteUserRequestDTO(req.body);
+                    const userAdded = await usersService.createCompleteUser(userRequestDTO);
                     //Salimos y devolvemos el usuario creado
                     done(null, userAdded)
                 }

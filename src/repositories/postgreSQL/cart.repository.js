@@ -21,7 +21,8 @@ class CartRepository{
                 `SELECT p.*, c.id AS cart_id, c.date_cart AS date_cart, cp.quantity AS quantity
                 FROM carts c
                 JOIN cart_products cp ON cp.cart_id = c.id
-                JOIN products p ON p.id = cp.product_id
+                JOIN seller_products sp ON sp.id = cp.seller_product_id
+                JOIN products p ON p.id = sp.product_id
                 ORDER BY ${sort && sort? `c.id ${sort > 0 ? 'ASC' : 'DESC'}` : 'c.id ASC'}
                 LIMIT $1 OFFSET $2
                 `,

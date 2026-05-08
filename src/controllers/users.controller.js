@@ -1,3 +1,4 @@
+const { CreateUserRequestDTO, UpdateToPremiumRequestDTO, UpdateUserRequestDTO } = require('../dto/user.dto.js');
 const UsersService = require('../service/users.service.js')
 const usersService = new UsersService()
 
@@ -52,7 +53,10 @@ const updateRol = async (req, res) =>{
 
 const create = async (req, res, next) =>{
     try{
-        const userCreated = await usersService.create(req.body)
+
+        const userRequestDTO = new CreateUserRequestDTO(req.body)
+
+        const userCreated = await usersService.create(userRequestDTO);
 
         return res.status(201).json({success: true , data: userCreated});
     }catch(error){
@@ -62,10 +66,16 @@ const create = async (req, res, next) =>{
 
 const upgradeUser = async (req, res, next) =>{
     try{
-        const user = await usersService.upgradeUser(req.session.idUser, req.body);
+
+        const idUser = req.user.id;
+
+        const userRequestDTO = new UpdateToPremiumRequestDTO(req.body);
+
+        const user = await usersService.upgradeUser(idUser, userRequestDTO);
 
         //Renovando datos de session
         req.session.rol = "premium";
+        req.user.rol = "premium";
 
         return res.status(200).json({success: true, data: user});
     }catch(error){
@@ -80,7 +90,11 @@ const upgradeUser = async (req, res, next) =>{
 const update = async (req, res, next) =>{
     try{
         const { uid } = req.params
-        const userUpdated = await usersService.update(uid, req.body)
+
+        const updateUserDTO = new UpdateUserRequestDTO(req.body);
+
+        const userUpdated = await usersService.update(uid, updateUserDTO)
+        
         return res.status(200).json({success: true, data: userUpdated})
     }catch(error){
         next(error)

@@ -94,8 +94,10 @@ const getCart = ()=>{
     fetch('http://localhost:8080/api/cartItems')
     .then( res => res.json())
     .then( cart => {
-        cart = cart.data
-        render(cart)
+        if(cart.success){
+            cart = cart.data
+            render(cart)
+        }
     })
 }
 

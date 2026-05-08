@@ -405,7 +405,8 @@ class ProductsRepository{
             return result.rows[0]
         }catch(error){
             if (error.code === '23505') {
-                throw new DuplicateException("Code o Titulo Duplicado");
+               if(error.constraint === "products_title_key") throw new DuplicateException("Titulo Duplicado");
+               if(error.constraint === "products_code_key") throw new DuplicateException("Code Duplicado");
             }
 
             throw error;

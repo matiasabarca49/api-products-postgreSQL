@@ -68,6 +68,7 @@ const validateUpdateProduct = [
     
     handleValidationErrors
 ]
+
 const validateComment = [
     body('product_id')
         .exists().withMessage('La referencia al producto es necesaria')
@@ -95,7 +96,7 @@ const validateId = (paramName = 'id') => {
   return [
     param(paramName)
       .exists().withMessage(`El parámetro ${paramName} es requerido`)
-      .isMongoId().withMessage(`El ${paramName} no es válido`),
+      .isInt().withMessage(`El ${paramName} no es válido`),
       
     handleValidationErrors
   ]

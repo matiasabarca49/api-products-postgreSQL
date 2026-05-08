@@ -25,8 +25,8 @@ class CartItemService{
          * @inheritdoc
          * @description Agrega un items al carrito delegando la operacion al repositorio.
         */
-        async addProductToCart(idUser, seller_product_id, quantity = 1){
-                return await this.repository.addProductToCart(idUser, seller_product_id, quantity);
+        async addProductToCart(idUser, cartItem){
+                return await this.repository.addProductToCart(idUser, cartItem.seller_product_id, cartItem.quantity);
         }
 
         /**

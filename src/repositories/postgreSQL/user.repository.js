@@ -1,5 +1,5 @@
 const pool = require('../../config/pg.config.js');
-const { DuplicateException } = require('../../exceptions/validation.exception.js');
+const { DuplicateException, ForeignKeyConstraintException } = require('../../exceptions/validation.exception.js');
 
 class UsersRepository{
 
@@ -172,7 +172,20 @@ class UsersRepository{
         } catch (error) {
 
             if (error.code === '23505') {
-                throw new DuplicateException("Email Duplicado");
+                console.log(error)
+                console.log("===============")
+                console.log(error.constraint)
+                if(error.constraint === "users_dni_key"){
+                    throw new DuplicateException("DNI Duplicado");
+                }
+                
+                if(error.constraint === "users_email_key"){
+                    throw new DuplicateException("Email Duplicado");
+                }
+
+                if(error.constraint === "users_nickname_key"){
+                    throw new DuplicateException("Nickname Duplicado");
+                }
             }
 
             throw error;
@@ -254,6 +267,9 @@ class UsersRepository{
             )
             return result.rows[0] ?? null
         }catch(error){
+            if(error.code === '23503') {
+                throw new ForeignKeyConstraintException("Usuario con referencias. No se puede eliminar");
+            }
             throw error
         }
     }

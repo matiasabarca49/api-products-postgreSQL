@@ -1,3 +1,4 @@
+const { CreateCartItemRequestDTO } = require("../dto/cartItem.dto");
 const CartItemService = require("../service/cartItem.service");
 const cartItemService = new CartItemService();
 
@@ -37,8 +38,10 @@ const getCantItemsInCart = async (req, res, next) =>{
 */
 const addProductToCart = async (req, res, next) =>{
     try{
-        const {seller_product_id, quantity } = req.body;
-        const addedItem = await cartItemService.addProductToCart(req.session.idUser, seller_product_id, quantity);
+
+        const idUser = req.user.id;
+        const cartItemDTO = new CreateCartItemRequestDTO(req.body);
+        const addedItem = await cartItemService.addProductToCart(idUser, cartItemDTO);
         return res.status(200).json({success: true, data:addedItem});
     }catch(error){
         next(error);
@@ -52,7 +55,9 @@ const addProductToCart = async (req, res, next) =>{
 const removeProductFromCart = async (req, res, next) =>{
     try{
         const { seller_product_id } = req.params;
-        await cartItemService.removeProductFromCart(req.session.idUser, seller_product_id);
+
+        const idUser = req.user.id;
+        await cartItemService.removeProductFromCart(idUser, seller_product_id);
         return res.status(200).json({success: true, message: 'Producto eliminado del carrito'});
     }catch(error){
         next(error);

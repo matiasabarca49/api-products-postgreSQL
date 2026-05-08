@@ -1,16 +1,17 @@
-const { createHash} = require('../utils/utils.js')
+const { capitalize } = require("../utils/capitalize.helper")
+const { normalize, normalizeNickname, normalizeEmail } = require("../utils/normalize.helper")
 
 class UserDTO{
     constructor(user){
-        this.name = user.name
-        this.last_name = user.last_name || "No especificado"
+        this.name = capitalize(user.name)
+        this.last_name = capitalize(user.last_name) || "No especificado"
         this.nickname = user.nickname
         this.birth = user.birth 
         this.dni= user.dni
         this.must_change_password
         this.email = user.email
-        this.password = createHash(user.password)
-        this.rol = user.rol || "user"
+        this.password = user.password
+        this.rol = user.rol?.toLowerCase() || "user"
     }
 
     static toResponse(user){
@@ -18,6 +19,7 @@ class UserDTO{
             id: user._id || user.id, 
             name: user.name || "Not Declared",
             last_name: user.last_name || "Not Declared",
+            nickname: user.nickname,
             birth: user.birth || "Not Declared",
             dni: user.dni,
             email: user.email || "Not Declared",
@@ -30,7 +32,7 @@ class UserDTO{
     
 }
 
-class CreateAddressDTO{
+class AddressDTO{
     constructor(address){
         this.user_id = address.user_id;
         this.street = address.street;
@@ -41,7 +43,7 @@ class CreateAddressDTO{
     }
 }
 
-class CreateStoreDTO{
+class StoreDTO{
     constructor(store){
         this.user_id = store.user_id;
         this.name = store.name;
@@ -49,44 +51,67 @@ class CreateStoreDTO{
     }
 }
 
-const sendUserFormatted = (user) => {
-    
-    const userFormatted = {
-        id: user._id, 
-        name: user.name || "Not Declared",
-        lastName: user.last_name || "Not Declared",
-        age: user.age || "Not Declared",
-        email: user.email || "Not Declared",
-        rol: user.rol || "Not Declared",
-        lastConnection: user.last_connection || "Not Declared",
+/**
+ * DTO de Request
+ */
+
+class CreateCompleteUserRequestDTO{
+    constructor(user){
+        this.name = normalize(user.name);
+        this.last_name = normalize(user.last_name);
+        this.nickname = normalizeNickname(user.nickname);
+        this.birth = user.birth;
+        this.email = normalizeEmail(user.email);
+        this.dni = user.dni;
+        this.password = user.password;
+        this.rol = user.rol;
+        //Address
+        this.street = normalize(user.street);
+        this.province = normalize(user.province);
+        this.city = normalize(user.city);
+        this.postal_code = normalize(user.postal_code);
     }
-          
-    return userFormatted
 }
 
-const sendUsersFormatted = (users) => {
-    users.map( document => {   
-            const documentReWrited = {
-                id: document._id, 
-                name: document.name || "Not Declared",
-                lastName: document.lastName || "Not Declared",
-                age: document.age || "Not Declared",
-                email: document.email || "Not Declared",
-                rol: document.rol || "Not Declared",
-                lastConnection: document.lastConnection || "Not Declared",
-                documents: document.documents || [],
-                purchases: document.purchases || [],
-                cart: document.cart || []
-            }
-            return documentReWrited
-    })
-    return users
+class CreateUserRequestDTO{
+    constructor(user){
+        this.name = normalize(user.name);
+        this.last_name = normalize(user.last_name);
+        this.nickname = normalizeNickname(user.nickname);
+        this.birth = user.birth;
+        this.email = normalizeEmail(user.email);
+        this.dni = user.dni;
+        this.password = user.password;
+        this.rol = user.rol;
+    }
 }
+
+class UpdateUserRequestDTO{
+    constructor(user){
+        this.name = normalize(user.name);
+        this.last_name = normalize(user.last_name);
+        this.nickname = normalizeNickname(user.nickname);
+        this.birth = user.birth;
+        this.email = normalizeEmail(user.email);
+        this.dni = user.dni;
+        this.rol = user.rol;
+    }
+}
+
+class UpdateToPremiumRequestDTO{
+    constructor(store){
+        this.name = store.name;
+        this.description = store.description;
+    }
+}
+
 
 module.exports = {
     UserDTO,
-    CreateAddressDTO,
-    CreateStoreDTO,
-    sendUserFormatted,
-    sendUsersFormatted
+    AddressDTO,
+    StoreDTO,
+    CreateUserRequestDTO,
+    CreateCompleteUserRequestDTO,
+    UpdateUserRequestDTO,
+    UpdateToPremiumRequestDTO
 }

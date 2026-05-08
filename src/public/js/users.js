@@ -126,7 +126,7 @@ function renderUsers(usersToRender) {
             </div>
             <div class="card-footer">
                 <span class="card-role">${user.rol}</span>
-                <span class="card-age">Edad: ${user.age || 'N/A'}</span>
+                <span class="card-age">Nacimiento: ${user.birth.split("T")[0] || 'N/A'}</span>
             </div>
         `;
         grid.appendChild(card);
@@ -160,7 +160,9 @@ function openModal(mode, userId = null) {
             document.getElementById('userName').value = user.name;
             document.getElementById('userLastName').value = user.last_name;
             document.getElementById('userEmail').value = user.email;
-            document.getElementById('userAge').value = user.age || '';
+            document.getElementById('userAge').value = user.birth.split("T")[0] || '';
+            document.getElementById('dni').value = user.dni || '';
+            document.getElementById('nickname').value = user.nickname || '';
             document.getElementById('userRole').value = user.rol;
             passwordInput.required = false;
             passwordGroup.style.display = 'none';

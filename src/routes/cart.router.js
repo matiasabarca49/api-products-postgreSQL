@@ -6,7 +6,8 @@ const { Router } = express
 const router = new Router()
 
 //middleware
-const { checkPermAdmin } = require('../middlewares/permissions.middleware.js')
+const { checkPermAdmin, authorizeRoles } = require('../middlewares/permissions.middleware.js')
+const { auth } = require('../middlewares/sessions.middleware.js')
 
 
 /** 
@@ -21,15 +22,18 @@ const { checkPermAdmin } = require('../middlewares/permissions.middleware.js')
  * @query   {number} [limit=10] - Cantidad de registros por página
  * @query   {string} [sort=id] - Campo por el cual ordenar
  * @query   {string} [order=asc] - Dirección del orden (asc/desc)
+ * @middleware auth (Autenticación)
+ * @middleware authorizeRoles (Autorizacion)
  */
-router.get("/", checkPermAdmin, controller.findAll);
+router.get("/", auth, authorizeRoles("admin"), controller.findAll);
 
 /**
  * @route   GET /api/carts/:cid
- * @desc    Obtener carrito por id (Solo Administradores)
+ * @desc    Obtener carrito por id
  * @access  Private (Admin)
- * @middleware checkPermAdmin
+ * @middleware auth (Autenticación)
+ * @middleware authorizeRoles (Autorizacion)
  */
-router.get("/:cid", checkPermAdmin, controller.getCartByID )
+router.get("/:cid", auth, authorizeRoles("admin"), controller.getCartByID )
 
 module.exports = router
