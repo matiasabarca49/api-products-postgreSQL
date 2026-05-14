@@ -202,14 +202,14 @@ const loadPurchases = async (page = 1) => {
     const container = document.getElementById('compras');
 
     const res = await fetch(`/api/purchases/me?page=${page}&limit=5`);
-    const { data } = await res.json();
+    const data  = await res.json();
 
-    if (!data.payload.length) {
+    if (!data.success) {
         container.innerHTML = `<p style="color:rgba(255,255,255,0.7)">No hay compras realizadas.</p>`;
         return;
     }
 
-    container.innerHTML = data.payload.map(purchase => `
+    container.innerHTML = data.data.payload.map(purchase => `
         <div class="purchase-item">
             <div class="purchase-header">
                 <div class="purchase-date">

@@ -1,6 +1,7 @@
 const express = require('express')
 const { getPurchasesFromUser, checkout } = require('../controllers/purchase.controller')
-const { checkLogin } = require('../middlewares/sessions.middleware')
+const { auth } = require('../middlewares/sessions.middleware')
+const { authorizeRoles } = require('../middlewares/permissions.middleware')
 const { Router } = express
 const router = new Router()
 
@@ -17,9 +18,10 @@ const router = new Router()
  * @query   {number} [page=1] - Número de página
  * @query   {number} [limit=10] - Cantidad de registros por página
  * @query   {string} [sort=id] - Campo por el cual ordenar
- * @middleware checkLogin para verificar que el usuario esté logueado antes de permitir el acceso a esta ruta.
+ * @middleware auth verificar que el usuario esté logueado antes de permitir el acceso a esta ruta.
+ * @middleware authorizeRoles (Autorizacion)
  */
-router.get("/checkout", checkLogin, checkout)
+router.get("/checkout", auth, authorizeRoles('user', 'premium'),checkout)
 
 /**
  * Obtener las compras del usuario logueado con paginación.
@@ -30,7 +32,7 @@ router.get("/checkout", checkLogin, checkout)
  * @query   {string} [sort=id] - Campo por el cual ordenar
  * @middleware checkLogin para verificar que el usuario esté logueado antes de permitir el acceso a esta ruta.
  */
-router.get("/me", checkLogin, getPurchasesFromUser)
+router.get("/me", auth, authorizeRoles("user", "premium"),getPurchasesFromUser)
 
 
 module.exports = router

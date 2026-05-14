@@ -21,7 +21,11 @@ app.use(session({
     secret: process.env.SECRET_SESSIONS,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
+    cookie: { 
+        sameSite: 'Strict',
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000
+    }
 }));
 
 //Passport
@@ -48,7 +52,15 @@ app.use(compression())
 const winstonLoggers = require('./middlewares/logger.middleware.js')
 app.use(winstonLoggers)
 //CORS
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+}))
+app.set('trust proxy', 1);
+//rate-limit
+const { rateLimitHandler } = require("./middlewares/rateLimiter.middleware.js")
+app.use(rateLimitHandler)
 
 /** 
 * Handlebars
