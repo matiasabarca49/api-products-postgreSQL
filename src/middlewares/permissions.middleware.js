@@ -3,8 +3,6 @@ const authorizeRoles = (...allowedRoles) => {
 
     const { rol } = req.user;
 
-    console.log("Usuario: ", req.user)
-
     if (!allowedRoles.includes(rol)) {
       return res.status(403).json({ success:false, error: {message: "No autorizado", statusCode: 403} });
     }

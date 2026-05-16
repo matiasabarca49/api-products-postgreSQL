@@ -3,8 +3,9 @@ const saleService = new SaleService();
 
 const findAll = async (req, res, next) => {
     try{
+        const idUser = req.user.id;
         const {limit = 5, page = 1} = req.query;
-        const sales = await saleService.findAll(req.session.idUser, limit, page);
+        const sales = await saleService.findAll(idUser, limit, page);
         res.json({success: true, data: sales});
     }catch(error){
         next(error);

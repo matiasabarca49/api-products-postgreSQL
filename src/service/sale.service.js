@@ -10,6 +10,12 @@ class SaleService{
         return await this.repository.findAll(idUser, limit, page);
     }
 
+    /**
+     * Actualizar estado de ventas
+     * @param {Array} ids - Un array de IDs de ventas a actualizar.
+     * @param {String} newState - El nuevo estado a asignar a las ventas.
+     * @returns 
+     */
     async changeState(ids, status){
         return await this.repository.changeState(ids, status);
     }

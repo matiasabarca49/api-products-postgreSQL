@@ -53,7 +53,7 @@ const winstonLoggers = require('./middlewares/logger.middleware.js')
 app.use(winstonLoggers)
 //CORS
 app.use(cors({
-  origin: 'http://localhost:8080',
+  origin:   process.env.ORIGIN ||'http://localhost:8080',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
 }))
