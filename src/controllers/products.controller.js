@@ -212,7 +212,10 @@ const updateProductFromSeller = async (req, res, next) => {
   */
 const deleteProductFromSeller = async (req,res, next) => {
     try{
-        const productDelete = await productsService.deleteFromSeller(req.params.id)
+
+        const user = req.user;
+
+        const productDelete = await productsService.deleteFromSeller(user, req.params.id)
         return res.status(200).json({success: true, message: "Producto borrado correctamente", data: productDelete});
         
     }

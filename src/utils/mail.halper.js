@@ -1,24 +1,17 @@
 const logger = require('./logger/loggers.js');
 const transporter  = require('../config/mail.config.js');
+const emailQueue = require('../queue/email.queue.js');
 
 //Enviar mail al eliminar un producto
 const sendEmailDeleteProduct = async (email, product) =>{
     try{
-        transporter.sendMail(
-        generateFormatEmail(product.owner, {
-            subject: "Producto Borrado",
-            head: "El Producto fue borrado correctamente",
-            body: `El producto "${product.title}" con código "${product.code}" fue borrado. Por el administrador. El producto pertenece al usuario con email ${product.owner}. Si no solicitaste la eliminación de este producto, por favor contacta con el soporte.`,
-        }),
-        (error, info) => {
-            if (error) {
-            logger.error(`Error al enviar el correo de eliminacion de producto a ${email}: ${error.message}`);
-            throw new AppError(500, "Error al enviar el mail");
-            } else {
-            logger.info(`Correo de eliminacion de producto enviado con éxito a ${email}`);
-            }
-        }
-        );
+        return await emailQueue.add("sendMail",
+            generateFormatEmail(email, {
+                subject: "Producto Borrado",
+                head: "El Producto fue borrado correctamente",
+                body: `El producto "${product.title}" con código "${product.code}" fue borrado. Por el administrador. El producto pertenece al usuario con email ${email}. Si no solicitaste la eliminación de este producto, por favor contacta con el soporte.`,
+            })
+        )
     }catch(error){
         throw error
     }
@@ -26,21 +19,13 @@ const sendEmailDeleteProduct = async (email, product) =>{
 
 const sendEmailPurchase = async (email, ticket) =>{
     try{
-        transporter.sendMail(
-        generateFormatEmail(email, {
-            subject: "Tu compra fue realizada con éxito",
-            head: "Gracias por la compra!!!",
-            body: formatPurchaseEmail(ticket)
-        }),
-        (error, info) => {
-            if (error) {
-            logger.error(`Error al enviar el correo de compra a ${email}: ${error.message}`);
-            throw new AppError(500, "Error al enviar el mail");
-            } else {
-            logger.info(`Correo de compra enviado con éxito a ${email}`);
-            }
-        }
-        );
+       return await emailQueue.add("sendMail",
+            generateFormatEmail(email, {
+                subject: "Compra realizada con éxito",
+                head: "¡Gracias por tu compra!",
+                body: `Tu compra con código de orden "${ticket.code}" fue procesada con éxito. A continuación encontrarás los detalles de tu compra:\n\n${formatPurchaseEmail(ticket)}\n\nSi no reconocés esta actividad o tenés alguna duda, respondé este email y te ayudamos a la brevedad.`,
+            })
+        )
     }catch(error){
         throw error
     }
@@ -48,26 +33,29 @@ const sendEmailPurchase = async (email, ticket) =>{
 
 const sendMailRecoverPass = async (email, secret) =>{
     try{
-        transporter.sendMail(
+        return await emailQueue.add("sendMail",
             generateFormatEmail(email, {
-                subject: "Recuperación de Contraseña",
-                head: "Solicitud de Recuperación de Contraseña",
-                body: `Hola ${email},\n\nHas solicitado recuperar tu contraseña. Haz clic en el siguiente enlace para restablecer tu contraseña:\n\nhttp://localhost:8080/users/generatepassword?secret=${secret}&email=${email}`
-            }), (error, info)=>{
-            if(error){
-                req.logger.error(`Peticion /api/session/recoverpass a las ${new Date().toLocaleTimeString()} el ${new Date().toLocaleDateString()}\n
-                ERROR: Fallo al enviar el mail. EL error es:\n
-                ${error}`)
-                throw new AppError(500, "Error al enviar el mail")
-            }
-            else{
-                logger.info(`Mensaje enviado con éxito solicitado en el endpoint${"http://"+req.headers.host + "/api/mail" +req.url}"`)
-                
-            }
-        })
+                subject: "Recuperación de contraseña",
+                head: "Solicitud de recuperación de contraseña",
+                body: `Recibimos una solicitud para restablecer la contraseña de tu cuenta. Si fuiste vos, hacé clic en el siguiente enlace para crear una nueva contraseña:\n\n${process.env.URL_FRONTEND}/users/generatepassword?secret=${secret}&email=${email}\n\nSi no solicitaste restablecer tu contraseña, por favor ignorá este email o contactá con el soporte si tenés alguna duda.`,
+            })
+        )
     }catch(error){
-        logger.error(`Error al enviar el correo de recuperación de contraseña a ${email}: ${error.message}`);
-        throw new AppError(500, "Error al enviar el mail");
+        throw error;
+    }
+}
+
+const sendMailChangedPass = async (email) =>{
+    try{
+        return await emailQueue.add("sendMail",
+            generateFormatEmail(email, {
+                subject: "Contraseña actualizada",
+                head: "Tu contraseña fue actualizada con éxito",
+                body: `Te informamos que la contraseña de tu cuenta fue actualizada correctamente. Si fuiste vos, no es necesario que hagas nada más. Si no reconocés esta actividad o tenés alguna duda, respondé este email y te ayudamos a la brevedad.`,
+            })
+        )
+    }catch(error){
+        throw error;
     }
 }
 
@@ -216,5 +204,6 @@ const generateFormatEmail = (email, payload) => {
 module.exports = {
     sendEmailDeleteProduct,
     sendEmailPurchase,
-    sendMailRecoverPass
+    sendMailRecoverPass,
+    sendMailChangedPass
 }

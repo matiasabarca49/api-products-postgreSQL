@@ -1,5 +1,5 @@
-const { NotFoundException, DuplicateException } = require("../exceptions/excepciones.js");
-const { sendMailRecoverPass } = require("../utils/mail.halper");
+const { NotFoundException, DuplicateException, AppError } = require("../exceptions/excepciones.js");
+const { sendMailRecoverPass, sendMailChangedPass } = require("../utils/mail.halper");
 const { createHash, isValidPassword } = require("../utils/utils");
 const UsersService = require("./users.service");
 
@@ -60,7 +60,7 @@ class SessionsService {
         this.secrets.set(secret, new Date().getTime() + 600000) //Guardamos el secreto con una expiración de 10 minutos
 
         //Enviamos el mail con el link para restaurar la contraseña
-        sendMailRecoverPass(email, secret);
+        await sendMailRecoverPass(email, secret);
     
     }
 
@@ -85,8 +85,11 @@ class SessionsService {
         if (isValidPassword(userFound.password, newPassword)) throw new DuplicateException("La nueva contraseña no puede ser igual a las anteriores")
         //Actualizamos la contraseña del usuario
         const passwordHash = createHash(newPassword)
-        await this.userService.update(userFound.id, {password: passwordHash});
+        const userUpdated = await this.userService.update(userFound.id, {password: passwordHash});
         this.secrets.delete(secret) //Eliminamos el secreto para que no pueda ser reutilizado
+        if (!userUpdated) throw new AppError(500, "No se pudo actualizar la contraseña del usuario")
+        //enviar un mail de cambio de contraseña exitoso
+        await sendMailChangedPass(email)
     }
 
 

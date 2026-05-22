@@ -234,7 +234,8 @@ class ProductsRepository{
     }
 
     /**
-     * Buscar un producto por ID de seller_product. La relacion entre productos y users 
+     * Buscar un producto por ID de seller_product. Retornar la información completa del producto junto con la información de tiendas que lo venden y comentarios).
+     * La relacion entre productos y users 
      * es a través de seller_products, por lo que se debe buscar el producto a través de su ID 
      * en seller_products para luego retornar la información del producto encontrado. 
      * Si no se encuentra el producto con el ID proporcionado, retornar null.
@@ -342,6 +343,32 @@ class ProductsRepository{
             [id]
         )
         return result.rowCount > 0
+    }
+
+    /**
+     * Traer la información de un producto vendido por un vendedor a través de seller_products
+     * Solo trae la informacion del producto asociado al vendedor.
+     * @param {number} id - ID del producto a verificar
+     * @returns {Promise<boolean>} Retorna true si el producto existe, false si no existe
+     */
+    async findBySellerProduct(idSeller, id_product_Seller) {
+        try{
+            const result = await this.pool.query(
+                `SELECT  s.stock, s.price, s.status, s.id AS seller_product_id, s.seller_id,
+                 p.id AS product_id, p.title, p.code, p.description, p.thumbnail, p.status AS product_status,
+                 c.slug AS category, c.path AS category_path,
+                 st.name AS store_name
+                FROM seller_products s 
+                JOIN products p ON s.product_id = p.id
+                LEFT JOIN categories c ON p.category_id = c.id
+                LEFT JOIN stores st ON st.user_id = s.seller_id
+                WHERE s.seller_id = $1 AND s.id = $2`,
+                [idSeller, id_product_Seller]
+            )
+            return result.rows[0] ?? null;
+        }catch(error){
+            throw error;
+        }
     }
 
     /**

@@ -62,12 +62,10 @@ function validateEnv() {
 
     if(!process.env.GMAIL_CREDENTIAL_USER?.trim() && !process.env.GMAIL_CREDENTIAL_TOKEN?.trim()){
         console.info("⚠️ Envío de emails Desactivado")
-        requiredEnvVars.gmail = false
     }
 
     if(!process.env.GITHUB_CLIENT_ID?.trim() || !process.env.GITHUB_CLIENT_SECRET?.trim()){
         console.info("⚠️ Autenticacion con GITHUB Desactivada")
-        requiredEnvVars.github = false
     }
 }
 

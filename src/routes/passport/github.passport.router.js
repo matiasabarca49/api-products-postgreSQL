@@ -4,10 +4,9 @@ const { getGithubCallback } = require('../../controllers/passport/github.passpor
 const { Router } = express
 const router = new Router()
 
-const {validateEnvVars} = require('../../utils/dotenv.helper.js')
+const {isGithubEnabled} = require('../../config/env.config.js')
 
-if(!validateEnvVars('github')){
-
+if(!isGithubEnabled()){
   router.get('/github', (req, res) => {
     res.status(503).json({status: "error", message: "Autenticación con GITHUB no disponible"})
   });

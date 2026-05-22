@@ -15,6 +15,9 @@ const pool = require('./config/pg.config.js')
 //Redis
 const { connectRedis } = require('./config/redis.config.js')
 
+//workers
+require("./workers/email.worker.js") //Worker para enviar correos asincronos con BullMQ y Redis;
+
 /**
  * Websockets 
  **/

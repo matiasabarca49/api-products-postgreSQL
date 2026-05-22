@@ -4,9 +4,10 @@ const { createHash } = require('../utils/utils.js')
 const { Strategy } = require('passport-github2')
 const githubStrategy = Strategy
 
-const {validateEnvVars} = require('../utils/dotenv.helper.js')
+const { isGithubEnabled } = require('../config/env.config.js')
+const { CreateUserAUTHRequestDTO } = require('../dto/user.dto.js')
 
-if(validateEnvVars('github')){
+if(isGithubEnabled()){
     
     const usersService = new UsersService()
     
@@ -47,9 +48,11 @@ if(validateEnvVars('github')){
                 const newUser = {
                     name: profile._json.name || profile._json.login || "no especificado",
                     email: emailUser.email,
-                    password: createHash(Date.now().toString()+ Math.random(99).toString())+ profile._json.login.toString()
+                    password: createHash(Date.now().toString()+ Math.random(99).toString())+ profile._json.login.toString(),
+                    rol: "user",
                 }
-                const userAdded = await usersService.create(newUser)
+                const createUserDTO = new CreateUserAUTHRequestDTO(newUser);
+                const userAdded = await usersService.create(createUserDTO)
                 //Salimos y pasamos el user nuevo agregado
                 done(null, userAdded)
             }

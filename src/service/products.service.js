@@ -208,7 +208,7 @@ class ProductsService{
     }else {
 
         //Enviar mail al propietario del producto si el producto no es de un Admin
-        if (productFound.owner !== "Admin") {
+        if (productFound.owner !== "admin") {
           await sendEmailDeleteProduct(user.email, productFound);
         }
 
@@ -217,8 +217,23 @@ class ProductsService{
     
   }
 
-  async deleteFromSeller(id_product_seller){
-     return this.repository.deleteFromSeller(id_product_seller);
+  async deleteFromSeller(user, id_product_seller){
+
+    const productSeller = await this.repository.findBySellerProduct(user.id, id_product_seller); 
+
+    if(!productSeller){
+      throw new NotFoundException("El producto no existe o no tienes permiso para eliminar este producto");
+    }
+    
+    //eliminar producto del vendedor
+    const productDeleted = await this.repository.deleteFromSeller(id_product_seller);
+
+    //Enviar mail al propietario del producto si el producto no es de un Admin
+    if (user.rol !== "admin") {
+      await sendEmailDeleteProduct(user.email, productSeller);
+    }
+
+     return productDeleted;
   }
 
 

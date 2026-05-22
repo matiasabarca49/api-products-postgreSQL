@@ -13,9 +13,16 @@ class SalesRepository{
             `
                 SELECT 
                     c.date_cart, 
-                    u.name AS buyer_name, u.email AS buyer_email, u.dni AS buyer_dni,
-                    a.street, a.city, a.province, a.postal_code,
-                    sl.status, sl.delivery_type,
+                    u.name AS buyer_name, 
+                    u.email AS buyer_email, 
+                    u.dni AS buyer_dni,
+                    a.street, 
+                    a.city, 
+                    a.province, 
+                    a.postal_code,
+                    sl.status, 
+                    sl.delivery_type,
+
                     (
                         SELECT SUM(cp.quantity)
                         FROM cart_products cp
@@ -23,13 +30,15 @@ class SalesRepository{
                         WHERE cp.cart_id = c.id
                         AND sp.seller_id = $1
                     ) AS amount,
+
                     (
-                        SELECT SUM(cp.quantity*cp.price)
+                        SELECT SUM(cp.quantity * cp.price)
                         FROM cart_products cp
                         JOIN seller_products sp ON sp.id = cp.seller_product_id
                         WHERE cp.cart_id = c.id
                         AND sp.seller_id = $1
                     ) AS total,
+
                     (
                         SELECT json_agg(
                             json_build_object(
@@ -42,7 +51,10 @@ class SalesRepository{
                         FROM cart_products cp
                         JOIN seller_products sp ON sp.id = cp.seller_product_id
                         JOIN products p ON p.id = sp.product_id
-                        JOIN sales s ON s.product_id = p.id AND s.seller_id = sp.seller_id AND s.cart_id = cp.cart_id
+                        JOIN sales s 
+                            ON s.product_id = p.id 
+                        AND s.seller_id = sp.seller_id 
+                        AND s.cart_id = cp.cart_id
                         WHERE cp.cart_id = c.id 
                         AND sp.seller_id = $1
                     ) AS products
@@ -56,10 +68,12 @@ class SalesRepository{
                 ) sl
 
                 JOIN users u ON u.id = sl.buyer_id
-                JOIN addresses a ON a.user_id = u.id
+
+                LEFT JOIN addresses a ON a.user_id = u.id
+
                 JOIN carts c ON c.id = sl.cart_id
 
-                ORDER BY c.id DESC
+                ORDER BY c.id DESC;
             `;
 
             const sqlCount = 

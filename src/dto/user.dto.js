@@ -86,6 +86,20 @@ class CreateUserRequestDTO{
     }
 }
 
+class CreateUserAUTHRequestDTO{
+    constructor(user){
+        this.name = normalize(user.name);
+        this.email = normalizeEmail(user.email);
+        this.password = user.password;
+        this.rol = user.rol;
+        //atributos adicionales que se no se pueden obtener de la autenticación externa
+        this.last_name = user.last_name || "No especificado";
+        this.nickname = user.nickname || "No especificado";
+        this.birth = user.birth || "9999-12-31";
+        this.dni = user.dni || "No especificado";
+    } 
+} 
+
 class UpdateUserRequestDTO{
     constructor(user){
         this.name = normalize(user.name);
@@ -112,6 +126,7 @@ module.exports = {
     StoreDTO,
     CreateUserRequestDTO,
     CreateCompleteUserRequestDTO,
+    CreateUserAUTHRequestDTO,
     UpdateUserRequestDTO,
     UpdateToPremiumRequestDTO
 }
