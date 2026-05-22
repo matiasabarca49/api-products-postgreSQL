@@ -14,7 +14,7 @@ const validateProduct = [
         .notEmpty().withMessage('El título no puede estar vacío')
         .isString().withMessage('El título debe ser un texto')
         .trim()
-        .isLength({ min: 4, max: 100 }).withMessage('El título debe tener entre 5 y 100 caracteres'),
+        .isLength({ min: 5, max: 300 }).withMessage('El título debe tener entre 5 y 300 caracteres'),
     body('price')
         .exists().withMessage('El precio es requerido')
         .notEmpty().withMessage('El precio no puede estar vacío')

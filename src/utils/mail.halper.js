@@ -1,5 +1,5 @@
 const logger = require('./logger/loggers.js');
-const { transporter } = require('../config/config.js');
+const transporter  = require('../config/mail.config.js');
 
 //Enviar mail al eliminar un producto
 const sendEmailDeleteProduct = async (email, product) =>{

@@ -9,6 +9,12 @@
 
 #dotenv
 .env
+.env.production
+.env.development
+.env*
+/docker/.env
+/docker/.env.production
+/docker/.env.development
 
 #errores
 errors.log

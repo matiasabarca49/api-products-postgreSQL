@@ -1,4 +1,3 @@
-const dotenv = require('dotenv')
 const { Command } = require('commander')
 const program = new Command()
 
@@ -10,16 +9,7 @@ program.parse();
 
 const environment = program.opts().mode;
 
-//Cargar variables de entorno segun el ambiente
-dotenv.config({
-    path:environment==="production"? "./.env": "./.env"
-});
-
-//Transporter de mail
-const transporter = require('./mail.config.js')
-
 module.exports = {
     port: program.opts().p,
-    environment: environment,
-    transporter
+    environment: environment
 }

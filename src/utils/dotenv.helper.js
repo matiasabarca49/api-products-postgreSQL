@@ -1,6 +1,8 @@
 const logger = require("./logger/loggers.js");
 
 const requiredEnvVars = {
+    REDIS_HOST: process.env.REDIS_HOST?.trim(),
+    REDIS_PORT: process.env.REDIS_PORT?.trim(),
     PG_HOST: process.env.PG_HOST?.trim(),
     PG_PORT: process.env.PG_PORT?.trim(),
     PG_DATABASE: process.env.PG_DATABASE?.trim(),
@@ -24,6 +26,11 @@ const missing = Object.entries(requiredEnvVars)
 
 if (missing.length > 0) {
     logger.info(`Variables de entorno faltantes o vacías:\n- ${missing.join(', \n- ')}`);
+}
+
+if(!process.env.REDIS_HOST?.trim() || !process.env.REDIS_PORT?.trim()){
+    logger.error("🔴 Las variables de entorno para Redis no están definidas.");
+    process.exit()
 }
 
 if(!process.env.PG_HOST?.trim() || !process.env.PG_PORT?.trim() || !process.env.PG_DATABASE?.trim() || !process.env.PG_USER?.trim() || !process.env.PG_PASSWORD?.trim() || !process.env.SECRET_SESSIONS?.trim()){

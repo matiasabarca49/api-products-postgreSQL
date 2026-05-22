@@ -11,12 +11,16 @@ const pool = require('./config/pg.config.js')
 
 //Sessions
 const session = require('express-session')
-const pgSession = require('connect-pg-simple')(session);
+
+//Redis para sesiones
+const { redisClient } = require('./config/redis.config.js');
+
+const { RedisStore } = require('connect-redis');
 
 app.use(session({
-    store: new pgSession({
-        pool: pool,
-        tableName: 'session'
+    store: new RedisStore({
+        client: redisClient,
+        prefix: 'sess:'
     }),
     secret: process.env.SECRET_SESSIONS,
     resave: false,

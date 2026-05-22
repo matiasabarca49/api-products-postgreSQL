@@ -1,13 +1,14 @@
 const nodemailer = require('nodemailer')
 
 //Importar verificacion de variables de entorno
-const reqVars = require("../utils/dotenv.helper.js");
+//const { validateEnvVars } = require("../utils/dotenv.helper.js");
 const logger = require('../utils/logger/loggers.js');
+const { isEmailEnabled } = require('./env.config.js');
 
 //Crear transporter para enviar mails
 let transporter = {};
 
-if(reqVars.validateEnvVars('gmail')){
+if(isEmailEnabled()){
     //Creando trasnporter
     transporter = nodemailer.createTransport({
         service: 'gmail',
