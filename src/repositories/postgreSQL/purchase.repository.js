@@ -137,7 +137,7 @@ class PurchaseRepository{
              const { rows: [cart] } = await client.query(
                 `INSERT INTO carts (date_cart) VALUES (NOW()) RETURNING *`
             );
-            console.log("Carrito creado en DB......")
+    
             //4-Insertar en cart_products los productos que sí tienen stock
             for (const item of cartItems) {
                 await client.query(
@@ -145,7 +145,7 @@ class PurchaseRepository{
                     [cart.id, item.seller_product_id, item.quantity, item.price]
                 );
             }
-            console.log("Productos asignados a Carrito en DB......")
+
             //Contar cantidad de productos
              const cantProd = await client.query(
                 `SELECT SUM(cp.price * cp.quantity) AS total, SUM(cp.quantity) AS cant_product
@@ -157,7 +157,6 @@ class PurchaseRepository{
             const total  = cantProd.rows[0].total ?? 0;
             const amount = cantProd.rows[0].cant_product ?? 0;
             
-            console.log("Cantidad y total calculados......")
             //5- Descontar Stock
             for(const item of cartItems){
                 await client.query(
@@ -165,13 +164,13 @@ class PurchaseRepository{
                     [item.quantity, item.seller_product_id]
                 )
             }
-            console.log("Stock Descontado......");
+
             //6-Crear registro en purchases vinculando user + cart
             const { rows: [purchase] } = await client.query(
             `INSERT INTO purchases (user_id, cart_id, date_cart) VALUES ($1, $2, $3) RETURNING *`,
             [idUser, cart.id, cart.date_cart]
             );
-            console.log("Compra creada......")
+
             //7-Crear el ticket con el monto total
             const date = new Date(cart.date_cart);
             const formatDate = `${date.getUTCFullYear()}${date.getMonth()+1}${date.getDate()}`
@@ -183,10 +182,7 @@ class PurchaseRepository{
                 [code, amount, total, idUser, cart.id]
             );
             
-            console.log("Ticket creado.....")
-
-            //8 - Generar venta(sale)
-
+            //8 - Generar venta(sale) por cada producto comprado
             for(const item of cartItems){
                 await client.query(
                     `INSERT INTO sales (ticket_id, seller_id, buyer_id, product_id, cart_id,quantity, price, total, status, delivery_type)
@@ -195,9 +191,7 @@ class PurchaseRepository{
                 )
             }
 
-            console.log("Venta generada...")
             //9-Vaciar cart_items del usuario
-
             for (const item of cartItems) {
                 await client.query(
              `
@@ -208,11 +202,8 @@ class PurchaseRepository{
                 [idUser, item.seller_product_id])
             }
 
-            console.log("Productos del carrito del usuario removidos.....")
             //Si tenemos exito persistimos todas las transacciones
             await client.query('COMMIT');
-
-            console.log("Fin transaccion ---------")
 
             return ticket;
 

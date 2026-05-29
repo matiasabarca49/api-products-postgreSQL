@@ -1,0 +1,222 @@
+paths:
+  /api/users:
+    get:
+      summary: "Obtiene una lista de todos los usuarios. Con paginación"
+      tags:
+        - Users
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: "Número de página para la paginación"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: "Número de usuarios por página para la paginación"
+      responses:
+        "200":
+          description: "Lista de usuarios obtenida exitosamente"
+    post:
+      summary: "Crea un nuevo usuario."
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: "Nombre del usuario"
+                email:
+                  type: string
+                  description: "Correo electrónico del usuario"
+                password:
+                  type: string
+                  description: "Contraseña del usuario"
+      responses:
+        "201":
+          description: "Usuario creado exitosamente"
+  /api/users/{id}:
+    put:
+      summary: "Actualiza un usuario existente."
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: "ID del usuario a actualizar"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: "Nombre del usuario"
+                email:
+                  type: string
+                  description: "Correo electrónico del usuario"
+                password:
+                  type: string
+                  description: "Contraseña del usuario"
+      responses:
+        "200":
+          description: "Usuario actualizado exitosamente"
+    delete:
+      summary: "Elimina un usuario existente."
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: "ID del usuario a eliminar"
+      responses:
+        "200":
+          description: "Usuario eliminado exitosamente"
+  /api/users/upgrade:
+    put:
+      summary: "Actualiza el rol de un usuario a premium."
+      tags:
+        - Users
+      responses:
+        "200":
+          description: "Usuario actualizado a premium exitosamente"
+  /api/users/addressess:
+    get:
+      summary: "Obtiene las direcciones del usuario autenticado."
+      tags:
+        - Users
+      responses:
+        "200":
+          description: "Direcciones obtenidas exitosamente"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id: 
+          type: number
+          description: "Identificador del usuario"
+        name: 
+          type: string
+          description: "Nombre del usuario"
+        email: 
+          type: string
+          description: "Correo electrónico del usuario"
+        nickname: 
+          type: string
+          description: "Apodo del usuario"
+        birth: 
+          type: Date
+          description: "Fecha de nacimiento del usuario"
+        dni: 
+          type: string
+          description: "Documento Nacional de Identidad del usuario"
+        password: 
+          type: string
+          description: "Contraseña del usuario"
+        must_change_password: 
+          type: boolean
+          description: "Indica si el usuario debe cambiar su contraseña en el próximo inicio de sesión"
+        rol: 
+          type: string
+          description: "Rol del usuario, puede ser 'user', 'premium' o 'admin'"
+        last_connection: 
+          type: Timestamp
+          description: "Fecha y hora del último inicio de sesión del usuario"
+        created_at: 
+          type: Timestamp
+          description: "Fecha de creación del usuario"
+        updated_at: 
+          type: Timestamp
+          description: "Fecha de actualización del usuario"
+      example:
+        id: 1
+        name: Juan Pérez
+        email: juan.perez@example.com
+        nickname: juanperez
+        birth: 1990-01-01
+        dni: 12345678
+        password: securedpassword
+        must_change_password: false
+        rol: user
+        last_connection: 2023-10-01T12:00:00Z
+        created_at: 2023-10-01T12:00:00Z
+        updated_at: 2023-10-01T12:00:00Z
+    Address:
+      type: object
+      properties:
+        id: 
+          type: number
+          description: "Identificador de la dirección"
+        user_id:  
+          type: number
+          description: "ID del usuario al que pertenece la dirección"
+        street: 
+          type: string
+          description: "Calle de la dirección"
+        city: 
+          type: string
+          description: "Ciudad de la dirección"
+        province:
+            type: string
+            description: "Provincia o estado de la dirección"
+        state: 
+          type: string
+          description: "Provincia o estado de la dirección"
+        postal_code: 
+          type: string
+          description: "Código postal de la dirección" 
+        is_default: 
+          type: boolean
+          description: "Indica si esta dirección es la dirección predeterminada del usuario" 
+        created_at: 
+          type: Timestamp
+          description: "Fecha de creación de la dirección"
+      example:
+        id: 1
+        user_id: 1
+        street: Calle Falsa 123
+        city: Ciudad Ejemplo
+        province: Provincia Ejemplo
+        state: Estado Ejemplo
+        postal_code: 12345
+        is_default: true
+        created_at: 2023-10-01T12:00:00Z
+    Stores:
+      type: object
+      properties:
+        id: 
+          type: number
+          description: "Identificador de la tienda"
+        user_id:  
+          type: number
+          description: "ID del usuario al que pertenece la tienda"
+        name: 
+          type: string
+          description: "Nombre de la tienda"
+        description: 
+          type: string
+          description: "Descripción de la tienda"
+        created_at: 
+          type: Timestamp
+          description: "Fecha de creación de la tienda"
+      example:
+        id: 1
+        user_id: 2
+        name: Tienda de Juan
+        description: La mejor tienda de tecnología
+        created_at: 2023-10-01T12:00:00Z              

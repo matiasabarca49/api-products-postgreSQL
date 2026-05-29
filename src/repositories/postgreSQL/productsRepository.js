@@ -354,7 +354,7 @@ class ProductsRepository{
     async findBySellerProduct(idSeller, id_product_Seller) {
         try{
             const result = await this.pool.query(
-                `SELECT  s.stock, s.price, s.status, s.id AS seller_product_id, s.seller_id,
+                `SELECT  s.stock, s.price, s.status AS seller_status, s.id AS seller_product_id, s.seller_id,
                  p.id AS product_id, p.title, p.code, p.description, p.thumbnail, p.status AS product_status,
                  c.slug AS category, c.path AS category_path,
                  st.name AS store_name

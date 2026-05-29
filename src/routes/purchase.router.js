@@ -15,9 +15,6 @@ const router = new Router()
  *      - Decrementar el stock de los productos comprados
  * @route   GET /api/purchases/checkout
  * @access  Private (users, pero deben estar logueados)
- * @query   {number} [page=1] - Número de página
- * @query   {number} [limit=10] - Cantidad de registros por página
- * @query   {string} [sort=id] - Campo por el cual ordenar
  * @middleware auth verificar que el usuario esté logueado antes de permitir el acceso a esta ruta.
  * @middleware authorizeRoles (Autorizacion)
  */

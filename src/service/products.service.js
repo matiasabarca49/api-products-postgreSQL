@@ -50,7 +50,7 @@ class ProductsService{
 
 
   /**
-   * Buscar un producto por ID de seller_product. La relacion entre productos y users es a través de seller_products, por lo que se debe buscar el producto a través de su ID en seller_products para luego retornar la información del producto formateada a DTO. Si no se encuentra el producto con el ID proporcionado, lanzar una excepción de tipo NotFoundException
+   * Buscar un producto por ID de seller. La relacion entre productos y users es a través de seller_products, por lo que se debe buscar el producto a través de su ID en seller_products para luego retornar la información del producto formateada a DTO. Si no se encuentra el producto con el ID proporcionado, lanzar una excepción de tipo NotFoundException
    * @param {number} id - ID del producto a buscar
    * @returns {Promise<Object>} Producto encontrado formateado a DTO
    * @throws {NotFoundException} Si no se encuentra el producto con el ID proporcionado
@@ -59,6 +59,18 @@ class ProductsService{
     const product = await this.repository.findByIdSeller(idProduct, idSeller);
     if(!product) throw new NotFoundException("Producto no encontrado");
     return this.toDTO(product)
+  }
+
+  /**
+   * Buscar por ID de seller_product. 
+   * @param {number} id - ID del producto a buscar
+   * @returns {Promise<Object>} Producto encontrado formateado a DTO O NULL SI NO SE ENCUENTRA (IMPORTANTE PARA VALIDACION DE AGREGAR AL CARRITO)
+   * @throws {NotFoundException} Si no se encuentra el producto con el ID proporcionado
+   */
+  async findBySellerProductId(idSeller, seller_product_id){
+    const product = await this.repository.findBySellerProduct(idSeller, seller_product_id);
+    if(!product) return null;
+    return this.toShortDTO(product)
   }
 
   /**
@@ -277,6 +289,10 @@ class ProductsService{
 
   toDTO(product) {
     return ProductDTO.toResponse(product);
+  }
+
+  toShortDTO(product) {
+    return ProductDTO.toShortResponse(product);
   }
 
   toManyDTO(products) {

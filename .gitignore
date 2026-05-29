@@ -11,10 +11,12 @@
 .env
 .env.production
 .env.development
+.env.test
 .env*
 /docker/.env
 /docker/.env.production
 /docker/.env.development
+/docker/.env.test
 
 #errores
 errors.log

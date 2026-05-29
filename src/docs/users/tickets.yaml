@@ -1,0 +1,43 @@
+paths:
+  /api/ticket:
+    get:
+      summary: "Obtener un ticket por su código"
+      description: "Permite al usuario obtener un ticket específico utilizando su código."
+      tags:
+        - "Tickets"
+      responses:
+        '200':
+          description: "Ticket obtenido existosamente."
+components:
+  schemas:
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: number
+          description: "ID del ticket"
+        code:
+          type: string
+          description: "Código único del ticket"
+        purchase_datetime:
+          type: number
+          description: "Fecha y hora en la que se realizó la compra"
+        total:
+          type: number
+          description: "Monto total de la compra"
+        amount:
+          type: number
+          description: "Cantidad total de productos comprados"
+        cart_id:
+          type: number
+          description: "ID del carrito asociado al ticket"
+        user_id:
+          type: number
+          description: "ID del usuario que realizó la compra"
+      example:
+        id: 1
+        code: "ABC123"
+        total: 100.00
+        amount: 5
+        cart_id: 1
+        user_id: 123

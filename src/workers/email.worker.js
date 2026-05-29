@@ -19,8 +19,11 @@ const worker = new Worker(
             },
             (error, info) => {
                 if (error) {
-                    logger.error(`[Worker] Error al enviar a ${info.envelope.to}: ${error.message}`);
+                    if(info){
+                        return logger.error(`[Worker] Error al enviar a ${info.envelope.to}: ${error.message}`);
+                    }
                 
+                    logger.error(`[Worker] Error en el transporter`)
                 } else {
                     logger.info(`[Worker] Correo enviado con éxito a ${info.envelope.to}`);
                 }

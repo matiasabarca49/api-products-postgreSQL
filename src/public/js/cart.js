@@ -3,16 +3,14 @@ const addToCart = async (product)=>{
     try{
         const resUser = await fetch(`http://localhost:8080/api/sessions/current`)
         user = await resUser.json()
+        if(!user.success){
+            window.location.href = "http://localhost:8080/users/login"
+            return;
+        }
         //Los usuarios no pueden agregar sus propios productos
-        if(user.data.email === product.owner || user.data.rol === "Admin"){
-            const modal = document.getElementById("modalWarningRolUser")
-            if(user.data.email === product.owner){
-                modal.innerText = "Los Usuarios Premium no pueden agregar sus propios productos"
-            }
-            else{
-                modal.innerText = "Los Administradores no pueden comprar productos"
-
-            }
+        const modal = document.getElementById("modalWarningRolUser")
+        if(user.data.rol === "admin"){
+            modal.innerText = "Los Administradores no pueden comprar productos"
             modal.style.display = "block"
             setTimeout(()=>{
                 modal.style.display = "none"
@@ -25,8 +23,26 @@ const addToCart = async (product)=>{
                 },
                 body: JSON.stringify({seller_product_id: product.seller_product_id})
             })
-            const data = resToProductSended.json()
-            totalProducts()
+            const data = await resToProductSended.json()
+            if(!data.success){
+                if(data.error.statusCode === 403){
+                    modal.innerText = "No puedes agregar tu propio producto al carrito"
+                }else{
+                    modal.innerText = "Error al agregar el producto al carrito"
+                }
+                modal.style.display = "block"
+                setTimeout(()=>{
+                    modal.style.display = "none"
+                },7000)
+            }else{
+                modal.innerText = "Producto agregado al carrito"
+                modal.classList.replace("bg-danger", "bg-success")
+                modal.style.display = "block"
+                setTimeout(()=>{
+                    modal.style.display = "none"
+                },1000)
+                totalProducts()
+            }
         }
 
     }

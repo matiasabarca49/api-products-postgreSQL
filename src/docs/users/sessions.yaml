@@ -1,0 +1,49 @@
+paths:
+  /api/sessions/register:
+    post:
+      tags:
+        - Sessions
+      summary: Registrar un nuevo usuario
+      responses:
+        '302':
+          description: Usuario redirigido a la página de login
+  /api/sessions/login:
+    post:
+      tags:
+        - Sessions
+      summary: Login de un usuario
+      responses:
+        '302':
+          description: Usuario redirigido a la home de la tienda si el rol es "user" o a la página de administración si el rol es "admin"
+  /api/sessions/logout:
+    post:
+      tags:
+        - Sessions
+      summary: Logout de un usuario
+      responses:
+        '302':
+          description: Usuario redirigido a la página de login
+  /api/sessions/current:
+    get:
+      tags:
+        - Sessions
+      summary: Obtener información del usuario actualmente autenticado
+      responses:
+        '200':
+          description: Información del usuario autenticado
+  /api/sessions/recoverpass:
+    post:
+      tags:
+        - Sessions
+      summary: Recuperar contraseña de un usuario
+      responses:
+        '200':
+          description: Correo de recuperación enviado al usuario
+  /api/sessions/changepassword:
+    post:
+      tags:
+        - Sessions
+      summary: Cambiar contraseña de un usuario
+      responses:
+        '200':
+          description: Contraseña cambiada exitosamente

@@ -24,7 +24,14 @@ async function connectRedis() {
     }
 }
 
+async function disconnectRedis() {
+    if (redisClient.isOpen) {
+      await redisClient.quit();
+    }
+}
+
 module.exports = {
   redisClient,
   connectRedis,
+  disconnectRedis
 };

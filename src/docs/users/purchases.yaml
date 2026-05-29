@@ -1,0 +1,37 @@
+paths:
+  /api/purchases/checkout:
+    get:
+      summary: "Realizar la compra del carrito del usuario"
+      description: "Permite al usuario realizar la compra de los productos que tiene en su carrito."
+      tags:
+        - "Purchases"
+      responses:
+        '200':
+          description: "Compra realizada existosamente."
+  /api/purchases/me:
+    get:
+      summary: "Obtener el historial de compras del usuario"
+      description: "Permite al usuario obtener una lista de todas las compras que ha realizado."
+      tags:
+        - "Purchases"
+      responses:
+        '200':
+          description: "Historial de compras obtenido existosamente."
+components:
+  schemas:
+    Purchase:
+      type: object
+      properties:
+        id:
+          type: number
+          description: "ID de la compra"
+        user_id:
+          type: number
+          description: "ID del usuario que realizó la compra"
+        date_cart:
+          type: Timestamp
+          description: "Fecha en la que se realizó la compra"
+      example:
+        id: 1
+        user_id: 123
+        date_cart: "25/07/2022"

@@ -29,6 +29,21 @@ class ProductDTO {
         }
     }
 
+    static toShortResponse(product){
+        return {
+            product_id: product.product_id || product.id,
+            seller_id: product.seller_id,
+            product_status: product.product_status,
+            seller_status: product.seller_status,
+            title: product.title,
+            code: product.code,
+            price: product.price,
+            stock: product.stock,
+            thumbnail: product.thumbnail,
+            category: product.category,
+        }
+    }
+
 }
 
 

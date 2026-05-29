@@ -1,0 +1,80 @@
+paths:
+  /api/cartItems:
+    get:
+      summary: "Devuelve el carrito actual del usuario."
+      tags:
+        - CartItems
+      responses:
+        "200":
+          description: "Carrito obtenido exitosamente"
+  /api/cartItems/add:
+    post:
+      summary: "Agrega un producto al carrito del usuario."
+      tags:
+        - CartItems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seller_product_id:
+                  type: number
+                  description: "ID del producto a agregar al carrito"
+                quantity:
+                  type: number
+                  description: "Cantidad del producto a agregar"
+      responses:
+        "200":
+          description: "Producto agregado al carrito exitosamente"
+  /api/cartItems/cant:
+    get:
+      summary: "Devuelve la cantidad total de productos en el carrito del usuario."
+      tags:
+        - CartItems
+      responses:
+        "200":
+          description: "Cantidad total de productos en el carrito obtenida exitosamente"
+  /api/cartItems/remove/:seller_product_id:
+    post:
+      summary: "Elimina un producto del carrito del usuario."
+      tags:
+        - CartItems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                seller_product_id:
+                  type: number
+                  description: "ID del producto a eliminar del carrito"
+      responses:
+        "200":
+          description: "Producto eliminado del carrito exitosamente"
+components:
+  schemas:
+    Cart_item:
+      type: object
+      description: "Representa un producto agregado al carrito de un usuario. Carrito actual del usuario o en tiempo real."
+      properties:
+        id: 
+          type: number
+          description: "ID del producto en el carrito"
+        user_id: 
+          type: number
+          description: "ID del usuario dueño del carrito"
+        seller_product_id: 
+          type: number
+          description: "ID del producto del vendedor"
+        created_at: 
+          type: Timestamp
+          description: "Fecha en la que se creo el carrito"
+      example:
+        id: 1
+        user_id: 1
+        seller_product_id: 1
+        created_at: "25/07/2022"
+    

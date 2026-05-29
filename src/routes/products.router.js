@@ -31,7 +31,7 @@ const router = new Router()
 router.get("/", getProducts)
 
 /**
- * @route GET /api/products/:id 
+ * @route GET /api/products/:product_id/:seller_id 
  * @description Obtener un producto por ID de seller_product. La relacion entre productos y users 
  * es a través de seller_products.
  * @access Public
@@ -109,7 +109,7 @@ router.put("/:id", auth, authorizeRoles("admin"), validateUpdateProduct, update)
 
 /**
  * @route PUT /api/products/:product_id/seller/:seller_id
- * @description Actualizar el status, stock y precio del producto del usuario premium
+ * @description Actualizar el status, stock y precio del producto
  * @access Private (Premium y Admin)
  * @params {string} product_id - ID del producto a actualizar
  * @params {string} seller_id -  ID del vendedor que vende el producto

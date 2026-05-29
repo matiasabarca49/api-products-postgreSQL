@@ -64,7 +64,7 @@ router.put("/upgrade", auth, authorizeRoles("user"), validateUpgradeUserToPremiu
 
 
 /**
- * @route PUT /api/users
+ * @route PUT /api/users/:uid
  * @description Actualizar un usuario
  * @access Private (Todos los usuarios)
  * @parama uid ID de usuario a actualizar

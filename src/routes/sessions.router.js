@@ -40,7 +40,7 @@ router.post("/register", passport.authenticate('register',{failureRedirect: "/us
 controller.registerUser) 
 
 /**
- * @route POST /api/sessions/register
+ * @route POST /api/sessions/login
  * @description Login un usuario
  * @access Public 
  */
