@@ -352,7 +352,7 @@
         btn.textContent = 'Creando tu tienda...';
 
         try {
-            const res = await fetch('http://localhost:8080/api/users/upgrade', {
+            const res = await fetch(`${window.APP_CONFIG.API_URL}/api/users/upgrade`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, description })

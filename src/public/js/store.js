@@ -20,7 +20,7 @@ const renderProducts = (array)=>{
                             </div>
                             <div class="card-footer"> 
                                 <span class="card-price">$ ${bestSeller.price}</span>
-                                <a class="btn-success" href="http://localhost:8080/productview?i=${product.id}&s=${bestSeller.seller_id}">Ver Más</a>
+                                <a class="btn-success" href="${window.APP_CONFIG.URL_FRONTEND}/productview?i=${product.id}&s=${bestSeller.seller_id}">Ver Más</a>
                             </div>  
                     `
         contProducts.appendChild(div)
@@ -36,7 +36,7 @@ const renderBotonPage = (data) => {
 //Funcion que nos pemite renderizar los elementos con paginate
 const fetchProducts = (page)=>{
     //Obtenemos los productos de la pagina pasada por parametro
-    fetch(`http://localhost:8080/api/products?page=${page}`)
+    fetch(`${window.APP_CONFIG.API_URL}/api/products?page=${page}`)
     .then( response => response.json())
     .then( data => {
         products = data.data
@@ -47,7 +47,7 @@ const fetchProducts = (page)=>{
 }
 const fetchProductsOpts = (opt, value)=>{
     //Obtenemos los productos de la pagina pasada por parametro
-    fetch(`http://localhost:8080/api/products?${opt}=${value}`)
+    fetch(`${window.APP_CONFIG.API_URL}/api/products?${opt}=${value}`)
     .then( response => response.json())
     .then( data => {
         products = data.data

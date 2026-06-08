@@ -62,7 +62,7 @@ const render = (cart)=>{
 
 const deleteProduct = async (seller_product_id) =>{
     console.log("Se intenta eliminar producto id: ", seller_product_id)
-    const res =  await fetch(`http://localhost:8080/api/cartItems/remove/${seller_product_id}`, {
+    const res =  await fetch(`${window.APP_CONFIG.API_URL}/api/cartItems/remove/${seller_product_id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
@@ -75,23 +75,23 @@ const deleteProduct = async (seller_product_id) =>{
 //Funcion que se ejecuta al hacer click al boton pagar
 const finishPurchase = async ()=>{
     //Corroborramos la sesion
-    let req = await fetch(`http://localhost:8080/api/sessions/current`);
+    let req = await fetch(`${window.APP_CONFIG.API_URL}/api/sessions/current`);
     const user = await req.json();
 
     //Generamos la Compra
-    req = await fetch(`http://localhost:8080/api/purchases/checkout`);
+    req = await fetch(`${window.APP_CONFIG.API_URL}/api/purchases/checkout`);
     const ticket = await req.json();
 
     if(!ticket.success){
         alert("Error al procesar la compra, intente de nuevo");
     }else{
-        window.location.href= `http://localhost:8080/ticket?code=${ticket.data.code}`
+        window.location.href= `${window.APP_CONFIG.URL_FRONTEND}/ticket?code=${ticket.data.code}`
     }
         
 }
 
 const getCart = ()=>{
-    fetch('http://localhost:8080/api/cartItems')
+    fetch(`${window.APP_CONFIG.API_URL}/api/cartItems`)
     .then( res => res.json())
     .then( cart => {
         if(cart.success){

@@ -1,5 +1,5 @@
 const getCart = (idCart) =>{
-    fetch(`http://localhost:8080/api/carts/${idCart}`)
+    fetch(`${window.APP_CONFIG.API_URL}/api/carts/${idCart}`)
     .then(response => response.json())
     .then( data =>{
         renderProducts(data.cart.products)
@@ -8,7 +8,7 @@ const getCart = (idCart) =>{
 }
 
 const getUserCart = (idCart)=>{
-    fetch(`http://localhost:8080/api/ticket/filter?idCart=${idCart}`)
+    fetch(`${window.APP_CONFIG.API_URL}/api/ticket/filter?idCart=${idCart}`)
     .then(response => response.json())
     .then( data =>{
         getUser(data.ticket)
@@ -17,7 +17,7 @@ const getUserCart = (idCart)=>{
 }
 
 const getUser = (ticket) =>{
-    fetch(`http://localhost:8080/api/users/filter?email=${ticket.purchaser}`)
+    fetch(`${window.APP_CONFIG.API_URL}/api/users/filter?email=${ticket.purchaser}`)
     .then(response => response.json())
     .then( data =>{
         console.log(data)

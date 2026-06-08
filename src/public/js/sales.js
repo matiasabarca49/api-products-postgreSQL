@@ -24,7 +24,7 @@ const Sales = (() => {
     async function fetchSales(page = 1) {
         showLoading();
         try {
-            const res = await fetch('/api/sales/?page=' + page + '&limit=' + LIMIT);
+            const res = await fetch(`${window.APP_CONFIG.API_URL}/api/sales/?page=` + page + '&limit=' + LIMIT);
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const json = await res.json();
             if (!json.success) throw new Error('La API devolvio success: false');
@@ -141,7 +141,7 @@ const Sales = (() => {
     async function changeStatus(saleIds, newStatus, selectEl) {
         selectEl.disabled = true;
         try {
-            var res = await fetch('/api/sales/states', {
+            var res = await fetch(`${window.APP_CONFIG.API_URL}/api/sales/states`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ids: saleIds, status: newStatus })

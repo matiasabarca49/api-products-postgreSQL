@@ -1,134 +1,331 @@
-# Repositorio de Store API – Gestión de Productos y Carritos
+# Store API – Marketplace Multi-Vendedor
 
-Este proyecto parte del desarrollo de un proyecto anterior:  
-https://github.com/matiasabarca49/Back-end_API-Products  
+Backend de un marketplace online desarrollado con Node.js, Express y PostgreSQL.
 
-Es un sistema web para la gestión de un marketplace online. Incluye registro y autenticación de usuarios, administración de productos y ventas, creación de tiendas para vendedores premium y historial de compras con comentarios y calificaciones.  
+El sistema permite gestionar:
 
-La aplicación utiliza PostgreSQL como base de datos y está desarrollada con renderizado del lado del servidor (SSR). Para el front-end se emplea Handlebars, ofreciendo vistas dinámicas como:
+* autenticación y autorización de usuarios,
+* tiendas de vendedores premium,
+* catálogo global de productos,
+* inventario independiente por vendedor,
+* carrito de compras,
+* historial de compras,
+* comentarios y calificaciones,
+* y procesamiento de ventas.
 
-- Administración de productos por vendedor
-- Tienda online con carrito de compras
-- Login y registro de usuarios
-- Creación y administración de tiendas
-- Panel de administración de productos y usuarios
+La aplicación utiliza renderizado del lado del servidor (SSR) mediante Handlebars y sigue una arquitectura multicapa basada en una variante extendida del patrón MVC.
 
-## Tecnologías y conceptos utilizados  
+---
 
-- **Node.js** y **Express.js**  
-- **PostgreSQL** y **pg**  
-- **Handlebars** para SSR   
-- **Autenticación** con `passport-local` y `passport-github`  
-- **Patrón de arquitectura MVC**  
-- **Loggers personalizados**  
-- **Documentación con Swagger**   
+# Características principales
+
+## Marketplace multi-vendedor
+
+El sistema separa:
+
+* catálogo global de productos (`products`)
+* inventario/publicaciones por vendedor (`seller_products`)
+
+Esto permite que múltiples vendedores publiquen el mismo producto con:
+
+* diferente precio,
+* stock,
+* promociones,
+* y disponibilidad.
+
+---
+
+## Categorías jerárquicas
+
+Las categorías implementan una estructura jerárquica utilizando:
+
+* `parent_id`
+* `slug`
+* `path`
+
+Esto permite:
+
+* navegación jerárquica,
+* búsquedas eficientes,
+* URLs amigables,
+* y filtrado de productos por árbol de categorías.
+
+---
+
+## Persistencia de sesiones
+
+Con el fin de que el sistema sea stateless las sesiones se almacenan utilizando Redis para mejorar:
+
+* rendimiento,
+* persistencia,
+* y escalabilidad del sistema.
+
+Sin embargo en el modelo se incluye un tabla sesiones por si se quiere persistir en postgreSQL
+
+---
+
+## Sistema de colas
+
+El envío de correos electrónicos se procesa mediante colas de mensajes para desacoplar tareas pesadas del flujo principal de la aplicación.
+
+---
+
+## Snapshot de compras
+
+Las compras almacenan información histórica de:
+
+* productos,
+* precios,
+* cantidades,
+* y totales
+
+al momento de realizar la transacción, preservando integridad histórica incluso si el producto cambia posteriormente.
+
+---
+
+## Integridad relacional
+
+La base de datos implementa:
+
+* Foreign Keys
+* CHECK constraints
+* UNIQUE constraints
+* índices
+* triggers automáticos para `updated_at`
+
+para garantizar consistencia e integridad de datos.
+
+---
+
+# Arquitectura
+
+La aplicación utiliza una arquitectura multicapa basada en una extensión del patrón MVC.
+
+## Capas principales
+
+### Validations
+
+Validación de datos de entrada.
+
+### Controllers
+
+Manejo de requests y responses HTTP.
+
+### DTOs
+
+Los DTOs se utilizan para validar, normalizar y transformar los datos antes de que ingresen a la lógica de negocio, así como también para controlar la información expuesta entre capas.
+
+#### Tipos de DTO utilizados
+
+#### DTOs de entrada
+
+Utilizados en la capa HTTP (`request -> controller`) para:
+
+* validar estructura de datos,
+* normalizar tipos,
+* filtrar atributos no permitidos,
+* y evitar exponer directamente `req.body`.
+
+#### DTOs de servicio
+
+Utilizados para desacoplar la comunicación entre:
+
+* `controller -> service`
+* `service -> repository`
+
+Esto permite mantener contratos de datos claros entre capas y reducir acoplamiento interno.
+
+#### DTOs de salida
+
+Utilizados para controlar la información retornada al cliente (`service -> controller -> response`), evitando exponer datos sensibles o innecesarios.
 
 
-## Estilos
+### Services
 
-- **Bootstrap**
-- **CSS personalizado**
+Implementación de lógica de negocio.
 
-> ⚠️ **Importante:** El servidor no podrá iniciarse sin las variables de entorno requeridas. Asegúrese de definirlas correctamente en un archivo `.env`.
+### Repositories
 
-## Instalación y puesta en marcha
-###### Requisitos para la instalación:
+Acceso desacoplado a PostgreSQL.
 
-- **Node.js** Entorno de ejecucion.
-- **NPM** Para instalar las librerías necesarias
-- **Terminal Linux/cmd Windows** Para su instalación
+Esta separación permite:
 
-Node.js se puede descargar de su página oficial -> https://nodejs.org/en
-El paquete de instalación de Node.js tambien instala la herramienta **npm**
+* reducir acoplamiento,
+* mejorar mantenibilidad,
+* facilitar testing,
+* y escalar funcionalidades del sistema.
 
-En linux se puede instalar mediante la ejecución del comando:
+---
+
+# Tecnologías utilizadas
+
+## Backend
+
+* Node.js
+* Express.js
+* PostgreSQL
+* Redis
+
+## Frontend SSR
+
+* Handlebars
+* Bootstrap
+* CSS
+
+## Autenticación
+
+* passport-local
+* passport-github
+
+## Infraestructura y herramientas
+
+* Swagger / OpenAPI
+* Colas de mensajes
+* Loggers personalizados
+
+---
+
+# Funcionalidades
+
+* Registro y autenticación de usuarios
+* Login local y con GitHub
+* Gestión de productos
+* Gestión de tiendas
+* Carrito de compras
+* Historial de compras
+* Sistema de comentarios y calificaciones
+* Panel administrativo
+* Gestión de promociones
+* Documentación Swagger
+
+---
+
+## Estructura del proyecto
 
 ```
-sudo apt install nodejs
+src/
+├── config/         # Configuración general del sistema
+├── controllers/    # Manejo de requests y responses HTTP
+├── docs/           # Documentación endpoints swagger
+├── dto/            # Transferencia y normalización de datos
+├── exceptions/     # Excepciones personalizadas
+├── middlewares/    # Middlewares de Express
+├── model/          # Definiciones relacionadas a persistencia
+├── public/         # Recursos estáticos
+├── queue/          # Gestión de colas y procesamiento asíncrono
+├── repositories/   # Acceso a datos
+├── routes/         # Definición de rutas
+├── services/       # Lógica de negocio
+├── validations/    # Validaciones de entrada
+├── views/          # Vistas SSR con Handlebars
+├── workers/        # Procesamiento de tareas en segundo plano
+├── app.js
+└── server.js
 ```
 
-Para descargar la ultima version de npm, en una terminal podemos ejecutar:
+---
+
+# Variables de entorno
+
+## Obligatorias
 
 ```
-npm install -g npm
-npm install -g npm@latest
-```
-NOTA: Es posible que se requiera permisos de administrador para ejecutar los comandos anteriores
-
-## Descarga o clonación del repositorio
-
-Se puede descargar desde el propio Github en el apartado -> code-> Donwload ZIP o mediante el comando de clonación en una terminal:
-
-```
-https://github.com/matiasabarca49/api-products-postgreSQL.git
+SECRET_SESSIONS=
+PG_HOST=
+PG_PORT=
+PG_DATABASE=
+PG_USER=
+PG_PASSWORD=
 ```
 
-## Instalación
+## Opcionales
 
-Para instalar las librerias necesarias, ingresamos al directorio una vez realizada la descompresión del ZIP y ejecutamos el siguiente comando:
+```
+GMAIL_CREDENTIAL_USER=
+GMAIL_CREDENTIAL_TOKEN=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+```
+
+**NOTA:** Se desactivará el envio de emails e autenticación de teceros si no se declaran las variables
+
+Para cambiar la URL de la API y el FRONT debe colocar las siguientes variables:  
+
+```
+API_URL=
+URL_FRONTEND=
+PORT=
+```
+**NOTA:** En caso de no asignar las variables. Se utilizará por defecto:
+
+```
+API_URL=http://localhost:8080
+URL_FRONTEND=http://localhost:8080
+PORT=8080
+```
+---
+
+# Instalación
+
+## Requisitos
+
+* Node.js
+* npm
+* PostgreSQL
+* Redis
+
+## Clonar repositorio
+
+```
+git clone https://github.com/matiasabarca49/api-products-postgreSQL.git
+```
+
+## Instalar dependencias
+
 ```
 npm install
 ```
-Es necesario tener instalado nodemon para poder ejecutar la aplicación. Esta herramienta nos permite reiniciar la aplicacion cada vez que se guardan los cambios. Para instalar:
 
-```
-npm install nodemon
-```
-Debemos crear la db en postgreSQL. El nombre de la DB debe coincidir con el nombre colocado en la variable de entorno.  
+## Crear base de datos
 
-Una vez creada, creamos las tablas:
+Ejecutar el script SQL:
 
 ```
 psql -U <PG_USER> -d <PG_DATABASE> -f ./src/model/pg/schemas.sql
 ```
 
-Ya instaladas todas las libreriasa necesarias, como tambien la DB, ejecutamos la aplicacion con el siguiente comando:
+## Ejecutar aplicación
 
 ```
 npm start
 ```
 
-Con "npm start" el servidor iniciará en modo desarrollo y el puerto utilizado será el "8080". Las opciones que pude establecer son:
+Modo desarrollo:
 
-- **--mode** --mode production o --mode development
-- **-p** numero de puerto. Por defecto "8080"  
-Ej: 
+```
+npm run dev
+```
 
-=> nodemon ./src/server.js -p 9090  
-=> node ./src/server.js -p 9090  
-=> node ./src/server.js -p 9090 --mode development
+---
 
-NOTA: Es necesario crear un archivo ".env" con variables de entornos obligatorias
+# Acceso
 
-## Variables de Entorno
+## Aplicación
 
-### Obligatorias
+```
+http://localhost:8080
+```
 
-- **SECRET_SESSIONS** Secreto para almacenar sesiones en la DB
-- **PG_HOST** Host de postgreSQL.
-- **PG_PORT** Puerto de postgreSQL.
-- **PG_DATABASE** Nombre de la db.  
+## Swagger
 
-Credenciales de acceso a la DB:  
+```
+http://localhost:8080/apidocs
+```
 
-- **PG_USER** 
-- **PG_PASSWORD** 
+---
 
-### Opcionales
+# Próximas mejoras
 
-- **PORT** Cambiar el puerto del servidor.  
-- **GMAIL_CREDENTIAL_USER** Usuario que permite enviar emails  
-- **GMAIL_CREDENTIAL_TOKEN** Token para enviar emails  
-- **GITHUB_CLIENT_ID** ID Github Autenticación Terceros  
-- **GITHUB_CLIENT_SECRET** Secreto Github
-
-## Acceso
-
-El acceso se realiza mediante el navegador. 
-
- - En local a través de la dirección -> http://localhost:8080
- - En dispositivos de la red -> http://IP_Server:8080
-
-La API ofrece un mocks de productos en => http://IP_Server:8080/mockingproducts  
-
-La documentacion se encuentran en => http://IP_Server:8080/apidocs
+* Manejo de Direcciones y Promociones
+* CI/CD
+* Observabilidad y métricas

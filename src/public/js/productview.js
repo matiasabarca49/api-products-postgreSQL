@@ -40,7 +40,7 @@ const render = (product) =>{
                             <div style="color:rgba(255,255,255,0.6); font-size:0.82rem;">$${s.price.toLocaleString()}</div>
                         </div>
                     </div>
-                    <a href="http://localhost:8080/productview?i=${product.id}&s=${s.id}" style="background:linear-gradient(45deg,#2a5298,#1e3c72); color:white; padding:0.4rem 1rem; border-radius:20px; font-size:0.85rem; font-weight:600; text-decoration:none; transition:all 0.3s ease; box-shadow:0 2px 8px rgba(42,82,152,0.3);">
+                    <a href="${window.APP_CONFIG.URL_FRONTEND}/productview?i=${product.id}&s=${s.id}" style="background:linear-gradient(45deg,#2a5298,#1e3c72); color:white; padding:0.4rem 1rem; border-radius:20px; font-size:0.85rem; font-weight:600; text-decoration:none; transition:all 0.3s ease; box-shadow:0 2px 8px rgba(42,82,152,0.3);">
                         Ver producto
                     </a>
                 </div>
@@ -95,7 +95,7 @@ const params = new URLSearchParams(url)
 const i = params.get("i");
 const s = params.get("s");
 
-fetch(`http://localhost:8080/api/products/${i}/${s}`)
+fetch(`${window.APP_CONFIG.API_URL}/api/products/${i}/${s}`)
     .then( response => response.json())
     .then( data =>{
         render(data.data)

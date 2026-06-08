@@ -1,10 +1,10 @@
 const addToCart = async (product)=>{
     let user;
     try{
-        const resUser = await fetch(`http://localhost:8080/api/sessions/current`)
+        const resUser = await fetch(`${window.APP_CONFIG.API_URL}/api/sessions/current`)
         user = await resUser.json()
         if(!user.success){
-            window.location.href = "http://localhost:8080/users/login"
+            window.location.href = `${window.APP_CONFIG.API_URL}/users/login`
             return;
         }
         //Los usuarios no pueden agregar sus propios productos
@@ -16,7 +16,7 @@ const addToCart = async (product)=>{
                 modal.style.display = "none"
             },7000)
         }else{
-            const resToProductSended = await fetch(`http://localhost:8080/api/cartItems/add`,{
+            const resToProductSended = await fetch(`${window.APP_CONFIG.API_URL}/api/cartItems/add`,{
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -48,7 +48,7 @@ const addToCart = async (product)=>{
     }
     catch(error){
         if(!user){
-            window.location.href = "http://localhost:8080/users/login"
+            window.location.href = `${window.APP_CONFIG.URL_FRONTED}/users/login`
         }
         else{
             console.log("Error al Agregar el producto al carrito")
@@ -59,7 +59,7 @@ const addToCart = async (product)=>{
 const totalProducts = async ()=>{
     let cant
     try{
-        const resUser = await fetch(`http://localhost:8080/api/cartItems/cant`)
+        const resUser = await fetch(`${window.APP_CONFIG.API_URL}/api/cartItems/cant`)
         const cart = await resUser.json()
         if(cart.success){
             cant = cart.data;

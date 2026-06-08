@@ -16,6 +16,7 @@ redisClient.on('connect', () => {
 
 redisClient.on('error', (err) => {
   logger.error(`🔴 Error al conectar a Redis: ${err.message}`);
+  process.exit(1); // Salir del proceso si no se puede conectar a Redis
 });
 
 async function connectRedis() {

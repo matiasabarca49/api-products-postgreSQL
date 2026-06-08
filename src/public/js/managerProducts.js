@@ -43,7 +43,7 @@ const renderProducts = async (array) => {
                             </div>
                             <div class="card-footer"> 
                                 <span class="card-price">$ ${product.price}</span>
-                                <a class="btn btn-light" href="http://localhost:8080/productview?i=${product.product_id}&s=${product.seller_id}">Ver en Tienda</a>
+                                <a class="btn btn-light" href="${window.APP_CONFIG.URL_FRONTEND}/productview?i=${product.product_id}&s=${product.seller_id}">Ver en Tienda</a>
                             </div>  
                     `
         contProducts.appendChild(div)
@@ -71,7 +71,7 @@ const renderBotonPage = (data) => {
 //Funcion que nos pemite renderizar los elementos con paginate
 const fetchProducts = (page)=>{
     //Obtenemos los productos de la pagina pasada por parametro
-    fetch(`http://localhost:8080/api/products/admin?page=${page}`)
+    fetch(`${window.APP_CONFIG.API_URL}/api/products/admin?page=${page}`)
     .then( response => response.json())
     .then( data => {
         products = data.data
@@ -82,7 +82,7 @@ const fetchProducts = (page)=>{
 }
 const fetchProductsOpts = (page,limit, sort, query)=>{
     //Obtenemos los productos de la pagina pasada por parametro
-    fetch(`http://localhost:8080/api/products/admin?page=${page}&&limit=${limit}&&sort=${sort}&&category=${query}`)
+    fetch(`${window.APP_CONFIG.API_URL}/api/products/admin?page=${page}&&limit=${limit}&&sort=${sort}&&category=${query}`)
     .then( response => response.json())
     .then( data => {
         products = data.data
@@ -95,7 +95,7 @@ const fetchProductsOpts = (page,limit, sort, query)=>{
 //Funcion que nos pemite renderizar los elementos con paginate
 const fetchProductsSearch = (search)=>{
     //Obtenemos los productos de la pagina pasada por parametro
-    fetch(`http://localhost:8080/api/products/admin?title=${search}`)
+    fetch(`${window.APP_CONFIG.API_URL}/api/products/admin?title=${search}`)
     .then( response => response.json())
     .then( data => {
         products = data.data
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function getProductById(product) {
     //obtener los datos del producto
-    const res = await fetch(`http://localhost:8080/api/products/${product.product_id}/${product.seller_id}`)
+    const res = await fetch(`${window.APP_CONFIG.API_URL}/api/products/${product.product_id}/${product.seller_id}`)
     const data = await res.json();
     return data.data
 }
@@ -310,7 +310,7 @@ async function getProductById(product) {
 // Función para actualizar el estado del producto
 async function updateSellerProduct(product, updatedProduct) {
     
-    const res =  await  fetch(`http://localhost:8080/api/products/${product.product_id}/seller/${product.seller_id}`,{
+    const res =  await  fetch(`${window.APP_CONFIG.API_URL}/api/products/${product.product_id}/seller/${product.seller_id}`,{
         method: "PUT",
         credentials : "include", // to send HTTP only cookies
         headers: {
@@ -326,7 +326,7 @@ async function updateSellerProduct(product, updatedProduct) {
 // Función para actualizar el producto
 async function updateProduct(id, updatedProduct) {
     
-    const res =  await  fetch(`http://localhost:8080/api/products/${id}`,{
+    const res =  await  fetch(`${window.APP_CONFIG.API_URL}/api/products/${id}`,{
         method: "PUT",
         credentials : "include", // to send HTTP only cookies
         headers: {
@@ -343,7 +343,7 @@ async function updateProduct(id, updatedProduct) {
 // Función para actualizar el producto)
 async function addProductFetch(product) {
     
-    const res =  await  fetch(`http://localhost:8080/api/products/`,{
+    const res =  await  fetch(`${window.APP_CONFIG.API_URL}/api/products/`,{
         method: "POST",
         credentials : "include", // to send HTTP only cookies
         headers: {
@@ -360,7 +360,7 @@ async function addProductFetch(product) {
 
 function deleteProduct(seller_product_id) {
     if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-        fetch(`http://localhost:8080/api/products/${seller_product_id}`,{  
+        fetch(`${window.APP_CONFIG.API_URL}/api/products/${seller_product_id}`,{  
                 method : "DELETE",
                 credentials : "include", // to send HTTP only cookies
                 headers: {
@@ -377,7 +377,7 @@ function deleteProduct(seller_product_id) {
 
 //Obtener usuario logeado para mostrar su nombre en el header
 const getUser = async() =>{
-    const req = await fetch(`http://localhost:8080/api/sessions/current`);
+    const req = await fetch(`${window.APP_CONFIG.API_URL}/api/sessions/current`);
     const data = await req.json();
     return data.data;
 }

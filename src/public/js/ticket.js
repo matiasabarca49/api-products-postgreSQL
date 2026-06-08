@@ -53,7 +53,7 @@ const url = window.location.search
 const params = new URLSearchParams(url)
 //Mediante el metodo "get" obtenemos el id para utilizarlo en el fetch
 const code = params.get("code")
-fetch(`http://localhost:8080/api/tickets?code=${code}`)
+fetch(`${window.APP_CONFIG.API_URL}/api/tickets?code=${code}`)
     .then( res => res.json())
     .then( ticket => {
         renderProducts(ticket.data, ticket.data.products, ticket.data.purchaser)

@@ -57,7 +57,7 @@ const winstonLoggers = require('./middlewares/logger.middleware.js')
 app.use(winstonLoggers)
 //CORS
 app.use(cors({
-  origin:   process.env.ORIGIN ||'http://localhost:8080',
+  origin:   process.env.URL_FRONTEND ||'http://localhost:8080',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
 }))
@@ -65,6 +65,10 @@ app.set('trust proxy', 1);
 //rate-limit
 const { rateLimitHandler } = require("./middlewares/rateLimiter.middleware.js")
 app.use(rateLimitHandler)
+
+//Inyeccion de variables de entorno para el frontend
+const envFrontHandler = require('./middlewares/envFrontend.middleware.js')
+app.use(envFrontHandler)
 
 /** 
 * Handlebars

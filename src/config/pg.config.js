@@ -13,7 +13,7 @@ const pool = new Pool({
 pool.connect((err, client, release) => {
     if (err) {
         logger.error('Error conectando a PostgreSQL:', err.message)
-        return
+        process.exit(1) // Salir del proceso si no se puede conectar a PostgreSQL
     }
     logger.info('✅ PostgreSQL conectado')
     release() // devuelve la conexión al pool

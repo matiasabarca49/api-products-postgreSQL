@@ -1,5 +1,5 @@
 // Base URL - Ajustar según tu configuración
-const API_URL = 'http://localhost:8080/api/users';
+const API_URL = `${window.APP_CONFIG.API_URL}/api/users`;
 
 let users = [];
 let currentFilters = {

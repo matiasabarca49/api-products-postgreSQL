@@ -2,7 +2,7 @@
 <header>
     <nav class="navbar">
         <div class="nav-brand">
-          <a class="brand-link" href="http://localhost:8080/">Tienda</a>
+          <a class="brand-link" href="/">Tienda</a>
         </div>
         <div class="nav-actions">
             <div class="user-name">{{userLoged.user}}</div>
@@ -37,7 +37,7 @@
             {{/ifCond}}
         </div>
         <div class="cart-container">
-            <a href="http://localhost:8080/pay" class="cart-btn">
+            <a href="/pay" class="cart-btn">
                 <img class="cart-icon" src="../img/cart.png" />
                 <span class="cart-badge" id="totalCountNav">
                     
@@ -49,7 +49,7 @@
 <div></div>
 <main class="container-fluid mt-5 position-relative">
     <div class="p-4 bg-danger w-50 position-absolute top-0 start-50 translate-middle rounded shadow" style="display: none; z-index: 999;"id="modalWarningRolUser">  </div>
-    <a class="back-button" href="http://localhost:8080/"> Regresar </a>
+    <a class="back-button" href="/"> Regresar </a>
     <div class="row px-5">
         <div  class="col-6 position-relative" id="thumbnail">
             <h4 class="position-absolute text-body-tertiary mt-3 ms-3 p-2 bg-opacity-25 bg-body-tertiary rounded-5 shadow-lg" id="category"></h4>

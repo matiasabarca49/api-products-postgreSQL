@@ -139,7 +139,7 @@ const initCommentModal = () => {
         btn.textContent = 'Enviando...';
 
         try {
-            const res = await fetch('/api/products/comment', {
+            const res = await fetch(`${window.APP_CONFIG.API_URL}/api/products/comment`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -201,7 +201,7 @@ const commentBtnHTML = (productId, title) => `
 const loadPurchases = async (page = 1) => {
     const container = document.getElementById('compras');
 
-    const res = await fetch(`/api/purchases/me?page=${page}&limit=5`);
+    const res = await fetch(`${window.APP_CONFIG.API_URL}/api/purchases/me?page=${page}&limit=5`);
     const data  = await res.json();
 
     if (!data.success) {
@@ -276,7 +276,7 @@ const changePage = (page) => {
 
 /* ─── ADDRESSES ─────────────────────────────────────── */
 
-const BASE_ADDR = '/api/users/addresses';
+const BASE_ADDR = `${window.APP_CONFIG.API_URL}/api/users/addresses`;
 let editingIndex = null;   // índice dentro del array del usuario
 
 // ── Render ──────────────────────────────────────────
