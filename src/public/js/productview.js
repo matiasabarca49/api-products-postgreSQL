@@ -3,13 +3,19 @@ const render = (product) =>{
     const price = document.getElementById("price")
     const description = document.getElementById("description")
     const stock = document.getElementById("stock")
-    const category = document.getElementById("category")
     const addCart = document.getElementById("addCart")
     title.innerText = product.title
     price.innerText = `$${product.price}`
     description.innerText = product.description
     stock.innerText = `Disponibles: ${product.stock}`
-    category.innerText = product.category
+    //Imagen
+    const srcImg = product.thumbnail || "/img/image.jpg"
+    const contImg = document.getElementById("containerImg")
+    contImg.innerHTML = 
+    `
+    <h4 class="position-absolute text-body-tertiary mt-3 ms-3 p-2 bg-opacity-25 bg-body-tertiary rounded-5 shadow-lg" id="category">${product.category.toUpperCase()}</h4>
+    <img src="${product.thumbnail}" class="product-view-img" alt="${product.title}">
+    `
     addCart.addEventListener('click', () => {
         addToCart(product)})
 

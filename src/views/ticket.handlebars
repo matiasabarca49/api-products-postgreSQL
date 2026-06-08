@@ -1,25 +1,4 @@
-<link rel="stylesheet" href="../../css/style.css">
-<header>
-    <nav class="navbar">
-        <div class="nav-brand">
-          <a class="brand-link" href="/">Tienda</a>
-        </div>
-        <div class="nav-actions">
-            <div class="user-name">{{userLoged.user}}</div>
-            {{#if userLoged.user}}
-                <div>
-                    <a class="btn btn-danger" href="/api/sessions/logout">salir</a> 
-                </div>
-            {{/if}}
-            {{#unless userLoged.user}}
-                <div>
-                    <a class="btn btn-light" href="/users/login">Login</a>
-                </div>
-            {{/unless}}
-        </div>
-    </nav>
-</header>
-<section class="container">
+<main class="container">
     <div class="m-5">
         <h1 class="text-center">Gracias por la compra</h1>
         <div class="m-5" id="infoID">
@@ -37,5 +16,5 @@
             <a  class="btn btn-success" href="/">Seguir Comprando</a>
         </div>
     </div>
-</section>
+</main>
 <script src="../js/ticket.js"></script>

@@ -12,8 +12,17 @@ const renderProducts = (array)=>{
         div.style.maxWidth= "18rem"
         div.innerHTML= 
                     ` 
-                            <div class="card-header">
-                                <p class="card-category">${product.category}</p>
+                            <div class="card-img-container">
+                                <div class="card-header">
+                                    <p class="card-category">${product.category}</p>
+                                </div>
+                                <img 
+                                    class="card-img" 
+                                    src="${product.thumbnail}" 
+                                    alt="${product.title}"
+                                    onerror="this.closest('.card-img-container').classList.add('card-img--error')"
+                                >
+                                <div class="card-img-overlay"></div>
                             </div>
                             <div class="card-body">
                                 <h5 class="card-title">${product.title}</h5>
@@ -21,7 +30,7 @@ const renderProducts = (array)=>{
                             <div class="card-footer"> 
                                 <span class="card-price">$ ${bestSeller.price}</span>
                                 <a class="btn-success" href="${window.APP_CONFIG.URL_FRONTEND}/productview?i=${product.id}&s=${bestSeller.seller_id}">Ver Más</a>
-                            </div>  
+                            </div> 
                     `
         contProducts.appendChild(div)
     });

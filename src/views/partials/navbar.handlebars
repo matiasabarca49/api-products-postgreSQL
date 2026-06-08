@@ -1,0 +1,56 @@
+<nav class="navbar">
+    <div class="nav-brand">
+        <a class="brand-link" href="/">{{navigation.sectionName}}</a>
+    </div>
+    <div class="nav-actions">
+        <div class="user-name">{{userLoged.user}}</div>
+        {{#if userLoged.user}}
+            <div>
+                <a class="btn btn-light" href="/users/profile">Ver Perfil</a>
+            </div>
+
+            <div>
+                <a class="btn btn-danger" href="/api/sessions/logout">salir</a> 
+            </div>
+
+             {{#if permissions.isAdmin}}
+                <div>
+                    <a class="btn icon-btn" href="/admin"><img class="nav-icon" src="/img/configurar.png" alt="home"></a>
+                </div>
+            {{/if}}
+
+            {{#if navigation.isPanel}}
+                <div>
+                    <a class="btn icon-btn" href="/">
+                    <img class="nav-icon" src="/img/store.png" alt="store">
+                    </a>
+                </div>
+            {{/if}}
+            <div>
+                {{#if permissions.canAdminProducts}}
+                    <a class="btn icon-btn" href="/admin/products"><img class="nav-icon" src="/img/upload.png" alt="home"></a>
+                {{/if}}
+                {{#if permissions.canAdminSales}}
+                    <a class="btn icon-btn" href="/admin/sales"><img class="nav-icon" src="/img/sales.png" alt="home"></a>
+                {{/if}}
+            </div>
+    </div>
+    {{#if navigation.showCart}}
+        {{#if permissions.canBuy}}
+            <div class="cart-container">
+                <a href="/pay" class="cart-btn">
+                    <img class="cart-icon" src="/img/cart.png" />
+                    <span class="cart-badge" id="totalCountNav">
+                        
+                    </span>
+                </a>
+            </div>
+        {{/if}}
+    {{/if}}
+        {{/if}}
+        {{#unless userLoged.user}}
+            <div>
+                <a class="btn btn-light" href="/users/login">Iniciar Sesión</a>
+            </div>
+        {{/unless}} 
+</nav>

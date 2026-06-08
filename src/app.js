@@ -66,9 +66,6 @@ app.set('trust proxy', 1);
 const { rateLimitHandler } = require("./middlewares/rateLimiter.middleware.js")
 app.use(rateLimitHandler)
 
-//Inyeccion de variables de entorno para el frontend
-const envFrontHandler = require('./middlewares/envFrontend.middleware.js')
-app.use(envFrontHandler)
 
 /** 
 * Handlebars
@@ -84,6 +81,13 @@ hbs.handlebars.registerHelper('ifCond', function(v1, v2, options) {
     }
     return options.inverse(this);
   });
+
+//Inyeccion de variables de entorno para el frontend
+const {envFrontHandler, confViews} = require('./middlewares/envFrontend.middleware.js')
+app.use(envFrontHandler)
+
+//Config y manejo de Vistas handlebars
+app.use(confViews)
 
 /**
  * API Doc
